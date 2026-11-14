@@ -1,6 +1,5 @@
 /* ==========================================================================
    Enka.Network UID Showcase Sync, Language Switcher & Collapsible Drawers
-   Obsidian & Burnished Champagne · Specular Neutral Hairlines · Zero-Purple
    ========================================================================== */
 
 .lang-switch {
@@ -9,21 +8,21 @@
   gap: 2px;
   padding: 2px;
   border-radius: var(--radius-sm);
-  background: var(--content);
+  background: var(--well);
   border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-well);
 }
 
 .lang-btn {
-  appearance: none;
   border: none;
   background: transparent;
   color: var(--muted-foreground);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 4px 9px;
+  padding: 4px 8px;
   border-radius: 6px;
   cursor: pointer;
-  transition: color 0.14s ease, background-color 0.14s ease;
+  transition: color 0.14s ease, background 0.14s ease;
 }
 
 .lang-btn:hover {
@@ -33,14 +32,16 @@
 .lang-btn.active {
   background: var(--card-elev);
   color: var(--primary);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 .physics-drawer {
   margin-top: 12px;
   border-radius: var(--radius);
-  background: var(--content);
+  background-color: var(--card);
+  background-image: var(--surface-sheen);
   border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -53,11 +54,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  padding: 11px 15px;
+  padding: 12px 16px;
   font-size: 13px;
   font-weight: 700;
   color: var(--foreground);
-  transition: background-color 0.14s ease;
+  transition: background 0.14s ease;
 }
 
 .physics-drawer > summary:hover {
@@ -81,12 +82,8 @@
 }
 
 .physics-drawer-body {
-  padding: 12px 15px 15px;
-  border-top: 1px solid var(--card-border);
-}
-
-.enka-sec {
-  border-color: var(--border);
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--hairline);
 }
 
 .enka-toolbar {
@@ -94,16 +91,18 @@
   flex-wrap: wrap;
   gap: 10px;
   align-items: flex-end;
-  padding: 12px 14px;
-  background: var(--content);
+  padding: 14px 16px;
+  background-color: var(--card);
+  background-image: var(--surface-sheen);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  margin-bottom: 10px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 12px;
 }
 
 .enka-uid-field {
-  min-width: 200px;
-  flex: 0 1 240px;
+  min-width: 210px;
+  flex: 0 1 250px;
 }
 
 .enka-status-bar {
@@ -112,38 +111,40 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding: 9px 13px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
-  background: var(--content);
+  background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .enka-vault-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
 }
 
 .enka-agent-card {
-  background-color: var(--content);
+  background-color: var(--card);
   background-image: var(--surface-sheen);
   border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .enka-agent-card:hover {
   border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .enka-agent-card.in-active-team {
-  border-color: var(--border-strong);
+  border-color: var(--primary);
   background-color: var(--card-elev);
   background-image: var(--active-wash);
 }
@@ -170,19 +171,19 @@
 }
 
 .enka-disc-mini {
-  background: var(--card);
+  background: var(--well);
   border: 1px solid var(--card-border);
   border-radius: 6px;
   padding: 5px 4px;
   text-align: center;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.3;
   font-variant-numeric: tabular-nums;
 }
 
 .enka-disc-mini strong {
   display: block;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -195,11 +196,10 @@
   gap: 6px;
   align-items: center;
   margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid var(--card-border);
+  padding-top: 9px;
+  border-top: 1px solid var(--hairline);
 }
 
-/* Curated Mineral Grade Tiers (Champagne / Glacier / Celadon / Sage / Slate) */
 .grade-badge {
   display: inline-flex;
   align-items: center;
@@ -208,7 +208,7 @@
   border-radius: 5px;
   font-size: 11.5px;
   font-weight: 800;
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.02em;
   border: 1px solid var(--card-border);
 }
@@ -217,22 +217,18 @@
   background: var(--primary-soft);
   color: var(--primary);
 }
-
 .grade-SSS {
   background: var(--info-soft);
   color: var(--info);
 }
-
 .grade-SS {
   background: var(--accent-soft);
   color: var(--accent);
 }
-
 .grade-S {
   background: var(--success-soft);
   color: var(--success);
 }
-
 .grade-A, .grade-B {
   background: var(--secondary);
   color: var(--muted-foreground);
@@ -240,18 +236,18 @@
 
 .enka-json-box {
   margin-top: 8px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: var(--radius);
-  background: var(--content);
+  background: var(--card);
   border: 1px solid var(--card-border);
 }
 
 .enka-json-box textarea {
   width: 100%;
   min-height: 92px;
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
-  background: var(--background);
+  background: var(--well);
   color: var(--foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);

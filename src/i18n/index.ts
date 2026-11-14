@@ -15,6 +15,10 @@ const EXACT_PHRASES: Record<string, LangPair> = {
     en: "ZZZ v3.3 Tactical Team & Swap Studio",
     ja: "ゼンレスゾーンゼロ v3.3 戦術編成・合軸精算スタジオ"
   },
+  "绝区零战术配队与合轴精算台": {
+    en: "ZZZ Tactical Squad & Swap Studio",
+    ja: "ゼンレス 戦術編成・合軸精算スタジオ"
+  },
   "62 代理人 · 103 音擎 · 31 驱动盘 · 支持 UID 展柜同步、Worker 盘库寻优与可视化多轨合轴": {
     en: "62 Agents · 103 W-Engines · 31 Drive Sets · Enka UID Sync, Worker Optimizer & Multi-Track Swap Sequencer",
     ja: "62エージェント・103音動機・31ドライバディスク · UID同期・Worker最適化・マルチトラック合軸対応"
@@ -39,6 +43,74 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "导出全盘配置 JSON": { en: "Export Workspace JSON", ja: "設定JSONをエクスポート" },
   "导入配置 JSON": { en: "Import Workspace JSON", ja: "設定JSONをインポート" },
   "重置全部默认参数": { en: "Reset All to Defaults", ja: "すべて初期値にリセット" },
+
+  // Telemetry Stage & Snapshot Bank
+  "合轴压帧后真实每秒伤害 (DPS)": {
+    en: "Swap-Compressed True Damage Per Second (DPS)",
+    ja: "合軸フレーム短縮後の実質秒間ダメージ (DPS)"
+  },
+  "单轮完整爆发总伤害 (DPR)": {
+    en: "Full Single-Rotation Burst Damage (DPR)",
+    ja: "1ローテーション完全バースト総ダメージ (DPR)"
+  },
+  "每秒 DPS": { en: "True DPS", ja: "秒間 DPS" },
+  "单轮 DPR": { en: "Cycle DPR", ja: "総傷 DPR" },
+  "单轮总伤 DPR": { en: "Rotation DPR", ja: "1ローテ DPR" },
+  "真实每秒 DPS": { en: "True DPS", ja: "実質秒間 DPS" },
+  "合轴实轴周期": { en: "Compressed Cycle", ja: "合軸ローテ周期" },
+  "危局3分钟预估": { en: "3m Deadly Assault", ja: "危局3分間予測" },
+  "暂无上阵代理人": { en: "No Active Agents", ja: "編成キャラなし" },
+  "切换编队 / 搜队 ▾": { en: "Switch Squad / Box Finder ▾", ja: "編成切替 / Box検索 ▾" },
+  "当前未上阵角色": { en: "No Agents Deployed", ja: "エージェント未編成" },
+  "方案横评记忆槽 (点击空槽存档 · 点击已存槽回档对比)": {
+    en: "Build Memory Bank (Click empty slot to save · Click saved slot to restore & compare)",
+    ja: "編成メモリバンク (空き枠で保存・保存枠クリックで復元比較)"
+  },
+  "点击存入当前配装": { en: "Save Current Build", ja: "現在の編成を保存" },
+  "热门速切编队": { en: "Quick Meta Squads", ja: "定番クイック編成" },
+  "自由选人 / Box智能搜队 ▸": { en: "Free Roster / Smart Box Finder ▸", ja: "自由選択 / 所持Box検索 ▸" },
+
+  // Operator Channel Strips
+  "4号位邦布": { en: "Slot 4 Bangboo", ja: "4番枠ボンプ" },
+  "精改邦布": { en: "Edit Bangboo", ja: "ボンプ編集" },
+  "01 // 主力核心输出": { en: "01 // Main Carry", ja: "01 // メインアタッカー" },
+  "02 // 副C · 击破 · 支援拐": { en: "02 // Sub-DPS · Stun · Support", ja: "02 // サブ火力・撃破・支援" },
+  "03 // 副C · 击破 · 支援拐": { en: "03 // Sub-DPS · Stun · Support", ja: "03 // サブ火力・撃破・支援" },
+  "当前空置": { en: "Empty Slot", ja: "空きスロット" },
+  "选择上阵代理人": { en: "Select Agent", ja: "エージェント選択" },
+  "-- 点击选择角色上阵 --": { en: "-- Select Agent to Deploy --", ja: "-- キャラを選択して編成 --" },
+  "UID实盘": { en: "UID Live", ja: "UID実装備" },
+  "● 额外能力激活": { en: "● Core Passive ON", ja: "● 追加能力発動" },
+  "○ 额外能力未满": { en: "○ Core Passive OFF", ja: "○ 追加能力未発動" },
+  "展柜实盘": { en: "Use Showcase", ja: "実データ適用" },
+  "盘库寻优": { en: "Pool Opt", ja: "プール最適" },
+  "工坊": { en: "Edit", ja: "工房" },
+  "局内贯穿": { en: "Combat Sheer", ja: "戦闘中貫通力" },
+  "局内防御": { en: "Combat DEF", ja: "戦闘中防御力" },
+  "局内攻击": { en: "Combat ATK", ja: "戦闘中攻撃力" },
+  "精通 / 掌控": { en: "AP / AM", ja: "精通 / 掌握" },
+  "局内双暴": { en: "Combat CRIT", ja: "戦闘中会心" },
+  "期望贡献": { en: "Weighted Out", ja: "期待貢献値" },
+  "全队占比": { en: "Squad Share", ja: "チーム比率" },
+  "更换角色": { en: "Switch Agent", ja: "キャラ変更" },
+  "影画阶数 (M0~M6)": { en: "Mindscape (M0–M6)", ja: "心象映画 (M0〜M6)" },
+  "装备音擎": { en: "W-Engine", ja: "装備音動機" },
+  "精改音擎": { en: "Edit W-Engine", ja: "音動機編集" },
+  "音擎精炼": { en: "Overclock", ja: "音動機凸数" },
+  "4件套驱动盘": { en: "4-Piece Drive Set", ja: "4セットディスク" },
+  "2件套驱动盘": { en: "2-Piece Drive Set", ja: "2セットディスク" },
+  "自动毕业寻优": { en: "Auto Roll BiS", ja: "自動最適配分" },
+  "1-6号逐盘精调": { en: "Slot 1–6 Discs", ja: "1〜6番個別編集" },
+  "局外面板直填": { en: "Direct Stats", ja: "ステ直接入力" },
+  "自动寻优[4][5][6]主词条": { en: "Auto-Optimize [4][5][6] Mains", ja: "[4][5][6]メイン自動最適" },
+  "自动配平": { en: "Auto Substats", ja: "サブ自動配分" },
+  "重置6盘": { en: "Reset 6", ja: "6枚初期化" },
+  "同步自动初值": { en: "Sync Auto Stats", ja: "自動値を同期" },
+  "展开高阶调参 (等级/核心技/动作占比/覆盖率/额外Buff注入)": {
+    en: "Advanced Tuning (Levels / Core / Action Shares / Uptime / Extra Buffs)",
+    ja: "詳細パラメータ調整 (Lv/コア/技比率/稼働率/追加バフ)"
+  },
+  "点击上阵 ↗": { en: "Deploy ↗", ja: "編成する ↗" },
 
   // Studio Navigation Tabs
   "编队与配装": { en: "Squad & Builds", ja: "編成・ビルド" },
@@ -161,6 +233,9 @@ const RAW_TOKENS: Array<[string, string, string]> = [
   ["不携带邦布 (纯3人基准)", "No Bangboo (3-Agent Baseline)", "ボンプなし (3人のみ基準)"],
   ["额外能力全激活", "All Core Passives Active", "追加能力 すべて発動"],
   ["额外能力未满", "Core Passive Inactive", "追加能力 未発動あり"],
+  ["有效副词条预算:", "Substat Budget:", "有効サブステ予算:"],
+  ["最优解:", "Optimal:", "最適解:"],
+  ["分配:", "Substats:", "配分:"],
   ["循环充沛", "Assist OK", "支援Pt十分"],
   ["透支警告", "Assist Deficit", "支援Pt不足"],
   ["无敌帧安全脱手", "i-Frame Safe Swap", "無敵フレーム安全離脱"],
@@ -363,12 +438,38 @@ const RAW_TOKENS: Array<[string, string, string]> = [
   ["影画", "Mindscape", "心象映画"],
   ["驱动盘", "Drive Disc", "ディスク"],
   ["邦布", "Bangboo", "ボンプ"],
+  ["攻击力%", "ATK%", "攻撃力%"],
+  ["生命值%", "HP%", "HP%"],
+  ["防御力%", "DEF%", "防御力%"],
+  ["小攻击", "Flat ATK", "実数攻撃"],
+  ["小生命", "Flat HP", "実数HP"],
+  ["小防御", "Flat DEF", "実数防御"],
+  ["属伤加成%", "ELEM DMG%", "属性ダメ%"],
+  ["局外生命", "Sheet HP", "ステータスHP"],
+  ["局外攻击", "Sheet ATK", "ステータス攻撃"],
+  ["局外防御", "Sheet DEF", "ステータス防御"],
+  ["属伤%", "ELEM%", "属性%"],
+  ["攻击%", "ATK%", "攻撃%"],
+  ["生命%", "HP%", "HP%"],
+  ["防御%", "DEF%", "防御%"],
+  ["穿透%", "PEN%", "貫通%"],
+  ["掌控%", "AM%", "掌握%"],
+  ["回能%", "ER%", "回復%"],
+  ["暴击%", "CR%", "会心%"],
+  ["暴伤%", "CD%", "会心ダメ%"],
   ["暴击", "CRIT", "会心率"],
   ["暴伤", "CDMG", "会心ダメ"],
-  ["精通", "AP", "異常マスタリー"],
+  ["精通", "AP", "精通"],
   ["穿透", "PEN", "貫通"],
-  ["冲击", "Impact", "衝撃力"],
-  ["回能", "ER", "回復"]
+  ["冲击", "IMP", "衝撃力"],
+  ["回能", "ER", "回復"],
+  ["生命", "HP", "HP"],
+  ["攻击", "ATK", "攻撃"],
+  ["防御", "DEF", "防御"],
+  ["火", "Fire", "炎"],
+  ["冰", "Ice", "氷"],
+  ["电", "Electric", "電気"],
+  ["风", "Wind", "風"]
 ];
 
 const SORTED_TOKENS = [...RAW_TOKENS].sort((a, b) => b[0].length - a[0].length);
@@ -440,17 +541,59 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
     lang === "en" ? `TS Sim: ${t} ms` : `TS演算: ${t} ms`
   );
 
-  // Pattern: (+ 记录至方案 A) / 方案A:
+  // Pattern: 展开全部配队与选人 (24队 / 62人) ▼
+  s = s.replace(/展开全部配队与选人\s*\((\d+)队\s*\/\s*(\d+)人\)\s*▼/g, (_m, pCount, cCount) =>
+    lang === "en"
+      ? `Expand Presets & Roster (${pCount} Teams / ${cCount} Agents) ▼`
+      : `全プリセット・キャラ展開 (${pCount}編成 / ${cCount}名) ▼`
+  );
+
+  // Pattern: Telemetry & badges
+  s = s.replace(/(\d+)\s*限定金/g, (_m, g) =>
+    lang === "en" ? `${g} Lim. Gold` : `限定${g}金`
+  );
+  s = s.replace(/额外能力\s*(\d+)\/(\d+)\s*激活/g, (_m, a, b) =>
+    lang === "en" ? `Core Passive ${a}/${b} ON` : `追加能力 ${a}/${b} 発動`
+  );
+  s = s.replace(/额外能力\s*(\d+)\/(\d+)\s*未满/g, (_m, a, b) =>
+    lang === "en" ? `Core Passive ${a}/${b} Warn` : `追加能力 ${a}/${b} 未満`
+  );
+  s = s.replace(/较单人放大\s*([\d.]+)×/g, (_m, p) =>
+    lang === "en" ? `Team Mult ${p}×` : `ソロ比 ${p}×`
+  );
+  s = s.replace(/省帧\s*-([\d.]+)s/g, (_m, t) =>
+    lang === "en" ? `Saved -${t}s` : `短縮 -${t}s`
+  );
+  s = s.replace(/约\s*([\d.]+)\s*轮循环/g, (_m, n) =>
+    lang === "en" ? `~${n} Rotations` : `約 ${n} ローテ`
+  );
+  s = s.replace(/计入直伤\s*\(\+([^)]+)\)/g, (_m, dmg) =>
+    lang === "en" ? `Include DMG (+${dmg})` : `直撃加算 (+${dmg})`
+  );
+  s = s.replace(/盘池寻优\((\d+)\)/g, (_m, cnt) =>
+    lang === "en" ? `Pool Opt (${cnt})` : `プール最適(${cnt})`
+  );
+  s = s.replace(/影画\s*M0\s*\(本体\)/g, () =>
+    lang === "en" ? `M0 (Base)` : `M0 (無凸)`
+  );
+  s = s.replace(/影画\s*M([1-6])/g, (_m, m) =>
+    lang === "en" ? `Mindscape M${m}` : `心象映画 M${m}`
+  );
+  s = s.replace(/R([1-5])星/g, (_m, r) =>
+    lang === "en" ? `W${r}` : `R${r}`
+  );
+
+  // Pattern: (+ 记录至方案 A) / 方案A: / 当前 +4.5%
   s = s.replace(/\[\+\s*记录至方案\s*([A-D])\]/g, (_m, lb) =>
     lang === "en" ? `[+ Save Slot ${lb}]` : `[+ 案${lb}に保存]`
   );
   s = s.replace(/方案([A-D]):/g, (_m, lb) =>
     lang === "en" ? `Snap ${lb}:` : `案${lb}:`
   );
-  s = s.replace(/当前高\s*\+([\d.]+)%/g, (_m, p) =>
+  s = s.replace(/当前高?\s*\+([\d.]+)%/g, (_m, p) =>
     lang === "en" ? `+${p}% vs Snap` : `現在 +${p}%`
   );
-  s = s.replace(/当前低\s*([-\d.]+)%/g, (_m, p) =>
+  s = s.replace(/当前低?\s*(-[\d.]+)%/g, (_m, p) =>
     lang === "en" ? `${p}% vs Snap` : `現在 ${p}%`
   );
 
@@ -468,10 +611,11 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
   s = s.replace(/([1-4])号位/g, (_m, n) => (lang === "en" ? `Slot ${n}` : `${n}番枠`));
   s = s.replace(/([1-4])号\s*·/g, (_m, n) => (lang === "en" ? `#${n} ·` : `${n}番 ·`));
 
-  // Pattern: 有效 31.5 词
+  // Pattern: 有效 31.5 词 / 词条
   s = s.replace(/有效\s*([\d.]+)\s*词/g, (_m, n) =>
     lang === "en" ? `${n} Eff. Rolls` : `有効 ${n} スコア`
   );
+  s = s.replace(/词条/g, () => (lang === "en" ? "rolls" : "スコア"));
 
   // Pattern: 13.9万 -> 139.0k / 1.39M in English (keep 万 in Japanese!)
   if (lang === "en") {

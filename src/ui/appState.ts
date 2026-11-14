@@ -140,7 +140,7 @@ export function makeInitialState(): WorkbenchAppState {
     lang: "zh",
     theme: "dark",
     studioView: "build",
-    pickerCollapsed: false,
+    pickerCollapsed: true,
     enkaPanelOpen: false,
     pickerTab: "presets",
     presetCat: "ALL",

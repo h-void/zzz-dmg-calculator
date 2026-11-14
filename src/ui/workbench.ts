@@ -120,6 +120,7 @@ export function refreshAllUI() {
   renderSnapshotBar(appStore.lastSimResult);
   renderStudioNavBar(appStore.lastSimResult);
   renderEnkaPanel();
+  renderQuickPresetRibbon();
   renderSection01Picker();
   renderSection02KPIsAndDiag(appStore.lastSimResult);
   renderSection03SlotCards(appStore.lastSimResult);
@@ -150,17 +151,14 @@ function applyStudioVisibility() {
   }
   const collapseBtn = document.getElementById("togglePickerCollapseBtn");
   if (collapseBtn) {
-    collapseBtn.textContent = appStore.state.pickerCollapsed ? "展开选人台 ▼" : "收起选人台 ▲";
+    collapseBtn.textContent = appStore.state.pickerCollapsed
+      ? `展开全部配队与选人 (${PRESET_TEAMS.length}队 / ${SC_CHARS.length}人) ▼`
+      : "收起选人台 ▲";
+    collapseBtn.className = appStore.state.pickerCollapsed ? "btn btn-tonal" : "btn";
   }
 }
 
 function renderTopBarState() {
-  const mBtn = document.getElementById("metricModeBtn");
-  if (mBtn) {
-    const isDps = appStore.state.env.metricMode !== "dpr";
-    mBtn.textContent = isDps ? "口径: 每秒 DPS" : "口径: 单轮 DPR";
-    mBtn.className = isDps ? "btn btn-primary" : "btn";
-  }
   const modTotal =
     Object.keys(customDB.chars).length +
     Object.keys(customDB.weps).length +
@@ -175,71 +173,99 @@ function renderTopBarState() {
 function renderLiveTelemetryBar(sim: any) {
   const el = document.getElementById("liveTelemetryBar");
   if (!el) return;
-  const active = getActiveMembersForUI();
   const isDps = appStore.state.env.metricMode !== "dpr";
-  const bb = BANGBOO_MAP[appStore.state.env.bangbooId];
   const aaAllOk = sim.activeCount > 0 && sim.aaLitCount === sim.activeCount;
+  const limGold = calcLimitedGold(appStore.state.slots, CHAR_MAP, SC_WEPS);
+  const qa = sim.qaSwap;
+  const bbShare = sim.baseWeightedSum > 0 ? sim.bangbooDmg / sim.baseWeightedSum : 0;
+
+  const heroVal = isDps ? fmtNum(sim.teamActualDps) : fmtWan(sim.teamDpr);
+  const heroUnit = isDps ? "/ SEC" : "/ ROT";
+  const heroCaption = isDps ? "合轴压帧后真实每秒伤害 (DPS)" : "单轮完整爆发总伤害 (DPR)";
 
   el.innerHTML = `
-    <div class="telemetry-strip">
-      <div class="telemetry-squad">
-        ${
-          active.length > 0
-            ? active
-                .map((m) => {
-                  const w = SC_WEPS[m.cfg.wid];
-                  const ref = m.cfg.ref ?? 1;
-                  return `
-                    <span class="squad-pill" data-hud-jump="build" style="cursor:pointer;" title="点击跳转至配装台">
-                      <span class="elem-dot elem-${m.ch.eb}"></span>
-                      <span>${escHtml(m.ch.n)}</span>
-                      <span class="squad-meta mono">M${m.m}${w ? `R${ref}` : ""}</span>
-                    </span>
-                  `;
-                })
-                .join("")
-            : `<span class="muted">暂无上阵代理人</span>`
-        }
-        ${
-          bb && bb.id !== "none"
-            ? `<span class="squad-pill"><span class="squad-meta">邦布</span><span>${escHtml(bb.n)}</span></span>`
-            : ""
-        }
+    <div class="tele-top-row">
+      <div class="tele-eyebrow">
+        <span>BALLISTIC TELEMETRY</span>
+        <div class="metric-switch" role="group" aria-label="主口径切换">
+          <button type="button" class="metric-switch-btn ${isDps ? "active" : ""}" data-set-metric="dps">每秒 DPS</button>
+          <button type="button" class="metric-switch-btn ${!isDps ? "active" : ""}" data-set-metric="dpr">单轮 DPR</button>
+        </div>
       </div>
-
-      <div class="telemetry-kpis">
-        <div class="tele-kpi ${isDps ? "highlight" : ""}">
-          <span class="tele-label">真实DPS</span>
-          <span class="tele-val">${fmtNum(sim.teamActualDps)}</span>
-        </div>
-        <span class="tele-sep"></span>
-        <div class="tele-kpi ${!isDps ? "highlight" : ""}">
-          <span class="tele-label">单轮DPR</span>
-          <span class="tele-val">${fmtWan(sim.teamDpr)}</span>
-        </div>
-        <span class="tele-sep"></span>
-        <div class="tele-kpi">
-          <span class="tele-label">实轴</span>
-          <span class="tele-val">${(sim.cycleSec || 0).toFixed(2)}s</span>
-        </div>
-        <span class="tele-sep"></span>
-        <div class="tele-kpi">
-          <span class="tele-label">危局3分钟</span>
-          <span class="tele-val">${fmtWan(sim.da3MinTotal)}</span>
-        </div>
+      <div class="row" style="gap:6px;">
+        <span class="badge b-info mono">${limGold} 限定金</span>
         ${
           sim.activeCount > 0
-            ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? "额外能力全激活" : "额外能力未满"}</span>`
+            ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? `额外能力 ${sim.aaLitCount}/${sim.activeCount} 激活` : `额外能力 ${sim.aaLitCount}/${sim.activeCount} 未满`}</span>`
             : ""
         }
       </div>
     </div>
+
+    <div class="tele-readout-grid">
+      <div class="tele-hero-metric">
+        <span class="tele-hero-caption">${heroCaption}</span>
+        <div class="tele-hero-number">
+          <span>${heroVal}</span>
+          <span class="tele-hero-unit">${heroUnit}</span>
+        </div>
+      </div>
+
+      <div class="tele-sub-metrics">
+        <div class="tele-stat-cell">
+          <span class="tele-stat-label">${isDps ? "单轮总伤 DPR" : "真实每秒 DPS"}</span>
+          <span class="tele-stat-val">${isDps ? fmtWan(sim.teamDpr) : fmtNum(sim.teamActualDps)}</span>
+          <span class="tele-stat-note">较单人放大 ${(sim.teamVsSolo || 1).toFixed(2)}×</span>
+        </div>
+        <div class="tele-stat-cell">
+          <span class="tele-stat-label">合轴实轴周期</span>
+          <span class="tele-stat-val">${(sim.cycleSec || 0).toFixed(2)}s</span>
+          <span class="tele-stat-note">省帧 -${(qa?.savedOverlapSec || 0).toFixed(1)}s</span>
+        </div>
+        <div class="tele-stat-cell">
+          <span class="tele-stat-label">危局3分钟预估</span>
+          <span class="tele-stat-val">${fmtWan(sim.da3MinTotal)}</span>
+          <span class="tele-stat-note">约 ${Math.max(1, (180 / Math.max(6, sim.cycleSec || 18))).toFixed(1)} 轮循环</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tele-share-footer">
+      <div class="share-bar">
+        ${(sim.slotResults || [])
+          .map(
+            (r: any, i: number) =>
+              `<div style="width:${(r.dpsShare * 100).toFixed(1)}%;background:${CHART_COLORS[i]};" title="${escHtml(r.ch.n)}: ${(r.dpsShare * 100).toFixed(1)}%"></div>`
+          )
+          .join("")}
+        ${bbShare > 0.002 ? `<div style="width:${(bbShare * 100).toFixed(1)}%;background:var(--chart-5);" title="邦布: ${(bbShare * 100).toFixed(1)}%"></div>` : ""}
+      </div>
+      <div class="tele-share-legend">
+        <div class="row" style="gap:12px;">
+          ${
+            (sim.slotResults || []).length > 0
+              ? sim.slotResults
+                  .map(
+                    (r: any, i: number) =>
+                      `<span><i class="legend-dot" style="background:${CHART_COLORS[i]};"></i> <strong>${escHtml(r.ch.n)}</strong> <span class="mono">${(r.dpsShare * 100).toFixed(1)}%</span></span>`
+                  )
+                  .join("")
+              : `<span>暂无上阵代理人</span>`
+          }
+          ${bbShare > 0.002 ? `<span>邦布 <span class="mono">${(bbShare * 100).toFixed(1)}%</span></span>` : ""}
+        </div>
+        <span class="mono">${SWAP_PRESETS[appStore.state.env.swapConfig?.preset]?.name || "自定义合轴"}</span>
+      </div>
+    </div>
   `;
 
-  el.querySelectorAll<HTMLElement>("[data-hud-jump]").forEach((pill) => {
-    pill.addEventListener("click", () => {
-      appStore.state.studioView = "build";
-      refreshAllUI();
+  el.querySelectorAll<HTMLButtonElement>("[data-set-metric]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.dataset.setMetric === "dpr" ? "dpr" : "dps";
+      if (appStore.state.env.metricMode !== next) {
+        appStore.state.env.metricMode = next;
+        refreshAllUI();
+      }
     });
   });
 }
@@ -251,11 +277,11 @@ function renderStudioNavBar(sim: any) {
   const vaultCount = Object.keys(enkaVault.agents || {}).length;
   const aaWarn = sim.activeCount > 0 && sim.aaLitCount < sim.activeCount ? 1 : 0;
 
-  const tabs: Array<{ id: StudioViewTab; label: string; count?: string }> = [
+  const tabs: Array<{ id: StudioViewTab; label: string; count?: string; warn?: boolean }> = [
     { id: "build", label: "编队与配装", count: `${sim.activeCount || 0}/3` },
     { id: "enka", label: "UID 展柜", count: vaultCount > 0 ? `${vaultCount}` : "Sync" },
     { id: "timeline", label: "合轴与排轴器", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
-    { id: "diag", label: "乘区与体检", count: aaWarn ? "!" : "6x" },
+    { id: "diag", label: "乘区与体检", count: aaWarn ? "!" : "6x", warn: Boolean(aaWarn) },
     { id: "eval", label: "专武 · 影画 · ROI" },
     { id: "env", label: "首领环境" }
   ];
@@ -266,7 +292,7 @@ function renderStudioNavBar(sim: any) {
         (t) => `
       <button type="button" class="studio-tab ${cur === t.id ? "active" : ""}" data-studio-tab="${t.id}">
         <span>${t.label}</span>
-        ${t.count ? `<span class="tab-count">${t.count}</span>` : ""}
+        ${t.count ? `<span class="tab-count ${t.warn ? "warn" : ""}">${t.count}</span>` : ""}
       </button>
     `
       )
@@ -290,49 +316,108 @@ function renderStudioNavBar(sim: any) {
 }
 
 // ============================================================================
-// Snapshot Comparison Bar (A / B / C / D)
+// Active Lineup Deck & 4-Track Tape Snapshot Memory Bank (A / B / C / D)
 // ============================================================================
 function renderSnapshotBar(sim: any) {
   const el = document.getElementById("snapshotBar");
   if (!el) return;
+  const active = getActiveMembersForUI();
+  const bb = BANGBOO_MAP[appStore.state.env.bangbooId];
   const labels = ["A", "B", "C", "D"];
   const curVal = sim.teamDps || 0;
 
   el.innerHTML = `
-    <div class="snap-strip">
-      <span class="snap-label">方案快照横评 (点击空位记录当前配装与合轴，点击已存方案一键回档对比)：</span>
-      <div class="snap-items">
-        ${labels
-          .map((lb, idx) => {
-            const sn = appStore.state.snapshots[idx];
-            if (!sn) {
-              return `<button class="snap-card empty" data-snap-save="${idx}">[+ 记录至方案 ${lb}]</button>`;
-            }
-            const refVal =
-              appStore.state.env.metricMode === "dpr"
-                ? sn.baseWeightedSum || sn.teamDps
-                : sn.teamActualDps || sn.teamDps;
-            const diff = refVal > 0 ? curVal / refVal - 1 : 0;
-            const diffStr =
-              diff >= 0
-                ? `当前高 +${(diff * 100).toFixed(1)}%`
-                : `当前低 ${(diff * 100).toFixed(1)}%`;
-            const diffCls = diff >= 0.002 ? "pos" : diff <= -0.002 ? "neg" : "";
+    <div class="memory-head">
+      <span class="tele-eyebrow">ACTIVE SQUAD &amp; SNAPSHOT BANK</span>
+      <button type="button" class="btn btn-xs btn-ghost" id="hudOpenRosterBtn">切换编队 / 搜队 ▾</button>
+    </div>
+
+    <div class="telemetry-squad">
+      ${
+        active.length > 0
+          ? active
+              .map((m) => {
+                const w = SC_WEPS[m.cfg.wid];
+                const ref = m.cfg.ref ?? 1;
+                return `
+                  <span class="squad-pill" data-hud-jump="build" title="点击定位配装台">
+                    <span class="elem-dot elem-${m.ch.eb}"></span>
+                    <span>${escHtml(m.ch.n)}</span>
+                    <span class="squad-meta mono">M${m.m}${w ? `R${ref}` : ""}</span>
+                  </span>
+                `;
+              })
+              .join("")
+          : `<span class="muted">当前未上阵角色</span>`
+      }
+      ${
+        bb && bb.id !== "none"
+          ? `<span class="squad-pill"><span class="squad-meta">邦布</span><span>${escHtml(bb.n)}</span></span>`
+          : ""
+      }
+    </div>
+
+    <div class="snap-bank-header">
+      <span>方案横评记忆槽 (点击空槽存档 · 点击已存槽回档对比)</span>
+    </div>
+    <div class="snap-grid">
+      ${labels
+        .map((lb, idx) => {
+          const sn = appStore.state.snapshots[idx];
+          if (!sn) {
             return `
-              <div class="snap-card filled">
-                <div class="snap-main" data-snap-load="${idx}" title="点击回档此快照">
-                  <strong>方案${lb}: ${escHtml(sn.title)}</strong>
-                  <span class="mono">DPS ${fmtNum(sn.teamActualDps)} · DPR ${fmtWan(sn.teamDpr)} (${sn.cycleSec.toFixed(1)}s)</span>
+              <button type="button" class="snap-card empty" data-snap-save="${idx}">
+                <span class="row" style="gap:7px;"><span class="snap-slot-key">${lb}</span><span>点击存入当前配装</span></span>
+                <span class="mono">+</span>
+              </button>
+            `;
+          }
+          const refVal =
+            appStore.state.env.metricMode === "dpr"
+              ? sn.baseWeightedSum || sn.teamDps
+              : sn.teamActualDps || sn.teamDps;
+          const diff = refVal > 0 ? curVal / refVal - 1 : 0;
+          const diffStr =
+            diff >= 0
+              ? `当前 +${(diff * 100).toFixed(1)}%`
+              : `当前 ${(diff * 100).toFixed(1)}%`;
+          const diffCls = diff >= 0.002 ? "pos" : diff <= -0.002 ? "neg" : "";
+          return `
+            <div class="snap-card filled">
+              <div class="snap-main" data-snap-load="${idx}" title="点击回档此快照">
+                <div class="snap-title-row">
+                  <span class="snap-slot-key">${lb}</span>
+                  <span class="snap-title-txt">${escHtml(sn.title)}</span>
+                </div>
+                <div class="snap-sub-row mono">
+                  <span>${fmtNum(sn.teamActualDps)}/s · ${fmtWan(sn.teamDpr)}</span>
                   <span class="snap-diff ${diffCls}">${diffStr}</span>
                 </div>
-                <button class="snap-del" data-snap-clear="${idx}" title="清除快照">×</button>
               </div>
-            `;
-          })
-          .join("")}
-      </div>
+              <button type="button" class="snap-del" data-snap-clear="${idx}" title="清除快照">×</button>
+            </div>
+          `;
+        })
+        .join("")}
     </div>
   `;
+
+  el.querySelector("#hudOpenRosterBtn")?.addEventListener("click", () => {
+    appStore.state.studioView = "build";
+    appStore.state.pickerCollapsed = !appStore.state.pickerCollapsed;
+    refreshAllUI();
+    if (!appStore.state.pickerCollapsed) {
+      document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  el.querySelectorAll<HTMLElement>("[data-hud-jump]").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      appStore.state.studioView = "build";
+      refreshAllUI();
+      document.getElementById("sec03")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 
   el.querySelectorAll<any>("[data-snap-save]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -383,6 +468,58 @@ function renderSnapshotBar(sim: any) {
 }
 
 // ============================================================================
+// Quick Formula Ribbon (1-Click Meta Squad Switcher Above the Fold)
+// ============================================================================
+function renderQuickPresetRibbon() {
+  const ribbon = document.getElementById("quickPresetRibbon");
+  if (!ribbon) return;
+
+  if (!appStore.state.pickerCollapsed) {
+    ribbon.innerHTML = "";
+    ribbon.hidden = true;
+    return;
+  }
+  ribbon.hidden = false;
+
+  const curIds = appStore.state.slots.map((s) => s?.cid || "").join("-");
+  const featured = PRESET_TEAMS.slice(0, 9);
+
+  ribbon.innerHTML = `
+    <div class="quick-preset-bar">
+      <span class="quick-preset-label">热门速切编队</span>
+      ${featured
+        .map((p) => {
+          const pIds = (p.slots || []).map((s) => s[0]).join("-");
+          const isCur = pIds === curIds;
+          const leadChar = CHAR_MAP[p.slots?.[0]?.[0] || ""];
+          const shortTitle = p.name.match(/【(.+?)】/)?.[1] || p.name.slice(0, 8);
+          return `
+            <button type="button" class="qp-chip ${isCur ? "active" : ""}" data-quick-preset="${escHtml(p.id)}" title="${escHtml(p.name)}">
+              ${leadChar ? `<span class="elem-dot elem-${leadChar.eb}"></span>` : ""}
+              <span>${escHtml(shortTitle)}</span>
+            </button>
+          `;
+        })
+        .join("")}
+      <button type="button" class="btn btn-xs btn-ghost" id="ribbonOpenManualBtn" style="margin-left:auto;">自由选人 / Box智能搜队 ▸</button>
+    </div>
+  `;
+
+  ribbon.querySelectorAll<HTMLButtonElement>("[data-quick-preset]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const p = PRESET_TEAMS.find((x) => x.id === btn.dataset.quickPreset);
+      if (p) applyPresetTeam(p);
+    });
+  });
+
+  ribbon.querySelector("#ribbonOpenManualBtn")?.addEventListener("click", () => {
+    appStore.state.pickerCollapsed = false;
+    appStore.state.pickerTab = "manual";
+    refreshAllUI();
+  });
+}
+
+// ============================================================================
 // Section 01: Team Builder, Universal Shells, Box Finder & Mechanics Guide
 // ============================================================================
 function renderSection01Picker() {
@@ -403,17 +540,25 @@ function renderSection01Picker() {
     const curIds = appStore.state.slots.map(s => s?.cid || "").join("-");
 
     inner = `
-      <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px;gap:8px;">
         <div class="pill-bar">
-          ${cats.map(c => `<button class="pill ${appStore.state.presetCat === c ? "active" : ""}" data-pcat="${escHtml(c)}">${c === "ALL" ? "全部流派" : escHtml(c)}</button>`).join("")}
+          ${cats.map(c => `<button type="button" class="pill ${appStore.state.presetCat === c ? "active" : ""}" data-pcat="${escHtml(c)}">${c === "ALL" ? "全部流派" : escHtml(c)}</button>`).join("")}
         </div>
-        <button class="btn btn-primary" id="quickSavePresetBtn">+ 将当前编队存为自定义公式队</button>
+        <button type="button" class="btn btn-primary" id="quickSavePresetBtn">+ 将当前编队存为自定义公式队</button>
       </div>
       <div class="preset-grid">
         ${list.map(p => {
           const pIds = (p.slots || []).map(s => s[0]).join("-");
           const activeCls = pIds === curIds ? "active" : "";
           const bbName = BANGBOO_MAP[p.bangboo]?.n || "咔嚓仔";
+          const trioHtml = (p.slots || [])
+            .map((s) => {
+              const c = CHAR_MAP[s[0]];
+              return c
+                ? `<span class="preset-member-chip"><span class="elem-dot elem-${c.eb}"></span>${escHtml(c.n)}</span>`
+                : "";
+            })
+            .join("");
           return `
             <div class="preset-card ${activeCls}" data-apply-preset="${escHtml(p.id)}">
               <div class="row" style="justify-content:space-between;">
@@ -421,10 +566,11 @@ function renderSection01Picker() {
                 <span class="badge b-info">${escHtml(p.tag)}</span>
               </div>
               <div class="preset-title">${escHtml(p.name)}</div>
+              <div class="preset-trio">${trioHtml}</div>
               <div class="preset-desc">${escHtml(p.desc)}</div>
               <div class="preset-foot">
-                <span>推荐邦布: ${escHtml(bbName)}</span>
-                <span class="link-txt">点击上阵 -></span>
+                <span>邦布: ${escHtml(bbName)}</span>
+                <span class="link-txt">点击上阵 ↗</span>
               </div>
             </div>
           `;
@@ -928,24 +1074,29 @@ function renderSection02KPIsAndDiag(sim) {
 // ============================================================================
 // Section 03: 3-Slot Full Custom Gear Cards + 4th-Slot Bangboo Bar
 // ============================================================================
-function renderSection03SlotCards(sim) {
+const ELEM_ACCENT_HEX: Record<string, string> = {
+  Physical: "#d6a24a",
+  Fire: "#d66556",
+  Ice: "#78b4d6",
+  Electric: "#5789c7",
+  Ether: "#cc6677",
+  Wind: "#58b08c",
+  Lumiflux: "#e0c167"
+};
+
+function renderSection03SlotCards(sim: any) {
   const bbBar = document.getElementById("sec03BangbooBar");
   const grid = document.getElementById("sec03SlotGrid");
   if (!bbBar || !grid) return;
 
   const curBb = BANGBOO_MAP[appStore.state.env.bangbooId] || BANGBOOS[0];
   bbBar.innerHTML = `
-    <div class="row" style="justify-content:space-between;gap:10px;">
-      <div class="row" style="gap:8px;flex:1;">
-        <span class="badge b-info">4号位邦布协同</span>
-        <select id="bangbooSelect" style="max-width:250px;">
-          ${BANGBOOS.map(b => `<option value="${escHtml(b.id)}" ${b.id === curBb.id ? "selected" : ""}>[${b.r}] ${escHtml(b.n)} (${escHtml(b.camp)})</option>`).join("")}
-        </select>
-        <label class="chk-pill"><input type="checkbox" id="includeBbDmgChk" ${appStore.state.env.includeBangbooDmg !== false ? "checked" : ""}> 计入邦布连携直伤 (+${fmtNum(sim.bangbooDmg)})</label>
-        <span class="muted" style="font-size:12px;">${escHtml(curBb.desc)}</span>
-      </div>
-      <button class="btn" id="editBangbooBtn">工坊精改/新建邦布</button>
-    </div>
+    <span class="badge b-info">4号位邦布</span>
+    <select id="bangbooSelect" style="width:210px;" title="${escHtml(curBb.desc)}">
+      ${BANGBOOS.map(b => `<option value="${escHtml(b.id)}" ${b.id === curBb.id ? "selected" : ""}>[${b.r}] ${escHtml(b.n)} (${escHtml(b.camp)})</option>`).join("")}
+    </select>
+    <label class="chk-pill"><input type="checkbox" id="includeBbDmgChk" ${appStore.state.env.includeBangbooDmg !== false ? "checked" : ""}> 计入直伤 (+${fmtNum(sim.bangbooDmg)})</label>
+    <button type="button" class="btn btn-xs btn-ghost" id="editBangbooBtn">精改邦布</button>
   `;
 
   document.getElementById("bangbooSelect")?.addEventListener("change", (e: any) => {
@@ -964,14 +1115,15 @@ function renderSection03SlotCards(sim) {
   bindSlotCardEvents(grid, sim);
 }
 
-function renderSingleSlotCard(slotIdx, sim) {
+function renderSingleSlotCard(slotIdx: number, sim: any) {
   const sl = appStore.state.slots[slotIdx];
-  const roleHint = slotIdx === 0 ? "1号位 (主力核心输出)" : `${slotIdx + 1}号位 (副C / 击破 / 支援拐)`;
+  const roleHint = slotIdx === 0 ? "01 // 主力核心输出" : `0${slotIdx + 1} // 副C · 击破 · 支援拐`;
 
   if (!sl || !sl.cid || !CHAR_MAP[sl.cid]) {
     return `
       <div class="slot-card empty-slot">
-        <div class="slot-head">
+        <div class="slot-watermark" data-no-i18n>0${slotIdx + 1}</div>
+        <div class="slot-dossier-head">
           <span class="badge">${roleHint}</span>
           <span class="muted">当前空置</span>
         </div>
@@ -988,48 +1140,56 @@ function renderSingleSlotCard(slotIdx, sim) {
   }
 
   const ch = CHAR_MAP[sl.cid];
-  const sr = sim.slotResults.find(r => r.slotIdx === slotIdx);
+  const sr = sim.slotResults.find((r: any) => r.slotIdx === slotIdx);
   const st = sr?.st;
   const bd = sr?.bd;
   const bm = sl.buildMode || "auto";
+  const elemHex = ELEM_ACCENT_HEX[ch.eb] || "#dbb368";
 
-  // Filter weapons: same specialty first, or all if cross-specialty unlocked
   const sameWeps = WEP_LIST.filter(w => w.wt === ch.wt);
   const otherWeps = WEP_LIST.filter(w => w.wt !== ch.wt);
 
   const setList = Object.values(DISC_SETS);
   const set2List = setList.filter(s => s.id !== "无");
 
+  // Compute the 6 active disc main labels for the visual platter strip
+  const bestParts = typeof sr?.bestDisc === "string" ? sr.bestDisc.split("/") : [];
+  const d4Main = bm === "pieces" && sl.pieces?.[3] ? sl.pieces[3].main : (sl.discAuto === false && sl.d4 ? sl.d4 : (st?.d4 || bestParts[0] || "CR"));
+  const d5Main = bm === "pieces" && sl.pieces?.[4] ? sl.pieces[4].main : (sl.discAuto === false && sl.d5 ? sl.d5 : (st?.d5 || bestParts[1] || "ELEM"));
+  const d6Main = bm === "pieces" && sl.pieces?.[5] ? sl.pieces[5].main : (sl.discAuto === false && sl.d6 ? sl.d6 : (st?.d6 || bestParts[2] || "ATK%"));
+  const platterMains = ["HP_FLAT", "ATK_FLAT", "DEF_FLAT", d4Main, d5Main, d6Main];
+  const platterShortLabels = ["生命", "攻击", "防御", DISC_MAIN_ZH[d4Main] || d4Main, DISC_MAIN_ZH[d5Main] || d5Main, DISC_MAIN_ZH[d6Main] || d6Main];
+
   let buildModePanelHtml = "";
   if (bm === "auto") {
     const curSub = sl.subAuto === false && sl.sub ? sl.sub : (sr?.bestSub || { CR: 10, CD: 10, "ATK%": 8 });
     buildModePanelHtml = `
       <div class="bm-box">
-        <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:4px 8px;">
           <label class="chk-pill"><input type="checkbox" data-slot-discauto="${slotIdx}" ${sl.discAuto !== false ? "checked" : ""}> 自动寻优[4][5][6]主词条</label>
-          <span class="mono" style="font-size:11px;">最优解: <strong>${escHtml(fmtDiscZh(sr?.bestDisc))}</strong></span>
+          <span class="mono muted" style="font-size:10.5px;">最优解: <strong style="color:var(--foreground);">${escHtml(fmtDiscZh(sr?.bestDisc))}</strong></span>
         </div>
         ${sl.discAuto === false ? `
-          <div class="ws-grid-3" style="margin-bottom:6px;">
+          <div class="ws-grid-3">
             <label class="ws-field"><span>[4]号盘主词条</span><select data-slot-d4="${slotIdx}">${DISC_SLOT4_MAINS.map(m => `<option value="${m}" ${(sl.d4 || st?.d4) === m ? "selected" : ""}>${DISC_MAIN_ZH[m]}</option>`).join("")}</select></label>
             <label class="ws-field"><span>[5]号盘主词条</span><select data-slot-d5="${slotIdx}">${DISC_SLOT5_MAINS.map(m => `<option value="${m}" ${(sl.d5 || st?.d5) === m ? "selected" : ""}>${DISC_MAIN_ZH[m]}</option>`).join("")}</select></label>
             <label class="ws-field"><span>[6]号盘主词条</span><select data-slot-d6="${slotIdx}">${DISC_SLOT6_MAINS.map(m => `<option value="${m}" ${(sl.d6 || st?.d6) === m ? "selected" : ""}>${DISC_MAIN_ZH[m]}</option>`).join("")}</select></label>
           </div>
         ` : ""}
         <div class="row" style="justify-content:space-between;gap:8px;">
-          <label style="font-size:11px;flex:1;">有效副词条总预算: <strong class="mono">${sl.rolls ?? 28}</strong> 词条
+          <label style="font-size:11px;flex:1;">有效副词条预算: <strong class="mono" style="color:var(--foreground);">${sl.rolls ?? 28}</strong> 词条
             <input type="range" min="10" max="42" step="1" value="${sl.rolls ?? 28}" data-slot-rolls="${slotIdx}">
           </label>
-          <label class="chk-pill"><input type="checkbox" data-slot-subauto="${slotIdx}" ${sl.subAuto !== false ? "checked" : ""}> 自动配平副词条</label>
+          <label class="chk-pill"><input type="checkbox" data-slot-subauto="${slotIdx}" ${sl.subAuto !== false ? "checked" : ""}> 自动配平</label>
         </div>
         ${sl.subAuto === false ? `
-          <div class="ws-grid-5" style="margin-top:6px;">
+          <div class="ws-grid-5">
             ${["CR", "CD", "ATK%", "HP%", "DEF%", "AP", "PEN", "ATK_FLAT"].map(sk => {
               const meta = DISC_SUB_META.find(x => x.key === sk);
-              return `<label class="ws-field"><span>${meta?.zh || sk}词条</span><input type="number" min="0" max="30" step="1" value="${curSub[sk] || 0}" data-slot-subk="${slotIdx}:${sk}"></label>`;
+              return `<label class="ws-field"><span>${meta?.zh || sk}</span><input type="number" min="0" max="30" step="1" value="${curSub[sk] || 0}" data-slot-subk="${slotIdx}:${sk}"></label>`;
             }).join("")}
           </div>
-        ` : `<div class="muted mono" style="font-size:11px;margin-top:4px;">当前分配: ${Object.entries(sr?.bestSub || {}).filter(([, v]) => Number(v) > 0).map(([k, v]) => `${k}×${v}`).join(" · ") || "无"}</div>`}
+        ` : `<div class="muted mono" style="font-size:11px;">分配: ${Object.entries(sr?.bestSub || {}).filter(([, v]) => Number(v) > 0).map(([k, v]) => `${k}×${v}`).join(" · ") || "无"}</div>`}
       </div>
     `;
   } else if (bm === "pieces") {
@@ -1039,20 +1199,18 @@ function renderSingleSlotCard(slotIdx, sim) {
     const pIdx = sl.activePieceIdx ?? 0;
     const curP = sl.pieces[pIdx];
     const mainPool = pIdx === 0 ? ["HP_FLAT"] : pIdx === 1 ? ["ATK_FLAT"] : pIdx === 2 ? ["DEF_FLAT"] : pIdx === 3 ? DISC_SLOT4_MAINS : pIdx === 4 ? DISC_SLOT5_MAINS : DISC_SLOT6_MAINS;
-    const pieceRollSum = Object.values(curP.subs || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+    const pieceRollSum = Object.values(curP.subs || {}).reduce((a: number, b: any) => a + (Number(b) || 0), 0);
 
     buildModePanelHtml = `
       <div class="bm-box">
-        <div class="row" style="justify-content:space-between;margin-bottom:6px;">
-          <div class="pill-bar">
-            ${[0, 1, 2, 3, 4, 5].map(i => `<button class="pill ${pIdx === i ? "active" : ""}" data-piece-tab="${slotIdx}:${i}">[${i + 1}]号盘</button>`).join("")}
-          </div>
+        <div class="row" style="justify-content:space-between;gap:6px;">
+          <span class="muted" style="font-size:11px;">正在精调 <strong>[${pIdx + 1}]号盘</strong> · 合计 <strong>${Number(pieceRollSum.toFixed(1))}</strong> 词条 · 激活 <strong>${escHtml(sr?.fourPc || "无")}4+${escHtml(sr?.twoPc || "无")}2</strong></span>
           <div class="row" style="gap:4px;">
-            <button class="btn btn-xs btn-primary" data-slot-pool-opt="${slotIdx}" title="从本地驱动盘池通过 Web Worker 后台计算最优6盘搭配">盘池寻优(${enkaVault.discPool.length})</button>
-            <button class="btn btn-xs" data-piece-autofill="${slotIdx}" title="按当前最优套装重置6张盘">一键生成6盘</button>
+            <button type="button" class="btn btn-xs btn-primary" data-slot-pool-opt="${slotIdx}" title="从本地驱动盘池通过 Web Worker 后台计算最优6盘搭配">盘池寻优(${enkaVault.discPool.length})</button>
+            <button type="button" class="btn btn-xs" data-piece-autofill="${slotIdx}" title="按当前最优套装重置6张盘">重置6盘</button>
           </div>
         </div>
-        <div class="ws-grid-2" style="margin-bottom:6px;">
+        <div class="ws-grid-2">
           <label class="ws-field"><span>[${pIdx + 1}]号盘所属套装</span>
             <select data-piece-set="${slotIdx}">${set2List.map(s => `<option value="${escHtml(s.id)}" ${curP.set === s.id ? "selected" : ""}>${escHtml(s.name)}</option>`).join("")}</select>
           </label>
@@ -1060,7 +1218,6 @@ function renderSingleSlotCard(slotIdx, sim) {
             <select data-piece-main="${slotIdx}" ${pIdx < 3 ? "disabled" : ""}>${mainPool.map(m => `<option value="${m}" ${curP.main === m ? "selected" : ""}>${DISC_MAIN_LONG_ZH[m] || m}</option>`).join("")}</select>
           </label>
         </div>
-        <div class="muted" style="font-size:11px;margin-bottom:4px;">单盘副词条命中次数 (初始+强化共常见4~9词条，本盘合计 <strong>${Number(pieceRollSum.toFixed(1))}</strong> 词条${curP.level !== undefined && curP.level < 15 ? ` · Lv.${curP.level}` : ""}；激活套装: <strong>${escHtml(sr?.fourPc || "无")}4 + ${escHtml(sr?.twoPc || "无")}2</strong>):</div>
         <div class="ws-grid-5">
           ${DISC_SUB_META.map(meta => `
             <label class="ws-field">
@@ -1092,9 +1249,9 @@ function renderSingleSlotCard(slotIdx, sim) {
     const pn = sl.panel;
     buildModePanelHtml = `
       <div class="bm-box">
-        <div class="row" style="justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:11px;font-weight:700;">直接输入游戏角色详情页局外面板（含音擎副词条与2件套）：</span>
-          <button class="btn btn-xs" data-panel-sync="${slotIdx}">从自动寻优同步初值</button>
+        <div class="row" style="justify-content:space-between;">
+          <span class="muted" style="font-size:11px;">直填角色详情页局外面板（含音擎副词条与2件套）：</span>
+          <button type="button" class="btn btn-xs" data-panel-sync="${slotIdx}">同步自动初值</button>
         </div>
         <div class="ws-grid-4">
           <label class="ws-field"><span>局外生命</span><input type="number" step="50" value="${pn.hp}" data-panel-f="${slotIdx}:hp"></label>
@@ -1126,24 +1283,68 @@ function renderSingleSlotCard(slotIdx, sim) {
   const se = sl.slotExtra || {};
   const hasVaultRec = Boolean(enkaVault.agents[ch.id]);
 
+  // Smart 4-cell live combat telemetry per specialty
+  const stat1Label = ch.wt === "Rupture" ? "局内贯穿" : ch.wt === "Armorer" ? "局内防御" : "局内攻击";
+  const stat1Val =
+    ch.wt === "Rupture" || ch.wt === "Armorer"
+      ? fmtNum(bd?.baseVal || st?.init_atk)
+      : fmtNum(bd?.combat_atk || st?.init_atk);
+  const stat2Label = ch.wt === "Anomaly" ? "精通 / 掌控" : "局内双暴";
+  const stat2Val =
+    ch.wt === "Anomaly"
+      ? `${Math.round(bd?.c_ap || st?.init_ap || 0)} / ${Math.round((st?.init_am || 0) + (st?.eff?.c_am_flat || 0))}`
+      : `${((bd?.c_cr || 0) * 100).toFixed(0)}/${((bd?.c_cd || 0) * 100).toFixed(0)}%`;
+
   return `
-    <div class="slot-card">
-      <div class="slot-head">
-        <div class="row" style="gap:6px;">
-          <span class="elem-dot elem-${ch.eb}"></span>
-          <strong style="font-size:14px;">${slotIdx + 1}号位 · ${escHtml(ch.n)}</strong>
-          <span class="badge">${ch.e}·${ch.p}</span>
-          ${sl.enkaSourceUid && bm === "pieces" ? `<span class="badge b-info" title="来自 UID ${escHtml(sl.enkaSourceUid)} 展柜同步">UID实盘</span>` : ""}
+    <div class="slot-card" style="--slot-elem:${elemHex};">
+      <div class="slot-watermark" data-no-i18n>0${slotIdx + 1}</div>
+
+      <div class="slot-dossier-head">
+        <div class="slot-identity">
+          <div class="slot-rank-crest rank-${ch.r}" data-no-i18n>
+            <span class="rank-letter">${ch.r}</span>
+            <span class="elem-dot elem-${ch.eb}"></span>
+          </div>
+          <div class="slot-title-stack">
+            <div class="slot-agent-name">
+              <span>${escHtml(ch.n)}</span>
+              ${sl.enkaSourceUid && bm === "pieces" ? `<span class="badge b-info" title="来自 UID ${escHtml(sl.enkaSourceUid)} 展柜同步">UID实盘</span>` : ""}
+            </div>
+            <div class="slot-spec-line">
+              <span>${slotIdx + 1}号位 · ${ch.e} · ${ch.p}</span>
+              <span class="${sr?.aa?.active ? "txt-ok" : "txt-warn"}">${sr?.aa?.active ? "● 额外能力激活" : "○ 额外能力未满"}</span>
+            </div>
+          </div>
         </div>
-        <div class="row" style="gap:4px;">
-          ${hasVaultRec ? `<button class="btn btn-xs" data-slot-load-vault="${slotIdx}" title="套用练度柜已同步的真实影画/音擎/6张驱动盘">展柜实盘</button>` : ""}
-          ${enkaVault.discPool.length > 0 && bm !== "pieces" ? `<button class="btn btn-xs" data-slot-pool-opt="${slotIdx}" title="从本地驱动盘池用 Web Worker 后台配出最强6盘">盘库寻优</button>` : ""}
-          <button class="btn btn-xs" data-ws-edit-char="${escHtml(ch.id)}" title="在工坊修改此角色底层公式">改角色</button>
-          <button class="btn btn-xs btn-danger" data-slot-remove="${slotIdx}" title="卸下此槽位">卸下</button>
+
+        <div class="slot-actions">
+          ${hasVaultRec ? `<button type="button" class="btn btn-xs btn-tonal" data-slot-load-vault="${slotIdx}" title="套用练度柜已同步的真实影画/音擎/6张驱动盘">展柜实盘</button>` : ""}
+          ${enkaVault.discPool.length > 0 && bm !== "pieces" ? `<button type="button" class="btn btn-xs" data-slot-pool-opt="${slotIdx}" title="从本地驱动盘池用 Web Worker 后台配出最强6盘">盘库寻优</button>` : ""}
+          <button type="button" class="btn btn-xs btn-ghost" data-ws-edit-char="${escHtml(ch.id)}" title="在工坊修改此角色底层公式">工坊</button>
+          <button type="button" class="btn btn-xs btn-danger" data-slot-remove="${slotIdx}" title="卸下此槽位">×</button>
         </div>
       </div>
 
-      <div class="ws-grid-2" style="margin-top:8px;">
+      <div class="slot-stat-strip">
+        <div class="slot-stat-cell">
+          <span class="slot-stat-k">${stat1Label}</span>
+          <span class="slot-stat-v">${stat1Val}</span>
+        </div>
+        <div class="slot-stat-cell">
+          <span class="slot-stat-k">${stat2Label}</span>
+          <span class="slot-stat-v">${stat2Val}</span>
+        </div>
+        <div class="slot-stat-cell">
+          <span class="slot-stat-k">期望贡献</span>
+          <span class="slot-stat-v">${fmtNum(sr?.weightedDmg)}</span>
+        </div>
+        <div class="slot-stat-cell">
+          <span class="slot-stat-k">全队占比</span>
+          <span class="slot-stat-v accent">${((sr?.dpsShare || 0) * 100).toFixed(1)}%</span>
+        </div>
+      </div>
+
+      <div class="ws-grid-2">
         <label class="ws-field"><span>更换角色</span>
           <select data-slot-char="${slotIdx}">
             ${SC_CHARS.map(c => `<option value="${escHtml(c.id)}" ${c.id === ch.id ? "selected" : ""}>[${c.r}·${c.e}${c.p}] ${escHtml(c.n)}</option>`).join("")}
@@ -1156,7 +1357,7 @@ function renderSingleSlotCard(slotIdx, sim) {
         </label>
       </div>
 
-      <div class="ws-grid-3" style="margin-top:6px;">
+      <div class="ws-grid-3">
         <label class="ws-field" style="grid-column:span 2;">
           <span class="row" style="justify-content:space-between;"><span>装备音擎</span><a href="javascript:void(0)" class="link-txt" data-ws-edit-wep="${escHtml(sl.wid)}">精改音擎</a></span>
           <select data-slot-wep="${slotIdx}">
@@ -1175,28 +1376,45 @@ function renderSingleSlotCard(slotIdx, sim) {
         </label>
       </div>
 
-      <div class="ws-grid-2" style="margin-top:6px;">
-        <label class="ws-field"><span>4件套驱动盘</span>
-          <select data-slot-fourpc="${slotIdx}" ${bm === "pieces" ? "disabled" : ""}>
-            ${setList.map(s => `<option value="${escHtml(s.id)}" ${sr?.fourPc === s.id ? "selected" : ""}>${escHtml(s.name)}</option>`).join("")}
-          </select>
-        </label>
-        <label class="ws-field"><span>2件套驱动盘</span>
-          <select data-slot-twopc="${slotIdx}" ${bm === "pieces" ? "disabled" : ""}>
-            ${set2List.map(s => `<option value="${escHtml(s.id)}" ${sr?.twoPc === s.id ? "selected" : ""}>${escHtml(s.name)}</option>`).join("")}
-          </select>
-        </label>
-      </div>
+      <div class="slot-divider-sec">
+        <div class="ws-grid-2">
+          <label class="ws-field"><span>4件套驱动盘</span>
+            <select data-slot-fourpc="${slotIdx}" ${bm === "pieces" ? "disabled" : ""}>
+              ${setList.map(s => `<option value="${escHtml(s.id)}" ${sr?.fourPc === s.id ? "selected" : ""}>${escHtml(s.name)}</option>`).join("")}
+            </select>
+          </label>
+          <label class="ws-field"><span>2件套驱动盘</span>
+            <select data-slot-twopc="${slotIdx}" ${bm === "pieces" ? "disabled" : ""}>
+              ${set2List.map(s => `<option value="${escHtml(s.id)}" ${sr?.twoPc === s.id ? "selected" : ""}>${escHtml(s.name)}</option>`).join("")}
+            </select>
+          </label>
+        </div>
 
-      <div class="bm-tabs" style="margin-top:8px;">
-        <button class="bm-tab ${bm === "auto" ? "active" : ""}" data-slot-bm="${slotIdx}:auto">自动毕业寻优</button>
-        <button class="bm-tab ${bm === "pieces" ? "active" : ""}" data-slot-bm="${slotIdx}:pieces">1-6号逐盘精调</button>
-        <button class="bm-tab ${bm === "panel" ? "active" : ""}" data-slot-bm="${slotIdx}:panel">局外面板直填</button>
+        <div class="disc-platter-strip" role="group" aria-label="1-6号驱动盘主词条速览">
+          ${[0, 1, 2, 3, 4, 5]
+            .map((i) => {
+              const isAct = bm === "pieces" && (sl.activePieceIdx ?? 0) === i;
+              return `
+                <button type="button" class="disc-platter ${isAct ? "active" : ""}" data-piece-tab="${slotIdx}:${i}" title="点击切至 [${i + 1}]号驱动盘精调 (${DISC_MAIN_LONG_ZH[platterMains[i]] || platterMains[i]})">
+                  <span class="disc-platter-idx" data-no-i18n>0${i + 1}</span>
+                  <span class="disc-platter-main">${escHtml(platterShortLabels[i])}</span>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+
+        <div class="bm-tabs">
+          <button type="button" class="bm-tab ${bm === "auto" ? "active" : ""}" data-slot-bm="${slotIdx}:auto">自动毕业寻优</button>
+          <button type="button" class="bm-tab ${bm === "pieces" ? "active" : ""}" data-slot-bm="${slotIdx}:pieces">1-6号逐盘精调</button>
+          <button type="button" class="bm-tab ${bm === "panel" ? "active" : ""}" data-slot-bm="${slotIdx}:panel">局外面板直填</button>
+        </div>
+
+        ${buildModePanelHtml}
       </div>
-      ${buildModePanelHtml}
 
       <details class="slot-adv">
-        <summary>展开全参数自定义 (等级/核心技/动作占比/覆盖率/额外Buff注入)</summary>
+        <summary>展开高阶调参 (等级/核心技/动作占比/覆盖率/额外Buff注入)</summary>
         <div class="slot-adv-body">
           <div class="ws-grid-4">
             <label class="ws-field"><span>角色等级(1~60)</span><input type="number" min="1" max="60" value="${sl.agentLv ?? 60}" data-slot-adv="${slotIdx}:agentLv"></label>
@@ -1256,14 +1474,6 @@ function renderSingleSlotCard(slotIdx, sim) {
           </div>
         </div>
       </details>
-
-      <div class="slot-foot mono">
-        <div>局外 -> 局内: 攻 <strong>${fmtNum(st?.init_atk)} -> ${fmtNum(bd?.combat_atk || st?.init_atk)}</strong> · 暴 <strong>${((bd?.c_cr || 0) * 100).toFixed(1)}% / ${((bd?.c_cd || 0) * 100).toFixed(1)}%</strong></div>
-        <div class="row" style="justify-content:space-between;margin-top:2px;">
-          <span>期望贡献: <strong>${fmtNum(sr?.weightedDmg)}</strong> (${((sr?.dpsShare || 0) * 100).toFixed(1)}%)</span>
-          <span>精通 ${Math.round(bd?.c_ap || st?.init_ap || 0)} · 回能 ${(bd?.eff_er || st?.init_er || 0).toFixed(2)}</span>
-        </div>
-      </div>
     </div>
   `;
 }
@@ -1301,32 +1511,32 @@ function bindSlotCardEvents(grid: HTMLElement, sim: any) {
     btn.addEventListener("click", () => openCustomWorkshop("weps", btn.dataset.wsEditWep));
   });
   grid.querySelectorAll<any>("[data-slot-m]").forEach(sel => {
-    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotM)].m = Number(e.target.value); refreshAllUI(); });
+    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotM)]!.m = Number(e.target.value); refreshAllUI(); });
   });
   grid.querySelectorAll<any>("[data-slot-wep]").forEach(sel => {
     sel.addEventListener("change", (e: any) => {
       const idx = Number(sel.dataset.slotWep);
       const wid = e.target.value;
-      appStore.state.slots[idx].wid = wid;
-      appStore.state.slots[idx].ref = SC_WEPS[wid]?.r === "S" ? 1 : 5;
+      appStore.state.slots[idx]!.wid = wid;
+      appStore.state.slots[idx]!.ref = SC_WEPS[wid]?.r === "S" ? 1 : 5;
       refreshAllUI();
     });
   });
   grid.querySelectorAll<any>("[data-slot-ref]").forEach(sel => {
-    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotRef)].ref = Number(e.target.value); refreshAllUI(); });
+    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotRef)]!.ref = Number(e.target.value); refreshAllUI(); });
   });
   grid.querySelectorAll<HTMLSelectElement>("[data-slot-fourpc]").forEach(sel => {
-    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotFourpc)].fourPc = e.target.value; refreshAllUI(); });
+    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotFourpc)]!.fourPc = e.target.value; refreshAllUI(); });
   });
   grid.querySelectorAll<HTMLSelectElement>("[data-slot-twopc]").forEach(sel => {
-    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotTwopc)].twoPc = e.target.value; refreshAllUI(); });
+    sel.addEventListener("change", (e: any) => { appStore.state.slots[Number(sel.dataset.slotTwopc)]!.twoPc = e.target.value; refreshAllUI(); });
   });
   grid.querySelectorAll<any>("[data-slot-bm]").forEach(btn => {
     btn.addEventListener("click", () => {
       const [idxStr, mode] = btn.dataset.slotBm.split(":");
       const idx = Number(idxStr);
-      const sl = appStore.state.slots[idx];
-      const sr = sim.slotResults.find(r => r.slotIdx === idx);
+      const sl = appStore.state.slots[idx]!;
+      const sr = sim.slotResults.find((r: any) => r.slotIdx === idx);
       if (mode === "pieces" && (!sl.pieces || sl.pieces.length !== 6)) {
         sl.pieces = buildDefaultSixPieces(CHAR_MAP[sl.cid], sl.fourPc, sl.twoPc, sr?.st?.d4 || "CR", sr?.st?.d5 || "ELEM", sr?.st?.d6 || "ATK%", sr?.bestSub || { CR: 10, CD: 10, "ATK%": 8 });
       }
@@ -1382,11 +1592,27 @@ function bindSlotCardEvents(grid: HTMLElement, sim: any) {
     });
   });
 
-  // 6-Piece Builder controls
+  // 6-Piece Builder & Platter controls
   grid.querySelectorAll<any>("[data-piece-tab]").forEach(btn => {
     btn.addEventListener("click", () => {
       const [idxStr, pStr] = btn.dataset.pieceTab.split(":");
-      appStore.state.slots[Number(idxStr)].activePieceIdx = Number(pStr);
+      const idx = Number(idxStr);
+      const sl = appStore.state.slots[idx];
+      if (!sl) return;
+      const sr = sim.slotResults.find((r: any) => r.slotIdx === idx);
+      if (!Array.isArray(sl.pieces) || sl.pieces.length !== 6) {
+        sl.pieces = buildDefaultSixPieces(
+          CHAR_MAP[sl.cid],
+          sl.fourPc,
+          sl.twoPc,
+          sr?.st?.d4 || "CR",
+          sr?.st?.d5 || "ELEM",
+          sr?.st?.d6 || "ATK%",
+          sr?.bestSub || { CR: 10, CD: 10, "ATK%": 8 }
+        );
+      }
+      sl.buildMode = "pieces";
+      sl.activePieceIdx = Number(pStr);
       refreshAllUI();
     });
   });
