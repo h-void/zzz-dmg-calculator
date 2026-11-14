@@ -123,7 +123,15 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "前移顺序": { en: "Move Left", ja: "前へ移動" },
   "后移顺序": { en: "Move Right", ja: "後ろへ移動" },
   "复制此块": { en: "Duplicate", ja: "複製" },
-  "删除此块": { en: "Delete", ja: "削除" }
+  "删除此块": { en: "Delete", ja: "削除" },
+  "如 100123456 或 1300123456": {
+    en: "e.g. 100123456 or 1300123456",
+    ja: "例: 100123456 / 1300123456"
+  },
+  "无需联网，立即载入内置 6 名满级角色与 36 张驱动盘示例体验完整工坊与寻优流程": {
+    en: "Offline-ready: load 6 Lv.60 demo agents & 36 Drive Discs to test the full optimizer workflow",
+    ja: "通信不要：内蔵のLv.60キャラ6名＆ディスク36枚のサンプルを即座に読み込みます"
+  }
 };
 
 // Ordered phrase/entity replacements (sorted longest-first at module init)

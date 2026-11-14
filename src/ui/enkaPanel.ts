@@ -172,14 +172,14 @@ export function renderEnkaPanel(): void {
           inputmode="numeric"
           maxlength="12"
           value="${escHtml(ENKA_UI_STATE.uidInput)}"
-          placeholder="如 100123456 或 1500422486"
+          placeholder="如 100123456 或 1300123456"
         >
       </label>
       <div class="row" style="gap:6px;flex-wrap:wrap;">
         <button class="btn btn-primary" id="enkaSyncUidBtn" ${ENKA_UI_STATE.syncLoading ? "disabled" : ""}>
           ${ENKA_UI_STATE.syncLoading ? "正在拉取展柜..." : "一键同步 UID 展柜"}
         </button>
-        <button class="btn" id="enkaLoadDemoBtn" title="无需联网，立即载入真实 UID 1500422486 的 6 名满级角色与 36 张驱动盘体验完整工坊与寻优流程">
+        <button class="btn" id="enkaLoadDemoBtn" title="无需联网，立即载入内置 6 名满级角色与 36 张驱动盘示例体验完整工坊与寻优流程">
           载入真实展柜示例 (6角色/36盘)
         </button>
         <button class="btn ${ENKA_UI_STATE.showJsonImport ? "btn-primary" : ""}" id="enkaToggleJsonBtn">
