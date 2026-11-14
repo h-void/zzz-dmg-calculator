@@ -94,8 +94,13 @@ export function makeDefaultElemResMap(): Record<string, number> {
   };
 }
 
+export type StudioViewTab = "build" | "enka" | "timeline" | "diag" | "eval" | "env" | "all";
+
 export interface WorkbenchAppState {
+  lang: "zh" | "en" | "ja";
   theme: "dark" | "light";
+  studioView: StudioViewTab;
+  pickerCollapsed: boolean;
   enkaPanelOpen: boolean;
   pickerTab: "presets" | "manual" | "finder" | "guide";
   presetCat: string;
@@ -132,8 +137,11 @@ export function makeInitialState(): WorkbenchAppState {
     slots[2].fourPc = "月光";
   }
   return {
+    lang: "zh",
     theme: "dark",
-    enkaPanelOpen: true,
+    studioView: "build",
+    pickerCollapsed: false,
+    enkaPanelOpen: false,
     pickerTab: "presets",
     presetCat: "ALL",
     manualTargetSlot: 0,

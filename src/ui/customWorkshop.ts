@@ -22,6 +22,7 @@ import {
 import { ALL_ELEMENTS, ALL_SPECIALTIES, SN_ZH, escHtml } from "../engine/constants";
 import { inspectWeaponPassiveMods } from "../engine/simulator";
 import { ARCHETYPE_LABELS, SAFETY_LABELS, getCharSwapProfile } from "../engine/swapTimeline";
+import { localizeDOM } from "../i18n";
 import { appStore, assignCharacterToSlot, triggerRefreshUI } from "./appState";
 
 // --- MODULE: custom_workshop.js ---
@@ -313,6 +314,7 @@ export function renderCustomWorkshopModal() {
   `;
 
   bindWorkshopEvents(modal);
+  localizeDOM(modal, appStore.state.lang || "zh");
 }
 
 // ============================================================================

@@ -5,7 +5,14 @@ export default defineConfig({
   build: {
     target: "es2022",
     outDir: "dist",
-    sourcemap: false
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("/src/data/")) return "zzz-data";
+        }
+      }
+    }
   },
   worker: {
     format: "es"

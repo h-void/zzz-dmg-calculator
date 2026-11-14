@@ -52,8 +52,10 @@ import {
 } from "../engine/swapTimeline";
 import { enkaVault, saveEnkaVaultToStorage } from "../enka/client";
 import { syncedRecordToSlotConfig } from "../enka/parser";
+import { type LangCode, localizeDOM, translateText } from "../i18n";
 import { runWorkerFindViableTeams, updatePerfBadge } from "../worker/workerClient";
 import {
+  type StudioViewTab,
   applyPresetTeam,
   appStore,
   assignCharacterToSlot,
@@ -82,7 +84,14 @@ function applyThemeToDOM() {
     html.classList.remove("light");
   }
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = appStore.state.theme === "light" ? "切换暗色" : "切换亮色";
+  if (btn) btn.textContent = appStore.state.theme === "light" ? "切换暗色主题" : "切换亮色主题";
+}
+
+function applyLangBarState() {
+  const cur = appStore.state.lang || "zh";
+  document.querySelectorAll<HTMLButtonElement>("#langSwitchBar .lang-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.lang === cur);
+  });
 }
 
 let finderSeq = 0;
@@ -90,9 +99,11 @@ let finderLoading = false;
 let finderElapsedMs = 0;
 let finderCacheKey = "";
 let finderCachedTeams: any[] = [];
+let physicsDrawerOpen = false;
 
 export function refreshAllUI() {
   applyThemeToDOM();
+  applyLangBarState();
   if (STAGE_BUFFS[appStore.state.env.stageId]) {
     appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[appStore.state.env.stageId]);
   }
@@ -103,35 +114,185 @@ export function refreshAllUI() {
   updatePerfBadge(`TS精算: ${dt.toFixed(1)} ms`);
   saveWorkspaceToStorage();
 
+  applyStudioVisibility();
   renderTopBarState();
-  renderEnkaPanel();
+  renderLiveTelemetryBar(appStore.lastSimResult);
   renderSnapshotBar(appStore.lastSimResult);
+  renderStudioNavBar(appStore.lastSimResult);
+  renderEnkaPanel();
   renderSection01Picker();
   renderSection02KPIsAndDiag(appStore.lastSimResult);
   renderSection03SlotCards(appStore.lastSimResult);
   renderSection04SwapAndTimeline(appStore.lastSimResult);
   renderSection05EvalCenter(appStore.lastSimResult);
   renderSection06Environment();
+  localizeDOM(document.body, appStore.state.lang || "zh");
+}
+
+function applyStudioVisibility() {
+  const view: StudioViewTab = appStore.state.studioView || "build";
+  const showMap: Record<string, boolean> = {
+    sec01: view === "build" || view === "all",
+    sec03: view === "build" || view === "enka" || view === "all",
+    sec04: view === "timeline" || view === "all",
+    sec02: view === "diag" || view === "all",
+    sec05: view === "eval" || view === "all",
+    sec06: view === "env" || view === "all"
+  };
+  Object.entries(showMap).forEach(([id, visible]) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = !visible;
+  });
+
+  const sec01Body = document.getElementById("sec01Body");
+  if (sec01Body) {
+    sec01Body.hidden = !!appStore.state.pickerCollapsed;
+  }
+  const collapseBtn = document.getElementById("togglePickerCollapseBtn");
+  if (collapseBtn) {
+    collapseBtn.textContent = appStore.state.pickerCollapsed ? "展开选人台 ▼" : "收起选人台 ▲";
+  }
 }
 
 function renderTopBarState() {
   const mBtn = document.getElementById("metricModeBtn");
   if (mBtn) {
     const isDps = appStore.state.env.metricMode !== "dpr";
-    mBtn.textContent = isDps ? "主口径: 每秒真实DPS (计入合轴缩轴)" : "主口径: 单轮总伤DPR (固定单轮)";
+    mBtn.textContent = isDps ? "口径: 每秒 DPS" : "口径: 单轮 DPR";
     mBtn.className = isDps ? "btn btn-primary" : "btn";
   }
-  const modTotal = Object.keys(customDB.chars).length + Object.keys(customDB.weps).length + Object.keys(customDB.discSets).length + Object.keys(customDB.bangboos).length;
+  const modTotal =
+    Object.keys(customDB.chars).length +
+    Object.keys(customDB.weps).length +
+    Object.keys(customDB.discSets).length +
+    Object.keys(customDB.bangboos).length;
   const wsBtn = document.getElementById("openWorkshopTopBtn");
   if (wsBtn) {
-    wsBtn.textContent = modTotal > 0 ? `全量自定义工坊 (已改${modTotal}项)` : "全量自定义工坊";
+    wsBtn.textContent = modTotal > 0 ? `自定义工坊 (已改${modTotal}项)` : "自定义工坊";
   }
+}
+
+function renderLiveTelemetryBar(sim: any) {
+  const el = document.getElementById("liveTelemetryBar");
+  if (!el) return;
+  const active = getActiveMembersForUI();
+  const isDps = appStore.state.env.metricMode !== "dpr";
+  const bb = BANGBOO_MAP[appStore.state.env.bangbooId];
+  const aaAllOk = sim.activeCount > 0 && sim.aaLitCount === sim.activeCount;
+
+  el.innerHTML = `
+    <div class="telemetry-strip">
+      <div class="telemetry-squad">
+        ${
+          active.length > 0
+            ? active
+                .map((m) => {
+                  const w = SC_WEPS[m.cfg.wid];
+                  const ref = m.cfg.ref ?? 1;
+                  return `
+                    <span class="squad-pill" data-hud-jump="build" style="cursor:pointer;" title="点击跳转至配装台">
+                      <span class="elem-dot elem-${m.ch.eb}"></span>
+                      <span>${escHtml(m.ch.n)}</span>
+                      <span class="squad-meta mono">M${m.m}${w ? `R${ref}` : ""}</span>
+                    </span>
+                  `;
+                })
+                .join("")
+            : `<span class="muted">暂无上阵代理人</span>`
+        }
+        ${
+          bb && bb.id !== "none"
+            ? `<span class="squad-pill"><span class="squad-meta">邦布</span><span>${escHtml(bb.n)}</span></span>`
+            : ""
+        }
+      </div>
+
+      <div class="telemetry-kpis">
+        <div class="tele-kpi ${isDps ? "highlight" : ""}">
+          <span class="tele-label">真实DPS</span>
+          <span class="tele-val">${fmtNum(sim.teamActualDps)}</span>
+        </div>
+        <span class="tele-sep"></span>
+        <div class="tele-kpi ${!isDps ? "highlight" : ""}">
+          <span class="tele-label">单轮DPR</span>
+          <span class="tele-val">${fmtWan(sim.teamDpr)}</span>
+        </div>
+        <span class="tele-sep"></span>
+        <div class="tele-kpi">
+          <span class="tele-label">实轴</span>
+          <span class="tele-val">${(sim.cycleSec || 0).toFixed(2)}s</span>
+        </div>
+        <span class="tele-sep"></span>
+        <div class="tele-kpi">
+          <span class="tele-label">危局3分钟</span>
+          <span class="tele-val">${fmtWan(sim.da3MinTotal)}</span>
+        </div>
+        ${
+          sim.activeCount > 0
+            ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? "额外能力全激活" : "额外能力未满"}</span>`
+            : ""
+        }
+      </div>
+    </div>
+  `;
+
+  el.querySelectorAll<HTMLElement>("[data-hud-jump]").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      appStore.state.studioView = "build";
+      refreshAllUI();
+    });
+  });
+}
+
+function renderStudioNavBar(sim: any) {
+  const nav = document.getElementById("studioNavBar");
+  if (!nav) return;
+  const cur = appStore.state.studioView || "build";
+  const vaultCount = Object.keys(enkaVault.agents || {}).length;
+  const aaWarn = sim.activeCount > 0 && sim.aaLitCount < sim.activeCount ? 1 : 0;
+
+  const tabs: Array<{ id: StudioViewTab; label: string; count?: string }> = [
+    { id: "build", label: "编队与配装", count: `${sim.activeCount || 0}/3` },
+    { id: "enka", label: "UID 展柜", count: vaultCount > 0 ? `${vaultCount}` : "Sync" },
+    { id: "timeline", label: "合轴与排轴器", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
+    { id: "diag", label: "乘区与体检", count: aaWarn ? "!" : "6x" },
+    { id: "eval", label: "专武 · 影画 · ROI" },
+    { id: "env", label: "首领环境" }
+  ];
+
+  nav.innerHTML = `
+    ${tabs
+      .map(
+        (t) => `
+      <button type="button" class="studio-tab ${cur === t.id ? "active" : ""}" data-studio-tab="${t.id}">
+        <span>${t.label}</span>
+        ${t.count ? `<span class="tab-count">${t.count}</span>` : ""}
+      </button>
+    `
+      )
+      .join("")}
+    <span class="studio-nav-spacer"></span>
+    <button type="button" class="studio-tab ${cur === "all" ? "active" : ""}" data-studio-tab="all">
+      <span>全景展开</span>
+    </button>
+  `;
+
+  nav.querySelectorAll<HTMLButtonElement>("[data-studio-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = (btn.dataset.studioTab as StudioViewTab) || "build";
+      appStore.state.studioView = next;
+      if (next === "enka") {
+        appStore.state.enkaPanelOpen = true;
+      }
+      refreshAllUI();
+    });
+  });
 }
 
 // ============================================================================
 // Snapshot Comparison Bar (A / B / C / D)
 // ============================================================================
-function renderSnapshotBar(sim) {
+function renderSnapshotBar(sim: any) {
   const el = document.getElementById("snapshotBar");
   if (!el) return;
   const labels = ["A", "B", "C", "D"];
@@ -141,34 +302,46 @@ function renderSnapshotBar(sim) {
     <div class="snap-strip">
       <span class="snap-label">方案快照横评 (点击空位记录当前配装与合轴，点击已存方案一键回档对比)：</span>
       <div class="snap-items">
-        ${labels.map((lb, idx) => {
-          const sn = appStore.state.snapshots[idx];
-          if (!sn) {
-            return `<button class="snap-card empty" data-snap-save="${idx}">[+ 记录至方案 ${lb}]</button>`;
-          }
-          const refVal = appStore.state.env.metricMode === "dpr" ? (sn.baseWeightedSum || sn.teamDps) : (sn.teamActualDps || sn.teamDps);
-          const diff = refVal > 0 ? ((curVal / refVal) - 1) : 0;
-          const diffStr = diff >= 0 ? `当前高 +${(diff * 100).toFixed(1)}%` : `当前低 ${(diff * 100).toFixed(1)}%`;
-          const diffCls = diff >= 0.002 ? "pos" : (diff <= -0.002 ? "neg" : "");
-          return `
-            <div class="snap-card filled">
-              <div class="snap-main" data-snap-load="${idx}" title="点击回档此快照">
-                <strong>方案${lb}: ${escHtml(sn.title)}</strong>
-                <span class="mono">DPS ${fmtNum(sn.teamActualDps)} · DPR ${fmtWan(sn.teamDpr)} (${sn.cycleSec.toFixed(1)}s)</span>
-                <span class="snap-diff ${diffCls}">${diffStr}</span>
+        ${labels
+          .map((lb, idx) => {
+            const sn = appStore.state.snapshots[idx];
+            if (!sn) {
+              return `<button class="snap-card empty" data-snap-save="${idx}">[+ 记录至方案 ${lb}]</button>`;
+            }
+            const refVal =
+              appStore.state.env.metricMode === "dpr"
+                ? sn.baseWeightedSum || sn.teamDps
+                : sn.teamActualDps || sn.teamDps;
+            const diff = refVal > 0 ? curVal / refVal - 1 : 0;
+            const diffStr =
+              diff >= 0
+                ? `当前高 +${(diff * 100).toFixed(1)}%`
+                : `当前低 ${(diff * 100).toFixed(1)}%`;
+            const diffCls = diff >= 0.002 ? "pos" : diff <= -0.002 ? "neg" : "";
+            return `
+              <div class="snap-card filled">
+                <div class="snap-main" data-snap-load="${idx}" title="点击回档此快照">
+                  <strong>方案${lb}: ${escHtml(sn.title)}</strong>
+                  <span class="mono">DPS ${fmtNum(sn.teamActualDps)} · DPR ${fmtWan(sn.teamDpr)} (${sn.cycleSec.toFixed(1)}s)</span>
+                  <span class="snap-diff ${diffCls}">${diffStr}</span>
+                </div>
+                <button class="snap-del" data-snap-clear="${idx}" title="清除快照">×</button>
               </div>
-              <button class="snap-del" data-snap-clear="${idx}" title="清除快照">×</button>
-            </div>
-          `;
-        }).join("")}
+            `;
+          })
+          .join("")}
       </div>
     </div>
   `;
 
-  el.querySelectorAll<any>("[data-snap-save]").forEach(btn => {
+  el.querySelectorAll<any>("[data-snap-save]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.snapSave);
-      const names = appStore.state.slots.filter(s => s?.cid && CHAR_MAP[s.cid]).map(s => CHAR_MAP[s.cid].n).join("+") || "空编队";
+      const names =
+        appStore.state.slots
+          .filter((s) => s?.cid && CHAR_MAP[s.cid])
+          .map((s) => CHAR_MAP[s!.cid].n)
+          .join("+") || "空编队";
       const spName = SWAP_PRESETS[appStore.state.env.swapConfig?.preset]?.tag || "自定轴";
       appStore.state.snapshots[idx] = {
         title: `${names} [${spName}]`,
@@ -183,10 +356,11 @@ function renderSnapshotBar(sim) {
       };
       saveWorkspaceToStorage();
       renderSnapshotBar(sim);
+      localizeDOM(el, appStore.state.lang || "zh");
     });
   });
 
-  el.querySelectorAll<any>("[data-snap-load]").forEach(btn => {
+  el.querySelectorAll<any>("[data-snap-load]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const sn = appStore.state.snapshots[Number(btn.dataset.snapLoad)];
       if (!sn) return;
@@ -197,12 +371,13 @@ function renderSnapshotBar(sim) {
     });
   });
 
-  el.querySelectorAll<any>("[data-snap-clear]").forEach(btn => {
-    btn.addEventListener("click", e => {
+  el.querySelectorAll<any>("[data-snap-clear]").forEach((btn) => {
+    btn.addEventListener("click", (e: Event) => {
       e.stopPropagation();
       appStore.state.snapshots[Number(btn.dataset.snapClear)] = null;
       saveWorkspaceToStorage();
       renderSnapshotBar(sim);
+      localizeDOM(el, appStore.state.lang || "zh");
     });
   });
 }
@@ -1351,7 +1526,44 @@ function bindSlotCardEvents(grid: HTMLElement, sim: any) {
 // ============================================================================
 // Section 04: 8-Dimension Swap-Cancel Engine & Interactive SVG Timeline Sequencer
 // ============================================================================
-function renderSection04SwapAndTimeline(sim) {
+function estimateSvgTextPx(str: string, fontSize = 11): number {
+  let px = 0;
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    if (code >= 0x2e80) {
+      px += fontSize * 1.04;
+    } else if (code >= 65 && code <= 90) {
+      px += fontSize * 0.66;
+    } else {
+      px += fontSize * 0.57;
+    }
+  }
+  return px;
+}
+
+function fitSvgLabel(str: string, availPx: number, fontSize = 11): string {
+  const pad = 10;
+  const maxInner = availPx - pad;
+  if (maxInner < 18 || !str) return "";
+  if (estimateSvgTextPx(str, fontSize) <= maxInner) return str;
+
+  const ellipsisPx = fontSize * 0.85;
+  const budget = maxInner - ellipsisPx;
+  if (budget < 10) return "";
+
+  let acc = 0;
+  let out = "";
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    const w = ch.charCodeAt(0) >= 0x2e80 ? fontSize * 1.04 : fontSize * 0.6;
+    if (acc + w > budget) break;
+    acc += w;
+    out += ch;
+  }
+  return out ? `${out}…` : "";
+}
+
+function renderSection04SwapAndTimeline(sim: any) {
   const wrap = document.getElementById("sec04Body");
   if (!wrap) return;
 
@@ -1360,131 +1572,149 @@ function renderSection04SwapAndTimeline(sim) {
   const active = getActiveMembersForUI();
   const tl = appStore.state.env.timelineAnalysis || analyzeTimeline(appStore.state.timelineBlocks, active);
 
-  // Live preview across all 5 swap presets for current squad!
   const presetComparisons = (Object.values(SWAP_PRESETS) as any[]).map((p: any) => {
     const testEnv = { ...appStore.state.env, swapConfig: makeDefaultSwapConfig(p.id), timelineCoupled: false };
     const r = simulateTeamV2(appStore.state.slots, testEnv, CHAR_MAP, SC_WEPS, { fastMode: true, skipSoloBaseline: true });
     return { p, dps: r.teamActualDps, dpr: r.teamDpr, sec: r.cycleSec, exposed: r.qaSwap?.exposedSec || 0 };
   });
 
-  const selectedBlk = appStore.state.timelineBlocks.find(b => b.id === appStore.state.selectedBlockId) || appStore.state.timelineBlocks[0] || null;
+  const selectedBlk =
+    appStore.state.timelineBlocks.find((b) => b.id === appStore.state.selectedBlockId) ||
+    appStore.state.timelineBlocks[0] ||
+    null;
 
   wrap.innerHTML = `
     <div class="swap-preset-grid">
-      ${presetComparisons.map(({ p, dps, dpr, sec, exposed }) => `
+      ${presetComparisons
+        .map(
+          ({ p, dps, dpr, sec, exposed }) => `
         <div class="swap-pcard ${!appStore.state.env.timelineCoupled && sc.preset === p.id ? "active" : ""}" data-swap-preset="${p.id}">
           <div class="row" style="justify-content:space-between;">
             <strong>${escHtml(p.name)}</strong>
             <span class="badge ${p.id === "sweaty" ? "b-warn" : "b-info"}">${escHtml(p.tag)}</span>
           </div>
-          <div class="mono" style="font-size:13px;font-weight:800;margin:4px 0;color:var(--primary);">真实DPS: ${fmtNum(dps)} · 轴长 ${sec.toFixed(1)}s</div>
-          <div class="muted" style="font-size:11px;">单轮DPR ${fmtWan(dpr)}${exposed > 0.5 ? ` · 裸露驻场 ${exposed.toFixed(1)}s` : " · 无敌帧保护"}</div>
-          <div class="muted" style="font-size:11px;margin-top:3px;">${escHtml(p.desc)}</div>
+          <div class="mono" style="font-size:13px;font-weight:800;margin:5px 0;color:var(--primary);">真实DPS: ${fmtNum(dps)} · 轴长 ${sec.toFixed(1)}s</div>
+          <div class="muted" style="font-size:12px;">单轮DPR ${fmtWan(dpr)}${exposed > 0.5 ? ` · 裸露 ${exposed.toFixed(1)}s` : " · 无敌帧保护"}</div>
+          <div class="muted" style="font-size:12px;margin-top:4px;line-height:1.45;">${escHtml(p.desc)}</div>
         </div>
-      `).join("")}
+      `
+        )
+        .join("")}
     </div>
 
-    <div class="subbox" style="margin-top:12px;">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px;">
-        <div style="font-weight:800;font-size:13px;">八维合轴底层物理参数精调矩阵 (拖动任一滑块即时推演帧压缩与覆盖率)</div>
-        <div class="mono" style="font-size:12px;">
-          破韧期 <strong>${qa.outStunSec.toFixed(1)}s</strong> + 失衡期 <strong>${qa.inStunSec.toFixed(1)}s</strong> -> 并行省帧 <strong>-${qa.savedOverlapSec.toFixed(1)}s</strong> = 实轴 <strong>${qa.cycleSec.toFixed(1)}s</strong>
+    <details class="physics-drawer" id="physicsDrawerEl" ${physicsDrawerOpen ? "open" : ""}>
+      <summary>
+        <span>八维合轴底层物理参数精调矩阵</span>
+        <span class="mono muted" style="font-size:12px;font-weight:600;">
+          破韧期 <strong style="color:var(--foreground);">${qa.outStunSec.toFixed(1)}s</strong> + 失衡期 <strong style="color:var(--foreground);">${qa.inStunSec.toFixed(1)}s</strong> · 并行省帧 <strong style="color:var(--accent);">-${qa.savedOverlapSec.toFixed(1)}s</strong> = 实轴 <strong style="color:var(--primary);">${qa.cycleSec.toFixed(1)}s</strong>
+        </span>
+      </summary>
+      <div class="physics-drawer-body">
+        <div class="ws-grid-4">
+          <label class="ws-field">
+            <span>1. 脱手帧并行复用率: <strong class="mono">${Math.round(sc.commitOverlap * 100)}%</strong></span>
+            <input type="range" min="0" max="100" step="2" value="${Math.round(sc.commitOverlap * 100)}" id="sc_overlap">
+          </label>
+
+          <label class="ws-field">
+            <span>2. 合轴安全与闪避垫步策略</span>
+            <select id="sc_safety">
+              <option value="safe_only" ${sc.safetyPolicy === "safe_only" ? "selected" : ""}>仅无敌帧/快支保护帧安全合轴 (零战损)</option>
+              <option value="dodge_cancel" ${sc.safetyPolicy === "dodge_cancel" ? "selected" : ""}>裸露招式垫步闪避取消离场 (0.18s损耗)</option>
+              <option value="aggressive" ${sc.safetyPolicy === "aggressive" ? "selected" : ""}>激进零帧硬切同屏双打 (裸露 ${qa.exposedSec.toFixed(1)}s)</option>
+            </select>
+          </label>
+
+          <label class="ws-field">
+            <span>3. 持续引导技防断招保护</span>
+            <select id="sc_prot_chan">
+              <option value="1" ${sc.protectChanneled !== false ? "selected" : ""}>等待终结击出手再切 (派派/可琳/安东不丢伤)</option>
+              <option value="0" ${sc.protectChanneled === false ? "selected" : ""}>强行提前硬切压轴 (引导角色截断丢尾段倍率)</option>
+            </select>
+          </label>
+
+          <label class="ws-field">
+            <span>4. 短轴拐爆发窗穿插续杯率: <strong class="mono">${Math.round((sc.buffWeave ?? 0.9) * 100)}%</strong></span>
+            <input type="range" min="40" max="100" step="2" value="${Math.round((sc.buffWeave ?? 0.9) * 100)}" id="sc_weave">
+            <small class="muted">妮可3.5s覆盖 ${(qa.nicoleCov * 100).toFixed(0)}% · 丽娜0影 ${(qa.rinaCovM0 * 100).toFixed(0)}%</small>
+          </label>
+
+          <label class="ws-field">
+            <span>5. 失衡连携取消手法 (主C约 ${qa.chainCountCarry.toFixed(1)} 连)</span>
+            <select id="sc_chain">
+              <option value="auto" ${sc.chainTech === "auto" ? "selected" : ""}>按阵容智能择优</option>
+              <option value="single_skip" ${sc.chainTech === "single_skip" ? "selected" : ""}>1连携极速取消 (省时打直伤)</option>
+              <option value="triple_std" ${sc.chainTech === "triple_std" ? "selected" : ""}>常规顺序打满3连携 (新手默认)</option>
+              <option value="double_carry" ${sc.chainTech === "double_carry" ? "selected" : ""}>手动取消重击 · 主C双连携 (主流进阶)</option>
+              <option value="triple_carry" ${sc.chainTech === "triple_carry" ? "selected" : ""}>耀嘉音/琉音/诺姆 · 强转主C三~四连携</option>
+            </select>
+          </label>
+
+          <label class="ws-field">
+            <span>6. 黄光闪A振刀(双反)次数/轮: <strong class="mono">${sc.parryCount}</strong> 次</span>
+            <input type="range" min="0" max="6" step="0.5" value="${sc.parryCount}" id="sc_parry">
+            <small class="${qa.assistNet < -0.5 ? "txt-warn" : "muted"}">支援点: 回复+${qa.assistEarned.toFixed(1)} / 消耗-${qa.assistSpent.toFixed(1)} (${qa.assistNet >= 0 ? "循环充沛" : "透支警告"})</small>
+          </label>
+
+          <label class="ws-field">
+            <span>7. 预输入/闪A取消后摇密度: <strong class="mono">${Math.round((sc.cancelDensity ?? 0.6) * 100)}%</strong></span>
+            <input type="range" min="0" max="100" step="5" value="${Math.round((sc.cancelDensity ?? 0.6) * 100)}" id="sc_cancel">
+            <small class="muted">快支 ${qa.totalQA.toFixed(1)}次/轮 · 静听嘉音 ${qa.astralStacks.toFixed(1)}层(+${(qa.astralDmg * 100).toFixed(1)}%)</small>
+          </label>
+
+          <label class="ws-field">
+            <span>8. 双异常99%压条与喧响对轴</span>
+            <div class="row" style="gap:6px;">
+              <select id="sc_prestack" style="flex:1;">
+                <option value="none" ${sc.anomPrestack === "none" ? "selected" : ""}>随缘挂异常</option>
+                <option value="standard" ${sc.anomPrestack === "standard" ? "selected" : ""}>常规交替紊乱</option>
+                <option value="prestack_99" ${sc.anomPrestack === "prestack_99" ? "selected" : ""}>99%压条瞬爆紊乱(+2s结算)</option>
+              </select>
+              <select id="sc_decibel" style="flex:1;">
+                <option value="sequential" ${sc.decibelSync === "sequential" ? "selected" : ""}>大招随缘开</option>
+                <option value="aligned" ${sc.decibelSync === "aligned" ? "selected" : ""}>对轴失衡大招</option>
+                <option value="double_ult" ${sc.decibelSync === "double_ult" ? "selected" : ""}>喧响极限双大</option>
+              </select>
+            </div>
+          </label>
         </div>
-      </div>
 
-      <div class="ws-grid-4">
-        <label class="ws-field">
-          <span>1. 脱手帧并行复用率: <strong class="mono">${Math.round(sc.commitOverlap * 100)}%</strong></span>
-          <input type="range" min="0" max="100" step="2" value="${Math.round(sc.commitOverlap * 100)}" id="sc_overlap">
-        </label>
-
-        <label class="ws-field">
-          <span>2. 合轴安全与闪避垫步策略</span>
-          <select id="sc_safety">
-            <option value="safe_only" ${sc.safetyPolicy === "safe_only" ? "selected" : ""}>仅无敌帧/快支保护帧安全合轴 (零战损)</option>
-            <option value="dodge_cancel" ${sc.safetyPolicy === "dodge_cancel" ? "selected" : ""}>裸露招式垫步闪避取消离场 (0.18s损耗)</option>
-            <option value="aggressive" ${sc.safetyPolicy === "aggressive" ? "selected" : ""}>激进零帧硬切同屏双打 (裸露 ${qa.exposedSec.toFixed(1)}s)</option>
-          </select>
-        </label>
-
-        <label class="ws-field">
-          <span>3. 持续引导技防断招保护</span>
-          <select id="sc_prot_chan">
-            <option value="1" ${sc.protectChanneled !== false ? "selected" : ""}>等待终结击出手再切 (派派/可琳/安东不丢伤)</option>
-            <option value="0" ${sc.protectChanneled === false ? "selected" : ""}>强行提前硬切压轴 (引导角色截断丢尾段倍率)</option>
-          </select>
-        </label>
-
-        <label class="ws-field">
-          <span>4. 短轴拐爆发窗穿插续杯率: <strong class="mono">${Math.round((sc.buffWeave ?? 0.9) * 100)}%</strong></span>
-          <input type="range" min="40" max="100" step="2" value="${Math.round((sc.buffWeave ?? 0.9) * 100)}" id="sc_weave">
-          <small class="muted">妮可3.5s覆盖 ${(qa.nicoleCov * 100).toFixed(0)}% · 丽娜0影 ${(qa.rinaCovM0 * 100).toFixed(0)}%</small>
-        </label>
-
-        <label class="ws-field">
-          <span>5. 失衡连携取消手法 (主C约 ${qa.chainCountCarry.toFixed(1)} 连)</span>
-          <select id="sc_chain">
-            <option value="auto" ${sc.chainTech === "auto" ? "selected" : ""}>按阵容智能择优</option>
-            <option value="single_skip" ${sc.chainTech === "single_skip" ? "selected" : ""}>1连携极速取消 (省时打直伤)</option>
-            <option value="triple_std" ${sc.chainTech === "triple_std" ? "selected" : ""}>常规顺序打满3连携 (新手默认)</option>
-            <option value="double_carry" ${sc.chainTech === "double_carry" ? "selected" : ""}>手动取消重击 · 主C双连携 (主流进阶)</option>
-            <option value="triple_carry" ${sc.chainTech === "triple_carry" ? "selected" : ""}>耀嘉音/琉音/诺姆 · 强转主C三~四连携</option>
-          </select>
-        </label>
-
-        <label class="ws-field">
-          <span>6. 黄光闪A振刀(双反)次数/轮: <strong class="mono">${sc.parryCount}</strong> 次</span>
-          <input type="range" min="0" max="6" step="0.5" value="${sc.parryCount}" id="sc_parry">
-          <small class="${qa.assistNet < -0.5 ? "txt-warn" : "muted"}">支援点: 回复+${qa.assistEarned.toFixed(1)} / 消耗-${qa.assistSpent.toFixed(1)} (${qa.assistNet >= 0 ? "循环充沛" : "透支警告"})</small>
-        </label>
-
-        <label class="ws-field">
-          <span>7. 预输入/闪A取消后摇密度: <strong class="mono">${Math.round((sc.cancelDensity ?? 0.6) * 100)}%</strong></span>
-          <input type="range" min="0" max="100" step="5" value="${Math.round((sc.cancelDensity ?? 0.6) * 100)}" id="sc_cancel">
-          <small class="muted">快支 ${qa.totalQA.toFixed(1)}次/轮 -> 静听嘉音 ${qa.astralStacks.toFixed(1)}层(+${(qa.astralDmg * 100).toFixed(1)}%)</small>
-        </label>
-
-        <label class="ws-field">
-          <span>8. 双异常99%压条与喧响对轴</span>
-          <div class="row" style="gap:4px;">
-            <select id="sc_prestack" style="flex:1;">
-              <option value="none" ${sc.anomPrestack === "none" ? "selected" : ""}>随缘挂异常</option>
-              <option value="standard" ${sc.anomPrestack === "standard" ? "selected" : ""}>常规交替紊乱</option>
-              <option value="prestack_99" ${sc.anomPrestack === "prestack_99" ? "selected" : ""}>99%压条瞬爆紊乱(+2s结算)</option>
-            </select>
-            <select id="sc_decibel" style="flex:1;">
-              <option value="sequential" ${sc.decibelSync === "sequential" ? "selected" : ""}>大招随缘开</option>
-              <option value="aligned" ${sc.decibelSync === "aligned" ? "selected" : ""}>对轴失衡大招</option>
-              <option value="double_ult" ${sc.decibelSync === "double_ult" ? "selected" : ""}>喧响极限双大</option>
-            </select>
+        ${
+          active.length > 0
+            ? `
+          <div class="ws-grid-3" style="margin-top:12px;">
+            ${active
+              .map((m) => {
+                const sp = getCharSwapProfile(m.ch);
+                return `
+                  <div class="char-swap-tag">
+                    <div class="row" style="justify-content:space-between;">
+                      <strong>${escHtml(m.ch.n)} · ${escHtml(ARCHETYPE_LABELS[sp.archetype] || sp.archetype)}</strong>
+                      <button class="btn btn-xs" data-ws-edit-char-swap="${escHtml(m.ch.id)}">改帧数</button>
+                    </div>
+                    <div class="mono muted" style="font-size:12px;margin-top:2px;">可脱手 ${sp.commitSec}s · ${escHtml(SAFETY_LABELS[sp.safety] || sp.safety)} · 快支 ${sp.qaOut}/轮</div>
+                    <div class="muted" style="font-size:12px;margin-top:2px;">${escHtml(sp.note || "")}</div>
+                  </div>
+                `;
+              })
+              .join("")}
           </div>
-        </label>
+        `
+            : ""
+        }
       </div>
+    </details>
 
-      ${active.length > 0 ? `
-        <div class="ws-grid-3" style="margin-top:10px;">
-          ${active.map(m => {
-            const sp = getCharSwapProfile(m.ch);
-            return `
-              <div class="char-swap-tag">
-                <div class="row" style="justify-content:space-between;">
-                  <strong>${escHtml(m.ch.n)} · ${escHtml(ARCHETYPE_LABELS[sp.archetype] || sp.archetype)}</strong>
-                  <button class="btn btn-xs" data-ws-edit-char-swap="${escHtml(m.ch.id)}">改帧数</button>
-                </div>
-                <div class="mono muted" style="font-size:11px;">可脱手 ${sp.commitSec}s · ${escHtml(SAFETY_LABELS[sp.safety] || sp.safety)} · 快支产出 ${sp.qaOut}/轮</div>
-                <div style="font-size:11px;margin-top:2px;">${escHtml(sp.note || "")}</div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      ` : ""}
-    </div>
-
-    <div class="subbox" style="margin-top:12px;">
-      <div class="row" style="justify-content:space-between;gap:8px;margin-bottom:8px;">
+    <div class="gantt-panel" style="margin-top:12px;">
+      <div class="gantt-toolbar">
         <div>
-          <strong style="font-size:14px;">可视化多轨合轴排轴工作台 (Interactive Gantt Action Sequencer)</strong>
-          <span class="muted" style="font-size:12px;margin-left:8px;">实心条=前台操作帧，斜纹尾段=切人后后台脱手并行帧，红框尾段=裸露危险帧或早切截断警告。</span>
+          <div style="font-weight:700;font-size:14px;">可视化多轨合轴排轴工作台 (Interactive Gantt Action Sequencer)</div>
+          <div class="gantt-legend" style="margin-top:4px;">
+            <span class="gantt-legend-item"><i class="gantt-swatch solid"></i><span>实心 = 前台操作帧</span></span>
+            <span class="gantt-legend-item"><i class="gantt-swatch hatch"></i><span>斜纹 = 切人后后台脱手并行帧</span></span>
+            <span class="gantt-legend-item"><i class="gantt-swatch danger"></i><span>红框 = 裸露合轴或早切截断</span></span>
+            <span class="gantt-legend-item"><span class="muted">点击任一动作块可在下方精调帧数</span></span>
+          </div>
         </div>
         <div class="row" style="gap:6px;">
           <label class="chk-pill">
@@ -1499,13 +1729,13 @@ function renderSection04SwapAndTimeline(sim) {
       </div>
 
       <div class="tl-metrics mono">
-        <span>总动作块: <strong>${tl.blockCount}</strong></span>
-        <span>顺序总耗时: <strong>${tl.seqCycleSec.toFixed(2)}s</strong></span>
-        <span>合轴压缩后实轴: <strong>${tl.cycleSec.toFixed(2)}s</strong></span>
-        <span>并行省帧: <strong>-${tl.savedSec.toFixed(2)}s (${(tl.overlapPct * 100).toFixed(1)}%)</strong></span>
-        <span>安全合轴: <strong>${tl.safeSwaps}次</strong></span>
-        <span class="${tl.exposedSwaps > 0 ? "txt-warn" : ""}">裸露合轴: <strong>${tl.exposedSwaps}次 (${tl.exposedSec.toFixed(1)}s)</strong></span>
-        ${tl.nicoleCov !== null ? `<span>实轴妮可减防覆盖1号位倍率: <strong>${(tl.nicoleCov * 100).toFixed(1)}%</strong></span>` : ""}
+        <span class="tl-stat-chip">总动作块 <strong>${tl.blockCount}</strong></span>
+        <span class="tl-stat-chip">顺序总耗时 <strong>${tl.seqCycleSec.toFixed(2)}s</strong></span>
+        <span class="tl-stat-chip">合轴压缩后实轴 <strong>${tl.cycleSec.toFixed(2)}s</strong></span>
+        <span class="tl-stat-chip">并行省帧 <strong style="color:var(--accent);">-${tl.savedSec.toFixed(2)}s (${(tl.overlapPct * 100).toFixed(1)}%)</strong></span>
+        <span class="tl-stat-chip">安全合轴 <strong>${tl.safeSwaps}次</strong></span>
+        <span class="tl-stat-chip ${tl.exposedSwaps > 0 ? "txt-warn" : ""}">裸露合轴 <strong>${tl.exposedSwaps}次 (${tl.exposedSec.toFixed(1)}s)</strong></span>
+        ${tl.nicoleCov !== null ? `<span class="tl-stat-chip">妮可减防覆盖1号位 <strong>${(tl.nicoleCov * 100).toFixed(1)}%</strong></span>` : ""}
       </div>
 
       <div class="tl-svg-container" id="timelineSvgWrap">
@@ -1519,114 +1749,310 @@ function renderSection04SwapAndTimeline(sim) {
   bindSection04Events(wrap, active);
 }
 
-function renderTimelineSVG(blocks, activeMembers, tl, selectedId) {
+function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selectedId?: string) {
   if (!blocks || blocks.length === 0 || activeMembers.length === 0) {
-    return `<div class="muted" style="padding:16px;text-align:center;">暂无排轴动作块，请先上阵角色或点击「按当前手法重排标准轴」。</div>`;
+    return `<div class="muted" style="padding:22px;text-align:center;">暂无排轴动作块，请先上阵角色或点击「按当前手法重排标准轴」。</div>`;
   }
-  const maxT = Math.max(12, Math.ceil((tl.cycleSec || 18) + 1.5));
-  const leftPad = 112;
+
+  const lang = appStore.state.lang || "zh";
+  const tr = (s: string) => translateText(s, lang);
+
+  const maxT = Math.max(12, Math.ceil((tl.cycleSec || 18) + 1.0));
+  const leftPad = 152;
   const rightPad = 24;
-  const pxPerSec = 48;
-  const width = Math.max(760, leftPad + maxT * pxPerSec + rightPad);
-  const trackH = 40;
-  const topPad = 28;
-  const buffTrackH = tl.buffWindows.length > 0 ? 32 : 0;
-  const height = topPad + activeMembers.length * trackH + buffTrackH + 14;
+  const targetWidth = 1320;
+  const pxPerSec = Math.max(58, (targetWidth - leftPad - rightPad) / maxT);
+  const width = Math.round(leftPad + maxT * pxPerSec + rightPad);
 
-  const xOf = sec => leftPad + sec * pxPerSec;
+  const phaseY = 6;
+  const phaseH = 20;
+  const rulerY = 28;
+  const topPad = 50;
+  const trackH = 46;
 
-  // Stun window highlight
-  const stunX = xOf(tl.stunStartSec || maxT * 0.5);
-  const stunW = Math.max(0, xOf(Math.min(maxT, tl.stunEndSec || maxT)) - stunX);
+  // Greedily pack buff windows into non-overlapping lanes
+  const buffLanes: number[] = [];
+  const placedBuffs = (tl.buffWindows || []).map((bw: any, idx: number) => {
+    let lane = 0;
+    while (lane < buffLanes.length && buffLanes[lane] > bw.start + 0.02) {
+      lane++;
+    }
+    buffLanes[lane] = bw.end;
+    return { ...bw, lane, idx };
+  });
 
-  let ticks = "";
+  const buffSectionPad = placedBuffs.length > 0 ? 10 : 0;
+  const buffLaneH = 20;
+  const buffTotalH = placedBuffs.length > 0 ? buffSectionPad + Math.max(1, buffLanes.length) * buffLaneH + 6 : 0;
+  const height = topPad + activeMembers.length * trackH + buffTotalH + 10;
+
+  const xOf = (sec: number) => leftPad + sec * pxPerSec;
+
+  const stunStart = Math.max(0, Math.min(maxT, tl.stunStartSec ?? maxT * 0.5));
+  const stunEnd = Math.max(stunStart, Math.min(maxT, tl.stunEndSec ?? maxT));
+  const stunX = xOf(stunStart);
+  const stunW = Math.max(0, xOf(stunEnd) - stunX);
+  const preStunW = Math.max(0, stunX - leftPad);
+
+  // Track palette (Zero-Purple: Sky, Teal, Amber)
+  const trackColors = ["#0284c7", "#0d9488", "#d97706"];
+
+  let defsSvg = `
+    <pattern id="tlHatch0" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#0284c7" fill-opacity="0.16" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#38bdf8" stroke-opacity="0.55" stroke-width="2.2" />
+    </pattern>
+    <pattern id="tlHatch1" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#0d9488" fill-opacity="0.16" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#2dd4bf" stroke-opacity="0.55" stroke-width="2.2" />
+    </pattern>
+    <pattern id="tlHatch2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#d97706" fill-opacity="0.16" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#fbbf24" stroke-opacity="0.55" stroke-width="2.2" />
+    </pattern>
+    <pattern id="tlHatchDanger" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#e11d48" fill-opacity="0.18" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#fb7185" stroke-opacity="0.72" stroke-width="2.4" />
+    </pattern>
+  `;
+
+  // Phase header ribbon (strictly above ruler & tracks — never collides with bars)
+  const phaseLabelTitle = lang === "en" ? "PHASE" : lang === "ja" ? "フェーズ" : "战斗阶段";
+  const outStunTitle = tr("失衡外破韧期");
+  const inStunTitle = tr("失衡爆发窗口");
+
+  const phaseSvg = `
+    <text x="12" y="${phaseY + 14}" fill="var(--muted-foreground)" font-size="11" font-weight="700">${escHtml(phaseLabelTitle)}</text>
+    ${
+      preStunW > 24
+        ? `
+      <rect x="${leftPad}" y="${phaseY}" width="${Math.max(0, preStunW - 2)}" height="${phaseH}" rx="4" fill="var(--secondary)" opacity="0.85" />
+      <text x="${leftPad + 8}" y="${phaseY + 14}" fill="var(--muted-foreground)" font-size="11" font-weight="600">${escHtml(fitSvgLabel(`${outStunTitle} (0.0s – ${stunStart.toFixed(1)}s)`, preStunW - 6, 11))}</text>
+    `
+        : ""
+    }
+    ${
+      stunW > 24
+        ? `
+      <rect x="${stunX}" y="${phaseY}" width="${stunW}" height="${phaseH}" rx="4" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="1" />
+      <text x="${stunX + 8}" y="${phaseY + 14}" fill="#fbbf24" font-size="11" font-weight="700">${escHtml(fitSvgLabel(`${inStunTitle} (${stunStart.toFixed(1)}s – ${stunEnd.toFixed(1)}s)`, stunW - 6, 11))}</text>
+    `
+        : ""
+    }
+    ${
+      stunW > 0
+        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#f59e0b" fill-opacity="0.06" pointer-events="none" />`
+        : ""
+    }
+  `;
+
+  // Time Ruler & vertical gridlines
+  const timeHeader = lang === "en" ? "TIME (s)" : lang === "ja" ? "時間 (秒)" : "时间轴 (秒)";
+  let ticksSvg = `<text x="12" y="${rulerY + 14}" fill="var(--muted-foreground)" font-size="10.5" font-family="JetBrains Mono, monospace">${escHtml(timeHeader)}</text>`;
   for (let s = 0; s <= maxT; s++) {
     const x = xOf(s);
-    ticks += `
-      <line x1="${x}" y1="${topPad - 6}" x2="${x}" y2="${height - 8}" stroke="var(--border)" stroke-dasharray="${s % 5 === 0 ? "none" : "2,3"}" stroke-width="${s % 5 === 0 ? "1.2" : "0.7"}" />
-      <text x="${x + 2}" y="16" fill="var(--muted-foreground)" font-size="10" font-family="monospace">${s}s</text>
+    const isMajor = s % 5 === 0;
+    ticksSvg += `
+      <line x1="${x}" y1="${rulerY + 18}" x2="${x}" y2="${height - 8}" stroke="var(--border)" stroke-opacity="${isMajor ? "0.85" : "0.45"}" stroke-dasharray="${isMajor ? "none" : "2,4"}" stroke-width="${isMajor ? "1.1" : "0.75"}" />
+      <text x="${x}" y="${rulerY + 13}" text-anchor="middle" fill="${isMajor ? "var(--foreground)" : "var(--muted-foreground)"}" font-size="10.5" font-weight="${isMajor ? "700" : "500"}" font-family="JetBrains Mono, monospace">${s}s</text>
     `;
   }
 
-  let tracksHtml = "";
+  // Agent Tracks
+  let tracksSvg = "";
   activeMembers.forEach((m, mIdx) => {
     const y = topPad + mIdx * trackH;
-    tracksHtml += `
-      <rect x="0" y="${y}" width="${width}" height="${trackH - 4}" fill="var(--card)" opacity="0.55" />
-      <line x1="0" y1="${y + trackH - 4}" x2="${width}" y2="${y + trackH - 4}" stroke="var(--border)" stroke-width="0.8" />
-      <text x="10" y="${y + 22}" fill="var(--foreground)" font-size="12" font-weight="700">${m.slotIdx + 1}号 · ${escHtml(m.ch.n)}</text>
+    const h = trackH - 4;
+    const col = trackColors[mIdx % 3];
+    const headerTitle = tr(`${m.slotIdx + 1}号 · ${m.ch.n}`);
+    const roleSub = tr(`${m.ch.e} · ${m.ch.p} · M${m.m}`);
+
+    tracksSvg += `
+      <rect x="0" y="${y}" width="${width}" height="${h}" rx="6" fill="var(--card)" opacity="0.62" />
+      <rect x="0" y="${y}" width="${leftPad - 8}" height="${h}" rx="6" fill="var(--card-elev)" stroke="var(--card-border)" stroke-width="1" />
+      <rect x="0" y="${y + 4}" width="3.5" height="${h - 8}" rx="1.5" fill="${col}" />
+      <text x="11" y="${y + 18}" fill="var(--foreground)" font-size="12" font-weight="700">${escHtml(fitSvgLabel(headerTitle, leftPad - 16, 12))}</text>
+      <text x="11" y="${y + 33}" fill="var(--muted-foreground)" font-size="10.5" font-family="JetBrains Mono, monospace">${escHtml(fitSvgLabel(roleSub, leftPad - 16, 10.5))}</text>
     `;
   });
 
-  const trackColor = ["#2563eb", "#0d9488", "#d97706"];
-  let blocksSvg = "";
-  blocks.forEach(b => {
-    const mIdx = activeMembers.findIndex(m => m.ch.id === b.cid);
+  // Precompute next solid block X on the SAME track so labels never collide
+  const indexedBlocks = blocks.map((b, idx) => {
+    const mIdx = activeMembers.findIndex((m) => m.ch.id === b.cid);
     const rowIdx = mIdx >= 0 ? mIdx : 0;
-    const y = topPad + rowIdx * trackH + 4;
-    const h = trackH - 12;
-    const xStart = xOf(b.startSec);
+    return { b, idx, rowIdx, xStart: xOf(b.startSec) };
+  });
+
+  const nextSameRowX = new Map<number, number>();
+  for (let r = 0; r < activeMembers.length; r++) {
+    const rowItems = indexedBlocks
+      .filter((it) => it.rowIdx === r)
+      .sort((a, b) => a.xStart - b.xStart || a.idx - b.idx);
+    for (let i = 0; i < rowItems.length; i++) {
+      const nextX = i + 1 < rowItems.length ? rowItems[i + 1].xStart : width - rightPad;
+      nextSameRowX.set(rowItems[i].idx, nextX);
+    }
+  }
+
+  let tailsLayerSvg = "";
+  let solidsLayerSvg = "";
+
+  indexedBlocks.forEach(({ b, idx, rowIdx, xStart }) => {
+    const y = topPad + rowIdx * trackH + 6;
+    const h = trackH - 16; // 30px
     const wOn = Math.max(8, b.swapDur * pxPerSec);
     const linger = Math.max(0, b.totalDur - b.swapDur);
-    const wLinger = linger * pxPerSec;
+    const wLinger = Math.max(0, linger * pxPerSec);
     const isSel = b.id === selectedId;
-    const baseCol = trackColor[rowIdx % 3];
-    const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || (b._truncPct > 0.03);
-    const tailCol = isDanger ? "#dc2626" : baseCol;
+    const baseCol = trackColors[rowIdx % 3];
+    const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || b._truncPct > 0.03;
+    const tailStroke = isDanger ? "#f43f5e" : baseCol;
+    const hatchId = isDanger ? "tlHatchDanger" : `tlHatch${rowIdx % 3}`;
 
-    blocksSvg += `
+    const rawShort = String(b.label || "").replace(/^.+·/, "");
+    const cleanText = tr(rawShort);
+    const fullTip = tr(
+      `${b.label} | ${b.startSec}s -> +${b.swapDur}s / ${b.totalDur}s | 脱手并行 ${linger.toFixed(2)}s${
+        b._truncPct > 0.03 ? ` | 早切截断 -${(b._truncPct * 100).toFixed(0)}%` : ""
+      }`
+    );
+
+    // 1. Off-field parallel tail rendered in bottom layer so later solid blocks sit cleanly on top
+    if (wLinger > 2) {
+      tailsLayerSvg += `
+        <g data-tl-pick="${escHtml(b.id)}" style="cursor:pointer;">
+          <rect
+            x="${(xStart + wOn).toFixed(1)}"
+            y="${y + 3}"
+            width="${wLinger.toFixed(1)}"
+            height="${h - 6}"
+            rx="4"
+            fill="url(#${hatchId})"
+            stroke="${tailStroke}"
+            stroke-opacity="0.72"
+            stroke-dasharray="${isDanger ? "3,2" : "4,3"}"
+            stroke-width="1.15"
+          />
+          <title>${escHtml(fullTip)}</title>
+        </g>
+      `;
+    }
+
+    // 2. Compute safe non-overlapping label budget
+    const nextX = nextSameRowX.get(idx) ?? width - rightPad;
+    const gapToNext = Math.max(0, nextX - xStart - 4);
+    const extendIntoTail = wOn < 58 && wLinger > 14 && gapToNext > wOn + 12;
+    const availLabelPx = extendIntoTail
+      ? Math.min(wOn + wLinger - 4, gapToNext)
+      : Math.min(wOn, gapToNext);
+    const fitted = fitSvgLabel(cleanText, availLabelPx, 11);
+
+    const clipId = `tlBlkClip_${idx}`;
+    defsSvg += `<clipPath id="${clipId}"><rect x="${xStart.toFixed(1)}" y="${y}" width="${Math.max(0, availLabelPx).toFixed(1)}" height="${h}" rx="5" /></clipPath>`;
+
+    const textBackdropW =
+      extendIntoTail && fitted
+        ? Math.min(availLabelPx - 2, estimateSvgTextPx(fitted, 11) + 12)
+        : 0;
+
+    solidsLayerSvg += `
       <g class="tl-blk-g" data-tl-pick="${escHtml(b.id)}" style="cursor:pointer;">
-        <rect x="${xStart}" y="${y}" width="${wOn}" height="${h}" rx="4" fill="${baseCol}" stroke="${isSel ? "var(--foreground)" : "none"}" stroke-width="${isSel ? "2" : "0"}" />
-        ${wLinger > 2 ? `
-          <rect x="${xStart + wOn}" y="${y + 2}" width="${wLinger}" height="${h - 4}" rx="3" fill="${tailCol}" fill-opacity="0.24" stroke="${tailCol}" stroke-dasharray="3,2" stroke-width="1.2" />
-        ` : ""}
-        <text x="${xStart + 5}" y="${y + 18}" fill="#ffffff" font-size="11" font-weight="600" pointer-events="none">${escHtml(b.label.replace(/^.+·/, ""))}</text>
-        <title>${escHtml(b.label)} | 起始 ${b.startSec}s | 切人点 ${b.swapDur}s / 总动画 ${b.totalDur}s | 脱手并行 ${linger.toFixed(2)}s${b._truncPct > 0.03 ? ` | [早切截断 -${(b._truncPct * 100).toFixed(0)}%]` : ""}</title>
+        <rect
+          x="${xStart.toFixed(1)}"
+          y="${y}"
+          width="${wOn.toFixed(1)}"
+          height="${h}"
+          rx="5"
+          fill="${baseCol}"
+          stroke="${isSel ? "#ffffff" : "rgba(255,255,255,0.18)"}"
+          stroke-width="${isSel ? "2" : "0.8"}"
+        />
+        ${
+          fitted
+            ? `
+          <g clip-path="url(#${clipId})" pointer-events="none">
+            ${
+              textBackdropW > wOn
+                ? `<rect x="${(xStart + 2).toFixed(1)}" y="${y + 5}" width="${textBackdropW.toFixed(1)}" height="${h - 10}" rx="4" fill="#080c13" fill-opacity="0.82" />`
+                : ""
+            }
+            <text x="${(xStart + 6).toFixed(1)}" y="${y + 19}" fill="#ffffff" font-size="11" font-weight="600">${escHtml(fitted)}</text>
+          </g>
+        `
+            : ""
+        }
+        <title>${escHtml(fullTip)}</title>
       </g>
     `;
   });
 
+  // Buff Coverage Lanes
   let buffSvg = "";
-  if (tl.buffWindows.length > 0) {
-    const by = topPad + activeMembers.length * trackH + 4;
-    buffSvg += `<text x="10" y="${by + 16}" fill="var(--muted-foreground)" font-size="11" font-weight="600">短轴拐覆盖窗</text>`;
-    tl.buffWindows.forEach((bw, idx) => {
+  if (placedBuffs.length > 0) {
+    const baseBy = topPad + activeMembers.length * trackH + buffSectionPad;
+    const buffHeader = tr("短轴拐覆盖窗");
+    buffSvg += `<text x="11" y="${baseBy + 13}" fill="var(--muted-foreground)" font-size="11" font-weight="700">${escHtml(fitSvgLabel(buffHeader, leftPad - 16, 11))}</text>`;
+
+    placedBuffs.forEach((bw: any) => {
       const bx = xOf(bw.start);
-      const bwPx = Math.max(10, (Math.min(maxT, bw.end) - bw.start) * pxPerSec);
+      const bwPx = Math.max(12, (Math.min(maxT, bw.end) - bw.start) * pxPerSec);
+      const ly = baseBy + bw.lane * buffLaneH;
+      const bClip = `tlBuffClip_${bw.idx}`;
+      const bLabel = tr(String(bw.label || ""));
+      const bFit = fitSvgLabel(bLabel, bwPx, 10);
+      defsSvg += `<clipPath id="${bClip}"><rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" /></clipPath>`;
+
       buffSvg += `
-        <rect x="${bx}" y="${by + (idx % 2) * 11}" width="${bwPx}" height="10" rx="3" fill="#059669" fill-opacity="0.72" />
-        <text x="${bx + 4}" y="${by + (idx % 2) * 11 + 8}" fill="#ffffff" font-size="9">${escHtml(bw.label)}</text>
+        <g>
+          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#059669" fill-opacity="0.82" />
+          ${
+            bFit
+              ? `<text x="${(bx + 5).toFixed(1)}" y="${ly + 11.5}" fill="#ffffff" font-size="10" font-weight="600" clip-path="url(#${bClip})" pointer-events="none">${escHtml(bFit)}</text>`
+              : ""
+          }
+          <title>${escHtml(`${bLabel} (${bw.start.toFixed(1)}s – ${bw.end.toFixed(1)}s)`)}</title>
+        </g>
       `;
     });
   }
 
   return `
-    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="display:block;min-width:100%;">
-      ${stunW > 0 ? `
-        <rect x="${stunX}" y="${topPad - 4}" width="${stunW}" height="${height - topPad}" fill="#f59e0b" fill-opacity="0.10" />
-        <text x="${stunX + 6}" y="${topPad + 11}" fill="#d97706" font-size="10" font-weight="700">失衡爆发窗口 (Stun Window)</text>
-      ` : ""}
-      ${ticks}
-      ${tracksHtml}
-      ${blocksSvg}
+    <svg data-no-i18n="1" viewBox="0 0 ${width} ${height}" width="100%" style="display:block;width:100%;height:auto;min-width:920px;">
+      <defs>${defsSvg}</defs>
+      ${phaseSvg}
+      ${ticksSvg}
+      ${tracksSvg}
+      <g class="tl-tails-layer">${tailsLayerSvg}</g>
+      <g class="tl-solids-layer">${solidsLayerSvg}</g>
       ${buffSvg}
     </svg>
   `;
 }
 
-function renderSelectedBlockInspector(blk, activeMembers) {
-  const m = activeMembers.find(x => x.ch.id === blk.cid) || activeMembers[0];
+function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
+  const m = activeMembers.find((x) => x.ch.id === blk.cid) || activeMembers[0];
   const movePool = m ? getMovePoolForChar(m.ch) : [];
-  const cats = [["basic", "普攻/蓄力"], ["dash", "闪反/振刀"], ["ex", "强化特殊技"], ["chain", "连携技"], ["ult", "终结技"], ["qa", "快速支援"]];
+  const cats = [
+    ["basic", "普攻/蓄力"],
+    ["dash", "闪反/振刀"],
+    ["ex", "强化特殊技"],
+    ["chain", "连携技"],
+    ["ult", "终结技"],
+    ["qa", "快速支援"]
+  ];
 
   return `
     <div class="tl-inspector">
-      <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px;">
         <div class="row" style="gap:8px;">
           <strong>选中动作块精调：${escHtml(blk.label)}</strong>
-          ${blk._truncPct > 0.03 ? `<span class="badge b-warn">当前切人点早于收尾帧(${blk.minSwap}s)，截断丢伤 ${(blk._truncPct * 100).toFixed(0)}%</span>` : `<span class="badge b-ok">完整保留脱手判定 (后台并行 ${(blk.totalDur - blk.swapDur).toFixed(2)}s)</span>`}
+          ${
+            blk._truncPct > 0.03
+              ? `<span class="badge b-warn">当前切人点早于收尾帧(${blk.minSwap}s)，截断丢伤 ${(blk._truncPct * 100).toFixed(0)}%</span>`
+              : `<span class="badge b-ok">完整保留脱手判定 (后台并行 ${(blk.totalDur - blk.swapDur).toFixed(2)}s)</span>`
+          }
         </div>
-        <div class="row" style="gap:4px;">
+        <div class="row" style="gap:6px;">
           <button class="btn btn-xs" id="tlMoveLeftBtn">前移顺序</button>
           <button class="btn btn-xs" id="tlMoveRightBtn">后移顺序</button>
           <button class="btn btn-xs" id="tlDupBlockBtn">复制此块</button>
@@ -1637,13 +2063,13 @@ function renderSelectedBlockInspector(blk, activeMembers) {
       <div class="ws-grid-6">
         <label class="ws-field"><span>执行角色</span>
           <select id="tl_blk_cid">
-            ${activeMembers.map(am => `<option value="${escHtml(am.ch.id)}" ${am.ch.id === blk.cid ? "selected" : ""}>${am.slotIdx + 1}号 · ${escHtml(am.ch.n)}</option>`).join("")}
+            ${activeMembers.map((am) => `<option value="${escHtml(am.ch.id)}" ${am.ch.id === blk.cid ? "selected" : ""}>${am.slotIdx + 1}号 · ${escHtml(am.ch.n)}</option>`).join("")}
           </select>
         </label>
         <label class="ws-field"><span>套用招式预设模板</span>
           <select id="tl_blk_tpl">
             <option value="">-- 保持当前招式自定义 --</option>
-            ${movePool.map(mv => `<option value="${escHtml(mv.key)}">${escHtml(mv.label)} (${mv.totalDur}s)</option>`).join("")}
+            ${movePool.map((mv: any) => `<option value="${escHtml(mv.key)}">${escHtml(mv.label)} (${mv.totalDur}s)</option>`).join("")}
           </select>
         </label>
         <label class="ws-field"><span>招式显示名称</span><input type="text" id="tl_blk_label" value="${escHtml(blk.label)}"></label>
@@ -1658,7 +2084,7 @@ function renderSelectedBlockInspector(blk, activeMembers) {
         </label>
         <label class="ws-field"><span>脱手安全等级</span>
           <select id="tl_blk_safety">
-            ${Object.entries(SAFETY_LABELS).map(([k, v]) => `<option value="${k}" ${blk.safety === k ? "selected" : ""}>${v}</option>`).join("")}
+            ${Object.entries(SAFETY_LABELS).map(([k, v]) => `<option value="${k}" ${blk.safety === k ? "selected" : ""}>${v as string}</option>`).join("")}
           </select>
         </label>
         <label class="ws-field"><span>起始时间 start(秒)</span><input type="number" step="0.1" min="0" id="tl_blk_start" value="${blk.startSec}"></label>
@@ -1675,7 +2101,12 @@ function renderSelectedBlockInspector(blk, activeMembers) {
 }
 
 function bindSection04Events(wrap: HTMLElement, active: any[]) {
-  wrap.querySelectorAll<any>("[data-swap-preset]").forEach(card => {
+  const drawerEl = document.getElementById("physicsDrawerEl") as HTMLDetailsElement | null;
+  drawerEl?.addEventListener("toggle", () => {
+    physicsDrawerOpen = !!drawerEl.open;
+  });
+
+  wrap.querySelectorAll<any>("[data-swap-preset]").forEach((card) => {
     card.addEventListener("click", () => {
       const pid = card.dataset.swapPreset;
       appStore.state.env.swapMode = pid;
@@ -2158,14 +2589,45 @@ export function initApp() {
   registerRefreshHandler(refreshAllUI);
   loadWorkspaceFromStorage();
 
-  document.getElementById("toggleEnkaPanelBtn")?.addEventListener("click", () => {
-    appStore.state.enkaPanelOpen = !appStore.state.enkaPanelOpen;
-    saveWorkspaceToStorage();
-    renderEnkaPanel();
-    if (appStore.state.enkaPanelOpen) {
-      document.getElementById("sec00Enka")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  document.querySelectorAll<HTMLButtonElement>("#langSwitchBar .lang-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = (btn.dataset.lang as LangCode) || "zh";
+      appStore.state.lang = next;
+      refreshAllUI();
+    });
   });
+
+  document.getElementById("toggleEnkaPanelBtn")?.addEventListener("click", () => {
+    if (appStore.state.studioView === "enka") {
+      appStore.state.studioView = "build";
+      appStore.state.enkaPanelOpen = false;
+    } else if (appStore.state.studioView === "all") {
+      appStore.state.enkaPanelOpen = !appStore.state.enkaPanelOpen;
+    } else {
+      appStore.state.studioView = "enka";
+      appStore.state.enkaPanelOpen = true;
+    }
+    refreshAllUI();
+  });
+
+  document.getElementById("togglePickerCollapseBtn")?.addEventListener("click", () => {
+    appStore.state.pickerCollapsed = !appStore.state.pickerCollapsed;
+    refreshAllUI();
+  });
+
+  const quickDropdown = document.getElementById("quickToolsDropdown") as HTMLDetailsElement | null;
+  if (quickDropdown) {
+    quickDropdown.querySelectorAll<HTMLButtonElement>(".dropdown-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        quickDropdown.open = false;
+      });
+    });
+    document.addEventListener("click", (e) => {
+      if (quickDropdown.open && !quickDropdown.contains(e.target as Node)) {
+        quickDropdown.open = false;
+      }
+    });
+  }
 
   document.getElementById("metricModeBtn")?.addEventListener("click", () => {
     appStore.state.env.metricMode = appStore.state.env.metricMode === "dpr" ? "dps" : "dpr";
@@ -2182,7 +2644,7 @@ export function initApp() {
   });
 
   document.getElementById("setM0R1Btn")?.addEventListener("click", () => {
-    appStore.state.slots.forEach(s => {
+    appStore.state.slots.forEach((s) => {
       if (!s || !s.cid || !CHAR_MAP[s.cid]) return;
       const ch = CHAR_MAP[s.cid];
       s.m = ch.r === "A" ? 6 : 0;
@@ -2210,7 +2672,7 @@ export function initApp() {
   });
 
   document.getElementById("setM6R5Btn")?.addEventListener("click", () => {
-    appStore.state.slots.forEach(s => {
+    appStore.state.slots.forEach((s) => {
       if (!s || !s.cid || !CHAR_MAP[s.cid]) return;
       const ch = CHAR_MAP[s.cid];
       s.m = 6;
@@ -2270,8 +2732,10 @@ export function initApp() {
 
   document.getElementById("resetAllBtn")?.addEventListener("click", () => {
     const curTheme = appStore.state.theme;
+    const curLang = appStore.state.lang;
     appStore.state = makeInitialState();
     appStore.state.theme = curTheme;
+    appStore.state.lang = curLang;
     ensureTimelineInitialized(true);
     refreshAllUI();
   });
@@ -2288,8 +2752,7 @@ export function initApp() {
     window.addEventListener("themechange", () => {
       if (document.documentElement) {
         appStore.state.theme = document.documentElement.classList.contains("light") ? "light" : "dark";
-        const btn = document.getElementById("themeToggleBtn");
-        if (btn) btn.textContent = appStore.state.theme === "light" ? "切换暗色" : "切换亮色";
+        refreshAllUI();
       }
     });
   }

@@ -13,6 +13,7 @@ import {
 import { DEMO_ENKA_UID } from "../enka/demoShowcase";
 import { scoreSixPiecesForAgent } from "../enka/mappings";
 import { parseExternalScannerDiscs, syncedRecordToSlotConfig } from "../enka/parser";
+import { localizeDOM } from "../i18n";
 import type { SlotConfig } from "../types";
 import { runWorkerOptimizeSlotFromPool } from "../worker/workerClient";
 import {
@@ -128,17 +129,22 @@ export function renderEnkaPanel(): void {
   const vaultAgents = getSortedVaultAgents();
   const poolCount = enkaVault.discPool.length;
 
+  const isVisible =
+    appStore.state.studioView === "enka" ||
+    (appStore.state.studioView === "all" && appStore.state.enkaPanelOpen) ||
+    (appStore.state.studioView === "build" && appStore.state.enkaPanelOpen);
+
   if (topBtn) {
     topBtn.textContent =
       vaultAgents.length > 0
-        ? `UID练度柜 (${vaultAgents.length}人/${poolCount}盘)`
-        : "UID展柜同步";
-    topBtn.className = appStore.state.enkaPanelOpen ? "btn btn-primary" : "btn";
+        ? `UID 展柜 (${vaultAgents.length}人/${poolCount}盘)`
+        : "UID 展柜同步";
+    topBtn.className = isVisible ? "btn btn-primary" : "btn btn-tonal";
   }
 
   if (!sec || !body) return;
-  sec.hidden = !appStore.state.enkaPanelOpen;
-  if (!appStore.state.enkaPanelOpen) return;
+  sec.hidden = !isVisible;
+  if (!isVisible) return;
 
   const activeCidToSlot = new Map<string, number>();
   appStore.state.slots.forEach((s, i) => {
@@ -553,4 +559,5 @@ function bindEnkaPanelEvents(root: HTMLElement): void {
 
   // Reference DISC_SETS so custom set names stay live
   void DISC_SETS;
+  localizeDOM(document.getElementById("sec00Enka") || root, appStore.state.lang || "zh");
 }
