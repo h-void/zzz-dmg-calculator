@@ -1,6 +1,6 @@
 import type { RawEnkaUidResponse } from "../types";
 
-export const DEMO_ENKA_UID = "1500422486";
+export const DEMO_ENKA_UID = "100000000";
 export const DEMO_ENKA_PAYLOAD: RawEnkaUidResponse = {
   "PlayerInfo": {
     "ShowcaseDetail": {
@@ -1937,12 +1937,12 @@ export const DEMO_ENKA_PAYLOAD: RawEnkaUidResponse = {
       "ProfileDetail": {
         "AvatarId": 2021,
         "Level": 60,
-        "Uid": 1500422486,
+        "Uid": 100000000,
         "ProfileId": 3211031,
         "Title": 0,
         "PlatformType": 2,
         "CallingCardId": 3321031,
-        "Nickname": "Lumi",
+        "Nickname": "Proxy",
         "TitleInfo": {
           "Title": 3800116,
           "FullTitle": 0,
@@ -1952,7 +1952,7 @@ export const DEMO_ENKA_PAYLOAD: RawEnkaUidResponse = {
       }
     }
   },
-  "uid": "1500422486",
+  "uid": "100000000",
   "ttl": 60,
-  "region": "EU"
+  "region": "CN"
 };

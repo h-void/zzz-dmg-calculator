@@ -3,6 +3,12 @@
   "private": true,
   "version": "3.3.0",
   "description": "绝区零 v3.3 全自定义配队 · 八维合轴 · 拐力与伤害精算工作台 (支持 Enka UID 展柜同步 & Web Worker 后台寻优)",
+  "license": "GPL-3.0-only",
+  "homepage": "https://h-void.github.io/zzz-dmg-calculator/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/h-void/zzz-dmg-calculator.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
