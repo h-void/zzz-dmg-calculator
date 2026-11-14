@@ -1794,25 +1794,25 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
   const stunW = Math.max(0, xOf(stunEnd) - stunX);
   const preStunW = Math.max(0, stunX - leftPad);
 
-  // Track palette (Zero-Purple: Sky, Teal, Amber)
-  const trackColors = ["#0284c7", "#0d9488", "#d97706"];
+  // Curated Mineral Studio Track Palette (Prussian Slate, Celadon Jade, Burnished Bronze)
+  const trackColors = ["#4678a8", "#388276", "#a37b3b"];
 
   let defsSvg = `
     <pattern id="tlHatch0" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#0284c7" fill-opacity="0.16" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#38bdf8" stroke-opacity="0.55" stroke-width="2.2" />
+      <rect width="8" height="8" fill="#4678a8" fill-opacity="0.15" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#8ab4dc" stroke-opacity="0.50" stroke-width="2" />
     </pattern>
     <pattern id="tlHatch1" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#0d9488" fill-opacity="0.16" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#2dd4bf" stroke-opacity="0.55" stroke-width="2.2" />
+      <rect width="8" height="8" fill="#388276" fill-opacity="0.15" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#7cc2b6" stroke-opacity="0.50" stroke-width="2" />
     </pattern>
     <pattern id="tlHatch2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#d97706" fill-opacity="0.16" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#fbbf24" stroke-opacity="0.55" stroke-width="2.2" />
+      <rect width="8" height="8" fill="#a37b3b" fill-opacity="0.15" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#dfc082" stroke-opacity="0.50" stroke-width="2" />
     </pattern>
     <pattern id="tlHatchDanger" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#e11d48" fill-opacity="0.18" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#fb7185" stroke-opacity="0.72" stroke-width="2.4" />
+      <rect width="8" height="8" fill="#b84a50" fill-opacity="0.18" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#e08287" stroke-opacity="0.65" stroke-width="2.2" />
     </pattern>
   `;
 
@@ -1834,14 +1834,14 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     ${
       stunW > 24
         ? `
-      <rect x="${stunX}" y="${phaseY}" width="${stunW}" height="${phaseH}" rx="4" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="1" />
-      <text x="${stunX + 8}" y="${phaseY + 14}" fill="#fbbf24" font-size="11" font-weight="700">${escHtml(fitSvgLabel(`${inStunTitle} (${stunStart.toFixed(1)}s – ${stunEnd.toFixed(1)}s)`, stunW - 6, 11))}</text>
+      <rect x="${stunX}" y="${phaseY}" width="${stunW}" height="${phaseH}" rx="4" fill="#d6ad60" fill-opacity="0.14" stroke="#d6ad60" stroke-opacity="0.38" stroke-width="1" />
+      <text x="${stunX + 8}" y="${phaseY + 14}" fill="var(--primary)" font-size="11" font-weight="700">${escHtml(fitSvgLabel(`${inStunTitle} (${stunStart.toFixed(1)}s – ${stunEnd.toFixed(1)}s)`, stunW - 6, 11))}</text>
     `
         : ""
     }
     ${
       stunW > 0
-        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#f59e0b" fill-opacity="0.06" pointer-events="none" />`
+        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#d6ad60" fill-opacity="0.045" pointer-events="none" />`
         : ""
     }
   `;
@@ -1868,9 +1868,9 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     const roleSub = tr(`${m.ch.e} · ${m.ch.p} · M${m.m}`);
 
     tracksSvg += `
-      <rect x="0" y="${y}" width="${width}" height="${h}" rx="6" fill="var(--card)" opacity="0.62" />
+      <rect x="0" y="${y}" width="${width}" height="${h}" rx="6" fill="var(--card)" opacity="0.72" />
       <rect x="0" y="${y}" width="${leftPad - 8}" height="${h}" rx="6" fill="var(--card-elev)" stroke="var(--card-border)" stroke-width="1" />
-      <rect x="0" y="${y + 4}" width="3.5" height="${h - 8}" rx="1.5" fill="${col}" />
+      <rect x="0" y="${y + 5}" width="3" height="${h - 10}" rx="1.5" fill="${col}" />
       <text x="11" y="${y + 18}" fill="var(--foreground)" font-size="12" font-weight="700">${escHtml(fitSvgLabel(headerTitle, leftPad - 16, 12))}</text>
       <text x="11" y="${y + 33}" fill="var(--muted-foreground)" font-size="10.5" font-family="JetBrains Mono, monospace">${escHtml(fitSvgLabel(roleSub, leftPad - 16, 10.5))}</text>
     `;
@@ -1906,7 +1906,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     const isSel = b.id === selectedId;
     const baseCol = trackColors[rowIdx % 3];
     const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || b._truncPct > 0.03;
-    const tailStroke = isDanger ? "#f43f5e" : baseCol;
+    const tailStroke = isDanger ? "#d16868" : baseCol;
     const hatchId = isDanger ? "tlHatchDanger" : `tlHatch${rowIdx % 3}`;
 
     const rawShort = String(b.label || "").replace(/^.+·/, "");
@@ -1929,9 +1929,9 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
             rx="4"
             fill="url(#${hatchId})"
             stroke="${tailStroke}"
-            stroke-opacity="0.72"
+            stroke-opacity="0.68"
             stroke-dasharray="${isDanger ? "3,2" : "4,3"}"
-            stroke-width="1.15"
+            stroke-width="1.1"
           />
           <title>${escHtml(fullTip)}</title>
         </g>
@@ -1964,8 +1964,8 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
           height="${h}"
           rx="5"
           fill="${baseCol}"
-          stroke="${isSel ? "#ffffff" : "rgba(255,255,255,0.18)"}"
-          stroke-width="${isSel ? "2" : "0.8"}"
+          stroke="${isSel ? "#eceef2" : "rgba(255,255,255,0.16)"}"
+          stroke-width="${isSel ? "1.8" : "0.8"}"
         />
         ${
           fitted
@@ -1973,10 +1973,10 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
           <g clip-path="url(#${clipId})" pointer-events="none">
             ${
               textBackdropW > wOn
-                ? `<rect x="${(xStart + 2).toFixed(1)}" y="${y + 5}" width="${textBackdropW.toFixed(1)}" height="${h - 10}" rx="4" fill="#080c13" fill-opacity="0.82" />`
+                ? `<rect x="${(xStart + 2).toFixed(1)}" y="${y + 5}" width="${textBackdropW.toFixed(1)}" height="${h - 10}" rx="4" fill="#0b0c0e" fill-opacity="0.86" />`
                 : ""
             }
-            <text x="${(xStart + 6).toFixed(1)}" y="${y + 19}" fill="#ffffff" font-size="11" font-weight="600">${escHtml(fitted)}</text>
+            <text x="${(xStart + 6).toFixed(1)}" y="${y + 19}" fill="#f4f6f9" font-size="11" font-weight="600">${escHtml(fitted)}</text>
           </g>
         `
             : ""
@@ -2004,10 +2004,10 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
 
       buffSvg += `
         <g>
-          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#059669" fill-opacity="0.82" />
+          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#3d7d63" fill-opacity="0.86" />
           ${
             bFit
-              ? `<text x="${(bx + 5).toFixed(1)}" y="${ly + 11.5}" fill="#ffffff" font-size="10" font-weight="600" clip-path="url(#${bClip})" pointer-events="none">${escHtml(bFit)}</text>`
+              ? `<text x="${(bx + 5).toFixed(1)}" y="${ly + 11.5}" fill="#f4f6f9" font-size="10" font-weight="600" clip-path="url(#${bClip})" pointer-events="none">${escHtml(bFit)}</text>`
               : ""
           }
           <title>${escHtml(`${bLabel} (${bw.start.toFixed(1)}s – ${bw.end.toFixed(1)}s)`)}</title>

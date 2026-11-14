@@ -268,7 +268,7 @@ export function renderEnkaPanel(): void {
         </div>
         ${
           ENKA_UI_STATE.lastOptSummary
-            ? `<div class="mono" style="width:100%;font-size:11px;color:var(--foreground);padding-top:4px;border-top:1px dashed rgba(14,165,233,0.28);">${escHtml(ENKA_UI_STATE.lastOptSummary)}</div>`
+            ? `<div class="mono" style="width:100%;font-size:11px;color:var(--foreground);padding-top:4px;border-top:1px dashed var(--border);">${escHtml(ENKA_UI_STATE.lastOptSummary)}</div>`
             : ""
         }
       </div>
