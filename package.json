@@ -1,0 +1,17 @@
+{
+  "name": "zzz-dmg-calculator",
+  "private": true,
+  "version": "3.3.0",
+  "description": "绝区零 v3.3 全自定义配队 · 八维合轴 · 拐力与伤害精算工作台 (支持 Enka UID 展柜同步 & Web Worker 后台寻优)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

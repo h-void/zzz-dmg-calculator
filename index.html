@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绝区零 v3.3 全自定义配队 · 八维合轴 · UID展柜与伤害精算台</title>
+  <meta name="description" content="绝区零 Zenless Zone Zero v3.3 全自定义智能配队、Enka UID 展柜练度一键同步、驱动盘词条工坊评级、Web Worker 后台配装寻优、八维合轴物理推演与伤害拐力计算器">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>绝区零 v3.3 全自定义配队 · 八维合轴 · 伤害与拐力精算工作台</h1>
+        <p class="topbar-sub">覆盖 62名代理人 / 103把音擎 / 31套驱动盘 / 20只邦布 · 支持 Enka UID 展柜秒同步、Web Worker 后台配装寻优、1-6号逐盘精调与八维合轴可视化排轴</p>
+      </div>
+      <div class="toolbar-actions">
+        <span class="badge b-info mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS引擎就绪</span>
+        <button class="btn btn-primary" id="toggleEnkaPanelBtn">UID展柜同步</button>
+        <button class="btn btn-primary" id="metricModeBtn">主口径: 每秒真实DPS</button>
+        <button class="btn btn-primary" id="openWorkshopTopBtn">全量自定义工坊</button>
+        <button class="btn" id="autoDiscBtn">一键优盘防撞车</button>
+        <button class="btn" id="setM0R1Btn">全队0+1</button>
+        <button class="btn" id="soloCarryBtn">1号单人裸测</button>
+        <button class="btn" id="zeroSubDpsBtn">只看1号吃拐</button>
+        <button class="btn" id="setM6R5Btn">全队M6R5</button>
+        <button class="btn" id="exportWorkspaceBtn">导出全盘JSON</button>
+        <button class="btn" id="importWorkspaceBtn">导入JSON</button>
+        <button class="btn btn-danger" id="resetAllBtn">重置</button>
+        <button class="btn" id="themeToggleBtn">切换亮色</button>
+      </div>
+    </header>
+
+    <div id="snapshotBar"></div>
+
+    <section class="section-block enka-sec" id="sec00Enka">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">UID</span>工坊同款展柜同步 · 本地代理人练度柜 · 驱动盘库 Worker 后台寻优</h2>
+        <span class="muted">输入 UID 秒拉游戏个人名片展柜 6 角色与真实 1-6 号驱动盘（增量合并缓存），或导入扫描器 JSON 在浏览器后台线程算最优配装</span>
+      </div>
+      <div id="sec00EnkaBody"></div>
+    </section>
+
+    <section class="section-block" id="sec01">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">01</span>编队选人台 · 热门公式 / 自建预设 / 万能底盘 / 智能搜队 (Worker)</h2>
+        <span class="muted">支持一键载入 24 套主流公式与用户自建预设，或用 Web Worker 后台搜检验任意三人化学反应</span>
+      </div>
+      <div id="sec01Body"></div>
+    </section>
+
+    <section class="section-block" id="sec02">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">02</span>核心双口径输出看板 · 六大乘区拆解与防呆体检</h2>
+        <span class="muted">同步输出「每秒真实DPS = 单轮总伤DPR / 合轴后实轴秒数」与「危局强袭战3分钟总伤」</span>
+      </div>
+      <div class="kpi-grid" id="sec02KPIs"></div>
+      <div id="sec02Diag"></div>
+    </section>
+
+    <section class="section-block" id="sec03">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">03</span>三人全参数配装精调卡 & 4号位邦布协同栏</h2>
+        <span class="muted">每槽位独立支持「自动毕业寻优 / 1-6号盘逐盘精调 / 局外面板直填」三模式，并可从本地驱动盘库一键 Worker 换盘寻优</span>
+      </div>
+      <div class="subbox" id="sec03BangbooBar"></div>
+      <div class="slots-grid" id="sec03SlotGrid"></div>
+    </section>
+
+    <section class="section-block" id="sec04">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">04</span>八维合轴物理引擎控制台 & 可视化多轨排轴工作台</h2>
+        <span class="muted">完整建模脱手帧重叠、无敌安全合轴 vs 垫步闪避 vs 裸露硬切、持续引导断招保护、闪A振刀双反、支援点收支、手动取消双连携与99%压条紊乱</span>
+      </div>
+      <div id="sec04Body"></div>
+    </section>
+
+    <section class="section-block" id="sec05">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">05</span>四合一深度评测中心 · 音擎 / 影画 / 下一金ROI / 驱动盘套装排行</h2>
+        <span class="muted">基于当前真实阵容、合轴手法与敌人抗性，实时测算每把音擎与每颗影画对全队的边际收益</span>
+      </div>
+      <div id="sec05Body"></div>
+    </section>
+
+    <section class="section-block" id="sec06">
+      <div class="sec-header">
+        <h2 class="sec-title"><span class="sec-num">06</span>式舆/危局天气词条 & 首领七属性独立抗性环境台</h2>
+        <span class="muted">支持物理/火/冰/电/以太/风/流明七属性独立弱点与抗性配置、破韧失衡条上限、秽盾系数及高攻击欲高压校验</span>
+      </div>
+      <div id="sec06Body"></div>
+    </section>
+  </main>
+
+  <div id="workshopModal" class="ws-modal" hidden></div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
