@@ -1,3 +1,9 @@
+import {
+  getAgentSplashUrl,
+  renderAgentAvatar,
+  renderDiscVinyl,
+  renderWeaponThumb
+} from "../data/enkaAssets";
 import { CHAR_MAP, DISC_SETS, SC_WEPS, deepClone } from "../data/store";
 import { CORE_LABELS, escHtml } from "../engine/constants";
 import {
@@ -176,13 +182,13 @@ export function renderEnkaPanel(): void {
         >
       </label>
       <div class="row" style="gap:6px;flex-wrap:wrap;">
-        <button class="btn btn-primary" id="enkaSyncUidBtn" ${ENKA_UI_STATE.syncLoading ? "disabled" : ""}>
+        <button type="button" class="btn btn-primary" id="enkaSyncUidBtn" ${ENKA_UI_STATE.syncLoading ? "disabled" : ""}>
           ${ENKA_UI_STATE.syncLoading ? "正在拉取展柜..." : "一键同步 UID 展柜"}
         </button>
-        <button class="btn" id="enkaLoadDemoBtn" title="无需联网，立即载入内置 6 名满级角色与 36 张驱动盘示例体验完整工坊与寻优流程">
+        <button type="button" class="btn" id="enkaLoadDemoBtn" title="无需联网，立即载入内置 6 名满级角色与 36 张驱动盘示例体验完整工坊与寻优流程">
           载入真实展柜示例 (6角色/36盘)
         </button>
-        <button class="btn ${ENKA_UI_STATE.showJsonImport ? "btn-primary" : ""}" id="enkaToggleJsonBtn">
+        <button type="button" class="btn ${ENKA_UI_STATE.showJsonImport ? "btn-primary" : ""}" id="enkaToggleJsonBtn">
           粘贴 Enka / 导入扫描器 JSON
         </button>
       </div>
@@ -190,9 +196,9 @@ export function renderEnkaPanel(): void {
         vaultAgents.length > 0
           ? `
         <div class="row" style="gap:6px;margin-left:auto;flex-wrap:wrap;">
-          <button class="btn" id="enkaApplyTop3Btn" title="将练度柜词条最高的前3名角色直接填入 1/2/3 号位">前3名整队上阵</button>
-          <button class="btn" id="enkaSyncOwnedBtn" title="将练度柜已同步角色设为「我的Box」已拥有角色">设为我的Box</button>
-          <button class="btn btn-danger" id="enkaClearVaultBtn">清空练度柜</button>
+          <button type="button" class="btn" id="enkaApplyTop3Btn" title="将练度柜词条最高的前3名角色直接填入 1/2/3 号位">前3名整队上阵</button>
+          <button type="button" class="btn" id="enkaSyncOwnedBtn" title="将练度柜已同步角色设为「我的Box」已拥有角色">设为我的Box</button>
+          <button type="button" class="btn btn-danger" id="enkaClearVaultBtn">清空练度柜</button>
         </div>
       `
           : ""
@@ -208,9 +214,9 @@ export function renderEnkaPanel(): void {
             支持直接粘贴/上传 <code>Enka.Network UID JSON</code>，或第三方背包扫描器 (<code>GOOD / ZOD / AdeptiScanner-ZZZ</code>) 驱动盘库 JSON：
           </span>
           <div class="row" style="gap:6px;">
-            <button class="btn btn-xs" id="enkaOpenRawUrlBtn">浏览器新标签打开此 UID 官方 JSON</button>
-            <button class="btn btn-xs" id="enkaPickJsonFileBtn">选择本地 .json 文件导入</button>
-            <button class="btn btn-xs btn-primary" id="enkaConfirmPasteBtn">解析下方粘贴的 JSON</button>
+            <button type="button" class="btn btn-xs" id="enkaOpenRawUrlBtn">浏览器新标签打开此 UID 官方 JSON</button>
+            <button type="button" class="btn btn-xs" id="enkaPickJsonFileBtn">选择本地 .json 文件导入</button>
+            <button type="button" class="btn btn-xs btn-primary" id="enkaConfirmPasteBtn">解析下方粘贴的 JSON</button>
           </div>
         </div>
         <textarea id="enkaJsonTextarea" placeholder='在此粘贴 https://enka.network/api/zzz/uid/你的UID 返回的 JSON，或扫描器导出的驱动盘数组 JSON...'></textarea>
@@ -256,6 +262,7 @@ export function renderEnkaPanel(): void {
               const busy = ENKA_UI_STATE.optLoadingSlot === idx;
               return `
                 <button
+                  type="button"
                   class="btn btn-xs ${idx === 0 ? "btn-primary" : ""}"
                   data-enka-opt-slot="${idx}"
                   ${!ch || ENKA_UI_STATE.optLoadingSlot !== null ? "disabled" : ""}
@@ -286,6 +293,7 @@ export function renderEnkaPanel(): void {
             if (!ch) return "";
             const w = SC_WEPS[rec.wid];
             const inSlot = activeCidToSlot.get(rec.cid);
+            const splashUrl = getAgentSplashUrl(rec.cid);
             const setLabel =
               rec.fourPc !== "无"
                 ? `${rec.fourPc}4${rec.twoPc !== "无" ? ` + ${rec.twoPc}2` : ""}`
@@ -294,53 +302,69 @@ export function renderEnkaPanel(): void {
                 : "散件";
             return `
               <div class="enka-agent-card ${inSlot !== undefined ? "in-active-team" : ""}">
+                ${
+                  splashUrl
+                    ? `<div class="enka-card-splash" data-no-i18n="1"><img src="${escHtml(splashUrl)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>`
+                    : ""
+                }
                 <div class="enka-agent-head">
-                  <div class="row" style="gap:6px;">
-                    <span class="elem-dot elem-${ch.eb}"></span>
-                    <strong style="font-size:14px;">[${ch.r}] ${escHtml(ch.n)}</strong>
-                    <span class="badge">M${rec.m}</span>
-                    ${inSlot !== undefined ? `<span class="badge b-ok">当前${inSlot + 1}号位</span>` : ""}
+                  <div class="enka-agent-id">
+                    ${renderAgentAvatar(ch.id, ch.n, ch.eb, "av-md")}
+                    <div class="enka-agent-id-copy">
+                      <div class="row" style="gap:5px;flex-wrap:nowrap;">
+                        <strong style="font-size:14px;white-space:nowrap;">[${ch.r}] ${escHtml(ch.n)}</strong>
+                        <span class="badge" data-no-i18n>M${rec.m}</span>
+                        ${inSlot !== undefined ? `<span class="badge b-ok">#${inSlot + 1}</span>` : ""}
+                      </div>
+                      <div class="muted mono" style="font-size:11px;">Lv.${rec.agentLv} · ${CORE_LABELS[rec.coreLv] || "核心F"} · 技Lv.${rec.skillLv}</div>
+                    </div>
                   </div>
-                  <div class="row" style="gap:5px;">
-                    <span class="mono muted" style="font-size:11px;">有效 <strong>${rec.effectiveRollsTotal.toFixed(1)}</strong> 词</span>
-                    <span class="grade-badge grade-${rec.overallGrade}">${rec.overallGrade}</span>
+                  <div class="enka-agent-score">
+                    <span class="grade-badge grade-${rec.overallGrade}" data-no-i18n>${rec.overallGrade}</span>
+                    <span class="mono muted" style="font-size:10.5px;">${rec.effectiveRollsTotal.toFixed(1)}词</span>
                   </div>
                 </div>
 
                 <div class="enka-agent-meta mono">
-                  <span>Lv.${rec.agentLv} · ${CORE_LABELS[rec.coreLv] || "核心F"} · 技Lv.${rec.skillLv}</span>
-                  <span>|</span>
+                  ${w ? renderWeaponThumb(w.id, w.n, w.r, "wep-xs") : ""}
                   <span>${w ? `[${w.r}·R${rec.ref}] ${escHtml(w.n)}` : "默认音擎"}</span>
-                  <span>|</span>
+                  <span>·</span>
+                  ${rec.fourPc !== "无" ? renderDiscVinyl(rec.fourPc, DISC_SETS[rec.fourPc]?.name || rec.fourPc, "disc-2xs") : ""}
                   <strong style="color:var(--foreground);">${escHtml(setLabel)}</strong>
                 </div>
 
                 <div class="enka-disc-strip">
                   ${rec.pieceSummaries
                     .map(
-                      (ps) => `
+                      (ps) => {
+                        const shortMain = ps.mainZh.replace(/^固定/, "");
+                        return `
                     <div class="enka-disc-mini" title="[${ps.slot}]号盘 · ${escHtml(ps.setName)} Lv.${ps.level} · 主词条:${escHtml(ps.mainZh)} · 有效${ps.effectiveRolls}词条 (总${ps.totalRolls}词条)">
-                      <span class="muted">[${ps.slot}]${escHtml(ps.set === "无" ? "空" : ps.set.slice(0, 2))}</span>
-                      <strong>${escHtml(ps.mainZh)}</strong>
-                      <span class="grade-${ps.grade}" style="padding:0 3px;border-radius:3px;font-weight:700;">${ps.effectiveRolls}词·${ps.grade}</span>
+                      <div class="enka-disc-mini-top">
+                        <span class="muted" data-no-i18n>0${ps.slot}</span>
+                        ${renderDiscVinyl(ps.set, ps.setName, "disc-2xs")}
+                      </div>
+                      <strong>${escHtml(shortMain)}</strong>
+                      <span class="grade-${ps.grade}" style="padding:0 3px;border-radius:3px;font-weight:700;font-size:10px;">${ps.effectiveRolls}词·${ps.grade}</span>
                     </div>
-                  `
+                  `;
+                      }
                     )
                     .join("")}
                 </div>
 
                 <div class="enka-slot-btns">
-                  <span class="muted" style="font-size:11px;">一键带盘上阵:</span>
+                  <span class="muted" style="font-size:11px;">上阵:</span>
                   ${[0, 1, 2]
                     .map(
                       (sIdx) => `
-                    <button class="btn btn-xs ${sIdx === 0 ? "btn-primary" : ""}" data-vault-equip="${escHtml(rec.cid)}:${sIdx}">
-                      填入${sIdx + 1}号位
+                    <button type="button" class="btn btn-xs ${sIdx === 0 ? "btn-primary" : ""}" data-vault-equip="${escHtml(rec.cid)}:${sIdx}">
+                      ${sIdx + 1}号位
                     </button>
                   `
                     )
                     .join("")}
-                  <button class="btn btn-xs" style="margin-left:auto;" data-vault-remove="${escHtml(rec.cid)}" title="从本地练度柜移除此角色">×</button>
+                  <button type="button" class="btn btn-xs btn-ghost" style="margin-left:auto;" data-vault-remove="${escHtml(rec.cid)}" title="从本地练度柜移除此角色">×</button>
                 </div>
               </div>
             `;

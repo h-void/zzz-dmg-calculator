@@ -203,7 +203,23 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "无需联网，立即载入内置 6 名满级角色与 36 张驱动盘示例体验完整工坊与寻优流程": {
     en: "Offline-ready: load 6 Lv.60 demo agents & 36 Drive Discs to test the full optimizer workflow",
     ja: "通信不要：内蔵のLv.60キャラ6名＆ディスク36枚のサンプルを即座に読み込みます"
-  }
+  },
+
+  // Showcase Cards, Radar & Substat Priority Additions
+  "点击选择上阵代理人": { en: "Click to Deploy Agent", ja: "クリックしてキャラ編成" },
+  "更换 ▾": { en: "Switch ▾", ja: "変更 ▾" },
+  "精改": { en: "Tune", ja: "調整" },
+  "+1 词条边际收益优先级": { en: "+1 Substat Roll Gain Priority", ja: "+1 サブステ限界上昇率優先度" },
+  "全队实轴口径": { en: "Squad DPS Basis", ja: "チームDPS基準" },
+  "个人伤害口径": { en: "Personal DMG Basis", ja: "個人火力基準" },
+  "基础区": { en: "Base", ja: "基礎区" },
+  "双暴区": { en: "CRIT", ja: "会心区" },
+  "精通区": { en: "AP", ja: "精通区" },
+  "增伤区": { en: "DMG%", ja: "ダメバフ" },
+  "防御穿透": { en: "DEF/PEN", ja: "防御貫通" },
+  "抗性削减": { en: "RES", ja: "耐性ダウン" },
+  "失衡易伤": { en: "Stun", ja: "ブレイク" },
+  "大攻%": { en: "ATK%", ja: "攻撃%" }
 };
 
 // Ordered phrase/entity replacements (sorted longest-first at module init)
@@ -619,9 +635,18 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
   s = s.replace(/([1-4])号位/g, (_m, n) => (lang === "en" ? `Slot ${n}` : `${n}番枠`));
   s = s.replace(/([1-4])号\s*·/g, (_m, n) => (lang === "en" ? `#${n} ·` : `${n}番 ·`));
 
-  // Pattern: 有效 31.5 词 / 词条
+  // Pattern: 有效 31.5 词 / 31.0词 / 词条
   s = s.replace(/有效\s*([\d.]+)\s*词/g, (_m, n) =>
     lang === "en" ? `${n} Eff. Rolls` : `有効 ${n} スコア`
+  );
+  s = s.replace(/([\d.]+)词(?![条])/g, (_m, n) =>
+    lang === "en" ? `${n}r` : `${n}点`
+  );
+  s = s.replace(/基础(\d+)/g, (_m, n) =>
+    lang === "en" ? `Base ${n}` : `基礎${n}`
+  );
+  s = s.replace(/六维乘区雷达透视\s*&\s*队友转模达标表/g, () =>
+    lang === "en" ? "6-Axis Multiplier Radar & Stat Thresholds" : "6軸乗算区レーダー＆変換閾値チェック"
   );
   s = s.replace(/词条/g, () => (lang === "en" ? "rolls" : "スコア"));
 
