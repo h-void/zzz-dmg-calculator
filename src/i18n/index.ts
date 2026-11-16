@@ -123,6 +123,65 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "收起选人台 ▲": { en: "Collapse Picker ▲", ja: "キャラ選択を折りたたむ ▲" },
   "展开选人台 ▼": { en: "Expand Picker ▼", ja: "キャラ選択を展開 ▼" },
 
+  // Workflow Navigation (v3.3 refresh)
+  "配队配装": { en: "Squad & Builds", ja: "編成・装備" },
+  "合轴排轴": { en: "Swap & Timeline", ja: "合軸・タイムライン" },
+  "伤害分析": { en: "Damage Analysis", ja: "ダメージ分析" },
+  "养成收益": { en: "Upgrade Value", ja: "育成リターン" },
+  "敌人环境": { en: "Enemy & Stage", ja: "敵・ステージ" },
+  "敌人与环境": { en: "Enemy & Stage", ja: "敵とステージ環境" },
+  "全部展开": { en: "Show All", ja: "すべて表示" },
+  "选择队伍": { en: "Choose Squad", ja: "編成を選ぶ" },
+  "代理人配装": { en: "Agent Builds", ja: "エージェント装備" },
+  "合轴与排轴": { en: "Swap & Timeline", ja: "合軸とタイムライン" },
+  "输入 UID 读取游戏内展柜的角色与驱动盘，自动套用到当前队伍": {
+    en: "Enter a UID to import showcase agents & Drive Discs and apply them to your squad",
+    ja: "UIDを入力してショーケースのキャラとディスクを読み込み、編成に適用します"
+  },
+  "一键套用热门配队，或自由挑选代理人、按自己的 Box 智能搜队": {
+    en: "Apply a meta team in one click, pick agents freely, or search teams from your own Box",
+    ja: "定番編成をワンクリック適用、または自由選択・所持Boxから編成検索"
+  },
+  "为每位代理人选择音擎、影画与驱动盘；可自动寻优，也可逐盘精调": {
+    en: "Pick W-Engine, Mindscape and Drive Discs per agent — auto-optimize or fine-tune each disc",
+    ja: "各エージェントの音動機・心象映画・ディスクを設定（自動最適化／個別調整）"
+  },
+  "选择切人手法、拖动出招顺序，实时计算一轮循环耗时与增益覆盖": {
+    en: "Choose a swap style and arrange actions to see rotation length and buff uptime live",
+    ja: "交代手法と行動順を調整し、1ローテの所要時間とバフ稼働率をリアルタイム計算"
+  },
+  "输出构成、乘区拆解与配装体检，找出伤害短板": {
+    en: "Output breakdown, multiplier zones and build checks to find your weak spots",
+    ja: "火力構成・乗算区内訳・ビルド診断で弱点を見つける"
+  },
+  "对比每把音擎、每层影画与驱动盘套装的提升幅度，帮你决定下一抽": {
+    en: "Compare the gain from each W-Engine, Mindscape and Drive Set to plan your next pull",
+    ja: "各音動機・心象映画・ディスクセットの上昇幅を比較し、次のガチャを決める"
+  },
+  "设置首领的属性抗性、弱点、失衡与关卡增益": {
+    en: "Set boss resistances, weaknesses, daze and stage buffs",
+    ja: "ボスの属性耐性・弱点・ブレイク・ステージバフを設定"
+  },
+  "队伍总输出": { en: "Squad Output", ja: "チーム総火力" },
+  "合轴后每秒伤害 (DPS)": { en: "Damage per second after swaps (DPS)", ja: "合軸後の秒間ダメージ (DPS)" },
+  "一轮爆发总伤害 (DPR)": { en: "Total damage per rotation (DPR)", ja: "1ローテ総ダメージ (DPR)" },
+  "一轮循环耗时": { en: "Rotation Length", ja: "1ローテ所要時間" },
+  "输出占比": { en: "Damage Share", ja: "火力比率" },
+  "当前编队": { en: "Current Squad", ja: "現在の編成" },
+  "方案对比": { en: "Compare Builds", ja: "ビルド比較" },
+  "存档当前配置，修改后即可看到伤害涨跌": {
+    en: "Save the current setup, then tweak to see the damage delta",
+    ja: "現在の構成を保存し、変更後のダメージ増減を比較"
+  },
+  "+ 存档": { en: "+ Save", ja: "+ 保存" },
+  "/ 秒": { en: "/ sec", ja: "/ 秒" },
+  "/ 轮": { en: "/ rot", ja: "/ ローテ" },
+  "收起，仅看前 8 名 ▲": { en: "Collapse to Top 8 ▲", ja: "上位8件のみ表示 ▲" },
+  "当前编队为空，请先在「1 配队配装」中选择一支队伍或上阵代理人。": {
+    en: "Your squad is empty — pick a squad or deploy agents in “1 Squad & Builds” first.",
+    ja: "編成が空です。まず「1 編成・装備」で編成を選ぶかエージェントを配置してください。"
+  },
+
   // Section Headers & Descriptions
   "展柜练度同步 & 本地驱动盘库寻优": {
     en: "UID Showcase Sync & Local Drive Disc Optimizer",
@@ -670,6 +729,8 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
   // Remaining micro units
   if (lang === "en") {
     s = s
+      .replace(/展开全部\s*(\d+)\s*把音擎/g, "Show all $1 W-Engines")
+      .replace(/合轴省\s*([\d.]+)s/g, "Swap saves $1s")
       .replace(/(\d+)\s*名角色/g, "$1 Agents")
       .replace(/(\d+)\s*张/g, "$1 pcs")
       .replace(/(\d+)\s*次/g, "$1x")
@@ -679,6 +740,8 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
       .replace(/当前/g, "Current ");
   } else {
     s = s
+      .replace(/展开全部\s*(\d+)\s*把音擎/g, "全$1件の音動機を表示")
+      .replace(/合轴省\s*([\d.]+)s/g, "合軸で$1s短縮")
       .replace(/(\d+)\s*名角色/g, "$1名")
       .replace(/(\d+)\s*张/g, "$1枚")
       .replace(/(\d+)\s*次/g, "$1回")

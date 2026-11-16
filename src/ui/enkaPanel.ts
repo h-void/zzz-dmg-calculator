@@ -145,7 +145,7 @@ export function renderEnkaPanel(): void {
       vaultAgents.length > 0
         ? `UID 展柜 (${vaultAgents.length}人/${poolCount}盘)`
         : "UID 展柜同步";
-    topBtn.className = isVisible ? "btn btn-primary" : "btn btn-tonal";
+    topBtn.className = `btn ${isVisible ? "btn-tonal" : "btn-ghost"} has-icon ico-sync`;
   }
 
   if (!sec || !body) return;

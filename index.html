@@ -25,27 +25,29 @@
           </svg>
         </div>
         <div class="brand-copy">
-          <div class="brand-eyebrow mono" data-no-i18n>ACOUSTIC &amp; BALLISTIC STUDIO // v3.3</div>
+          <div class="brand-eyebrow" data-no-i18n>ZENLESS ZONE ZERO <span class="brand-ver">v3.3</span></div>
           <div class="brand-title-row">
             <h1>绝区零战术配队与合轴精算台</h1>
-            <span class="engine-chip mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS 引擎就绪</span>
           </div>
         </div>
       </div>
 
       <div class="toolbar-actions">
+        <span class="engine-chip mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS 引擎就绪</span>
+
         <div class="lang-switch" id="langSwitchBar" data-no-i18n role="group" aria-label="Language">
-          <button class="lang-btn active" data-lang="zh" type="button">中文</button>
-          <button class="lang-btn" data-lang="en" type="button">EN</button>
-          <button class="lang-btn" data-lang="ja" type="button">日本語</button>
+          <button class="lang-btn active" data-lang="zh" type="button" data-no-i18n>中文</button>
+          <button class="lang-btn" data-lang="en" type="button" data-no-i18n>EN</button>
+          <button class="lang-btn" data-lang="ja" type="button" data-no-i18n>日本語</button>
         </div>
 
-        <button class="btn btn-tonal" id="toggleEnkaPanelBtn" type="button">UID 展柜同步</button>
-        <button class="btn" id="autoDiscBtn" type="button" title="自动为当前三人匹配不撞车的最优四件套">一键优盘</button>
-        <button class="btn" id="openWorkshopTopBtn" type="button">自定义工坊</button>
+        <span class="toolbar-sep" aria-hidden="true"></span>
+
+        <button class="btn btn-ghost has-icon ico-sync" id="toggleEnkaPanelBtn" type="button">UID 展柜同步</button>
+        <button class="btn btn-ghost has-icon ico-wrench" id="openWorkshopTopBtn" type="button">自定义工坊</button>
 
         <details class="action-dropdown" id="quickToolsDropdown">
-          <summary class="btn">快捷工具 ▾</summary>
+          <summary class="btn btn-ghost has-icon ico-more">快捷工具 ▾</summary>
           <div class="dropdown-panel">
             <div class="dropdown-group-label">快速练度基准</div>
             <button class="dropdown-item" id="setM0R1Btn" type="button">全队设为 0+1 基准</button>
@@ -61,6 +63,8 @@
             <button class="dropdown-item danger" id="resetAllBtn" type="button">重置全部默认参数</button>
           </div>
         </details>
+
+        <button class="btn btn-primary has-icon ico-spark" id="autoDiscBtn" type="button" title="自动为当前三人匹配不撞车的最优四件套">一键优盘</button>
       </div>
     </div>
     <div class="studio-rail">
@@ -69,7 +73,7 @@
   </header>
 
   <main class="app-shell">
-    <section class="telemetry-stage" aria-label="实时精算遥测与方案对比">
+    <section class="telemetry-stage" aria-label="队伍总输出与方案对比">
       <div class="telemetry-primary" id="liveTelemetryBar"></div>
       <div class="telemetry-memory" id="snapshotBar"></div>
     </section>
@@ -77,10 +81,10 @@
     <section class="section-block enka-sec" id="sec00Enka" hidden>
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">SYNC</span>
+          <span class="sec-num" data-no-i18n>UID</span>
           <div>
-            <h2 class="sec-title">展柜练度同步 &amp; 本地驱动盘库寻优</h2>
-            <p class="sec-desc">拉取游戏个人名片公开展柜的 6 名角色与 1–6 号驱动盘（增量合并缓存），或在后台线程一键算出当前配队最优实盘组合</p>
+            <h2 class="sec-title">UID 展柜同步</h2>
+            <p class="sec-desc">输入 UID 读取游戏内展柜的角色与驱动盘，自动套用到当前队伍</p>
           </div>
         </div>
       </div>
@@ -90,10 +94,10 @@
     <section class="section-block" id="sec01">
       <div class="sec-header sec-header-compact">
         <div class="sec-heading-group">
-          <span class="sec-num">01</span>
+          <span class="sec-num" data-no-i18n>1.1</span>
           <div>
-            <h2 class="sec-title">编队选人台</h2>
-            <p class="sec-desc">24 套热门公式配队、全图鉴点选、万能二人底盘与 Web Worker 智能 Box 搜队</p>
+            <h2 class="sec-title">选择队伍</h2>
+            <p class="sec-desc">一键套用热门配队，或自由挑选代理人、按自己的 Box 智能搜队</p>
           </div>
         </div>
         <button class="btn btn-tonal" id="togglePickerCollapseBtn" type="button">展开选人台 ▼</button>
@@ -105,10 +109,10 @@
     <section class="section-block" id="sec03">
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">02</span>
+          <span class="sec-num" data-no-i18n>1.2</span>
           <div>
-            <h2 class="sec-title">代理人配装与词条工作台</h2>
-            <p class="sec-desc">支持「自动毕业寻优 / 1–6 号逐盘精调 / 局外面板直填」三模式切换，以及 4 号位邦布协同</p>
+            <h2 class="sec-title">代理人配装</h2>
+            <p class="sec-desc">为每位代理人选择音擎、影画与驱动盘；可自动寻优，也可逐盘精调</p>
           </div>
         </div>
         <div class="bangboo-inline" id="sec03BangbooBar"></div>
@@ -119,10 +123,10 @@
     <section class="section-block" id="sec04">
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">03</span>
+          <span class="sec-num" data-no-i18n>2</span>
           <div>
-            <h2 class="sec-title">八维合轴物理控制台 &amp; 多轨排轴器</h2>
-            <p class="sec-desc">实时推演脱手帧并行压缩、无敌帧安全合轴、手动双连携、支援点循环与短轴拐覆盖率</p>
+            <h2 class="sec-title">合轴与排轴</h2>
+            <p class="sec-desc">选择切人手法、拖动出招顺序，实时计算一轮循环耗时与增益覆盖</p>
           </div>
         </div>
       </div>
@@ -132,24 +136,24 @@
     <section class="section-block" id="sec02">
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">04</span>
+          <span class="sec-num" data-no-i18n>3</span>
           <div>
-            <h2 class="sec-title">双口径输出看板 · 乘区透视与防呆体检</h2>
-            <p class="sec-desc">每秒真实 DPS、单轮总伤 DPR、危局 3 分钟预估、六大独立乘区拆解与面板转模达标检测</p>
+            <h2 class="sec-title">伤害分析</h2>
+            <p class="sec-desc">输出构成、乘区拆解与配装体检，找出伤害短板</p>
           </div>
         </div>
       </div>
-      <div class="kpi-grid" id="sec02KPIs"></div>
+      <div class="kpi-grid kpi-grid-2" id="sec02KPIs"></div>
       <div id="sec02Diag"></div>
     </section>
 
     <section class="section-block" id="sec05">
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">05</span>
+          <span class="sec-num" data-no-i18n>4</span>
           <div>
-            <h2 class="sec-title">专武 · 影画 · 下一金 ROI 评测中心</h2>
-            <p class="sec-desc">基于当前真实阵容、合轴手法与首领抗性，实时测算每把音擎、每颗影画与驱动盘套装的边际收益</p>
+            <h2 class="sec-title">养成收益</h2>
+            <p class="sec-desc">对比每把音擎、每层影画与驱动盘套装的提升幅度，帮你决定下一抽</p>
           </div>
         </div>
       </div>
@@ -159,10 +163,10 @@
     <section class="section-block" id="sec06">
       <div class="sec-header">
         <div class="sec-heading-group">
-          <span class="sec-num">06</span>
+          <span class="sec-num" data-no-i18n>5</span>
           <div>
-            <h2 class="sec-title">式舆 / 危局天气词条 &amp; 首领抗性环境</h2>
-            <p class="sec-desc">七属性独立弱点与抗性矩阵、破韧失衡条上限、秽盾系数及高压受击打断校验</p>
+            <h2 class="sec-title">敌人与环境</h2>
+            <p class="sec-desc">设置首领的属性抗性、弱点、失衡与关卡增益</p>
           </div>
         </div>
       </div>

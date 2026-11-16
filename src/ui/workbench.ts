@@ -113,6 +113,8 @@ let finderElapsedMs = 0;
 let finderCacheKey = "";
 let finderCachedTeams: any[] = [];
 let physicsDrawerOpen = false;
+const EVAL_WEP_TOP_N = 8;
+let evalWepShowAll = false;
 
 export function refreshAllUI() {
   applyThemeToDOM();
@@ -193,13 +195,20 @@ function renderLiveTelemetryBar(sim: any) {
   const bbShare = sim.baseWeightedSum > 0 ? sim.bangbooDmg / sim.baseWeightedSum : 0;
 
   const heroVal = isDps ? fmtNum(sim.teamActualDps) : fmtWan(sim.teamDpr);
-  const heroUnit = isDps ? "/ SEC" : "/ ROT";
-  const heroCaption = isDps ? "合轴压帧后真实每秒伤害 (DPS)" : "单轮完整爆发总伤害 (DPR)";
+  const heroUnit = isDps ? "/ 秒" : "/ 轮";
+  const heroCaption = isDps ? "合轴后每秒伤害 (DPS)" : "一轮爆发总伤害 (DPR)";
+
+  const shareRows = (sim.slotResults || []).map((r: any, i: number) => ({
+    color: CHART_COLORS[i],
+    pct: r.dpsShare * 100,
+    name: r.ch.n,
+    avatar: renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-xs")
+  }));
 
   el.innerHTML = `
     <div class="tele-top-row">
       <div class="tele-eyebrow">
-        <span>BALLISTIC TELEMETRY</span>
+        <span class="tele-title">队伍总输出</span>
         <div class="metric-switch" role="group" aria-label="主口径切换">
           <button type="button" class="metric-switch-btn ${isDps ? "active" : ""}" data-set-metric="dps">每秒 DPS</button>
           <button type="button" class="metric-switch-btn ${!isDps ? "active" : ""}" data-set-metric="dpr">单轮 DPR</button>
@@ -231,9 +240,9 @@ function renderLiveTelemetryBar(sim: any) {
           <span class="tele-stat-note">较单人放大 ${(sim.teamVsSolo || 1).toFixed(2)}×</span>
         </div>
         <div class="tele-stat-cell">
-          <span class="tele-stat-label">合轴实轴周期</span>
+          <span class="tele-stat-label">一轮循环耗时</span>
           <span class="tele-stat-val">${(sim.cycleSec || 0).toFixed(2)}s</span>
-          <span class="tele-stat-note">省帧 -${(qa?.savedOverlapSec || 0).toFixed(1)}s</span>
+          <span class="tele-stat-note">合轴省 ${(qa?.savedOverlapSec || 0).toFixed(1)}s</span>
         </div>
         <div class="tele-stat-cell">
           <span class="tele-stat-label">危局3分钟预估</span>
@@ -244,30 +253,38 @@ function renderLiveTelemetryBar(sim: any) {
     </div>
 
     <div class="tele-share-footer">
-      <div class="share-bar">
-        ${(sim.slotResults || [])
-          .map(
-            (r: any, i: number) =>
-              `<div style="width:${(r.dpsShare * 100).toFixed(1)}%;background:${CHART_COLORS[i]};" title="${escHtml(r.ch.n)}: ${(r.dpsShare * 100).toFixed(1)}%"></div>`
-          )
+      <div class="tele-share-head">
+        <span>输出占比</span>
+        <span class="mono">${SWAP_PRESETS[appStore.state.env.swapConfig?.preset]?.name || "自定义合轴"}</span>
+      </div>
+      <div class="share-bar share-bar-lg">
+        ${shareRows
+          .map((r: any) => `<div style="width:${r.pct.toFixed(1)}%;background:${r.color};" title="${escHtml(r.name)}: ${r.pct.toFixed(1)}%"></div>`)
           .join("")}
         ${bbShare > 0.002 ? `<div style="width:${(bbShare * 100).toFixed(1)}%;background:var(--chart-5);" title="邦布: ${(bbShare * 100).toFixed(1)}%"></div>` : ""}
       </div>
       <div class="tele-share-legend">
-        <div class="row" style="gap:12px;">
-          ${
-            (sim.slotResults || []).length > 0
-              ? sim.slotResults
-                  .map(
-                    (r: any, i: number) =>
-                      `<span class="tele-legend-agent">${renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-xs")}<i class="legend-dot" style="background:${CHART_COLORS[i]};"></i> <strong>${escHtml(r.ch.n)}</strong> <span class="mono">${(r.dpsShare * 100).toFixed(1)}%</span></span>`
-                  )
-                  .join("")
-              : `<span>暂无上阵代理人</span>`
-          }
-          ${bbShare > 0.002 ? `<span>邦布 <span class="mono">${(bbShare * 100).toFixed(1)}%</span></span>` : ""}
-        </div>
-        <span class="mono">${SWAP_PRESETS[appStore.state.env.swapConfig?.preset]?.name || "自定义合轴"}</span>
+        ${
+          shareRows.length > 0
+            ? shareRows
+                .map(
+                  (r: any) => `
+              <span class="tele-legend-agent" style="--lg-c:${r.color};">
+                ${r.avatar}
+                <span class="tele-legend-copy">
+                  <span class="tele-legend-name">${escHtml(r.name)}</span>
+                  <span class="tele-legend-pct mono">${r.pct.toFixed(1)}%</span>
+                </span>
+              </span>`
+                )
+                .join("")
+            : `<span>暂无上阵代理人</span>`
+        }
+        ${
+          bbShare > 0.002
+            ? `<span class="tele-legend-agent bb" style="--lg-c:var(--chart-5);"><span class="tele-legend-copy"><span class="tele-legend-name">邦布</span><span class="tele-legend-pct mono">${(bbShare * 100).toFixed(1)}%</span></span></span>`
+            : ""
+        }
       </div>
     </div>
   `;
@@ -290,13 +307,12 @@ function renderStudioNavBar(sim: any) {
   const vaultCount = Object.keys(enkaVault.agents || {}).length;
   const aaWarn = sim.activeCount > 0 && sim.aaLitCount < sim.activeCount ? 1 : 0;
 
-  const tabs: Array<{ id: StudioViewTab; label: string; count?: string; warn?: boolean }> = [
-    { id: "build", label: "编队与配装", count: `${sim.activeCount || 0}/3` },
-    { id: "enka", label: "UID 展柜", count: vaultCount > 0 ? `${vaultCount}` : "Sync" },
-    { id: "timeline", label: "合轴与排轴器", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
-    { id: "diag", label: "乘区与体检", count: aaWarn ? "!" : "6x", warn: Boolean(aaWarn) },
-    { id: "eval", label: "专武 · 影画 · ROI" },
-    { id: "env", label: "首领环境" }
+  const tabs: Array<{ id: StudioViewTab; step: number; label: string; count?: string; warn?: boolean }> = [
+    { id: "build", step: 1, label: "配队配装", count: `${sim.activeCount || 0}/3` },
+    { id: "timeline", step: 2, label: "合轴排轴", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
+    { id: "diag", step: 3, label: "伤害分析", count: aaWarn ? "!" : undefined, warn: Boolean(aaWarn) },
+    { id: "eval", step: 4, label: "养成收益" },
+    { id: "env", step: 5, label: "敌人环境" }
   ];
 
   nav.innerHTML = `
@@ -304,6 +320,7 @@ function renderStudioNavBar(sim: any) {
       .map(
         (t) => `
       <button type="button" class="studio-tab ${cur === t.id ? "active" : ""}" data-studio-tab="${t.id}">
+        <span class="tab-step" data-no-i18n>${t.step}</span>
         <span>${t.label}</span>
         ${t.count ? `<span class="tab-count ${t.warn ? "warn" : ""}">${t.count}</span>` : ""}
       </button>
@@ -311,8 +328,12 @@ function renderStudioNavBar(sim: any) {
       )
       .join("")}
     <span class="studio-nav-spacer"></span>
-    <button type="button" class="studio-tab ${cur === "all" ? "active" : ""}" data-studio-tab="all">
-      <span>全景展开</span>
+    <button type="button" class="studio-tab util ${cur === "enka" ? "active" : ""}" data-studio-tab="enka">
+      <span>UID 展柜</span>
+      <span class="tab-count">${vaultCount > 0 ? `${vaultCount}` : "Sync"}</span>
+    </button>
+    <button type="button" class="studio-tab util ${cur === "all" ? "active" : ""}" data-studio-tab="all">
+      <span>全部展开</span>
     </button>
   `;
 
@@ -341,7 +362,7 @@ function renderSnapshotBar(sim: any) {
 
   el.innerHTML = `
     <div class="memory-head">
-      <span class="tele-eyebrow">ACTIVE SQUAD &amp; SNAPSHOT BANK</span>
+      <span class="tele-eyebrow"><span class="tele-title">当前编队</span></span>
       <button type="button" class="btn btn-xs btn-ghost" id="hudOpenRosterBtn">切换编队 / 搜队 ▾</button>
     </div>
 
@@ -374,7 +395,8 @@ function renderSnapshotBar(sim: any) {
     </div>
 
     <div class="snap-bank-header">
-      <span>方案横评记忆槽 (点击空槽存档 · 点击已存槽回档对比)</span>
+      <span class="snap-bank-title">方案对比</span>
+      <span class="snap-bank-hint">存档当前配置，修改后即可看到伤害涨跌</span>
     </div>
     <div class="snap-grid">
       ${labels
@@ -382,9 +404,9 @@ function renderSnapshotBar(sim: any) {
           const sn = appStore.state.snapshots[idx];
           if (!sn) {
             return `
-              <button type="button" class="snap-card empty" data-snap-save="${idx}">
-                <span class="row" style="gap:7px;"><span class="snap-slot-key">${lb}</span><span>点击存入当前配装</span></span>
-                <span class="mono">+</span>
+              <button type="button" class="snap-card empty" data-snap-save="${idx}" title="点击存入当前配装">
+                <span class="snap-slot-key" data-no-i18n>${lb}</span>
+                <span class="snap-empty-txt">+ 存档</span>
               </button>
             `;
           }
@@ -983,44 +1005,15 @@ function renderSection02KPIsAndDiag(sim) {
   if (!kpiWrap || !diagWrap) return;
 
   if (sim.activeCount === 0) {
-    kpiWrap.innerHTML = `<div class="card" style="grid-column:span 4;text-align:center;padding:22px;">当前编队为空，请在上方「01 编队选人台」点击任一预设队或角色上阵。</div>`;
+    kpiWrap.innerHTML = `<div class="card" style="grid-column:1 / -1;text-align:center;padding:22px;">当前编队为空，请先在「1 配队配装」中选择一支队伍或上阵代理人。</div>`;
     diagWrap.innerHTML = "";
     return;
   }
 
-  const qa = sim.qaSwap;
   const sr0 = sim.slotResults[0];
   const bd0 = sr0.bd;
-  const limGold = calcLimitedGold(appStore.state.slots, CHAR_MAP, SC_WEPS);
-  const bbShare = sim.baseWeightedSum > 0 ? (sim.bangbooDmg / sim.baseWeightedSum) : 0;
 
   kpiWrap.innerHTML = `
-    <div class="kpi-card">
-      <div class="kpi-head">
-        <span>每秒真实 DPS (合轴压轴后)</span>
-        <span class="badge b-info">${limGold}限定金</span>
-      </div>
-      <div class="kpi-num mono">${fmtNum(sim.teamActualDps)} <small>/秒</small></div>
-      <div class="kpi-sub mono">单轮总伤 DPR: <strong>${fmtWan(sim.teamDpr)}</strong> · 危局3分预估: <strong>${fmtWan(sim.da3MinTotal)}</strong></div>
-      <div class="kpi-sub">实轴周期 <strong>${sim.cycleSec.toFixed(1)}s</strong> (较顺序出招省帧 ${(qa?.savedOverlapSec || 0).toFixed(1)}s · 提速 ${(((qa?.cycleSpeedup || 1) - 1) * 100).toFixed(1)}%)</div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-head">
-        <span>全队输出分摊 (含4号位邦布)</span>
-        <span class="badge">${escHtml(sim.bangboo?.n || "无邦布")}</span>
-      </div>
-      <div class="share-bar" style="margin:8px 0;">
-        ${sim.slotResults.map((r, i) => `<div style="width:${(r.dpsShare * 100).toFixed(1)}%;background:${CHART_COLORS[i]};" title="${r.ch.n}: ${(r.dpsShare * 100).toFixed(1)}%"></div>`).join("")}
-        ${bbShare > 0.002 ? `<div style="width:${(bbShare * 100).toFixed(1)}%;background:var(--chart-5);" title="邦布: ${(bbShare * 100).toFixed(1)}%"></div>` : ""}
-      </div>
-      <div class="kpi-sub">
-        ${sim.slotResults.map((r, i) => `<span style="margin-right:8px;"><i class="legend-dot" style="background:${CHART_COLORS[i]};"></i> ${escHtml(r.ch.n)} ${(r.dpsShare * 100).toFixed(1)}%</span>`).join("")}
-        ${bbShare > 0.002 ? `<span>邦布 ${(bbShare * 100).toFixed(1)}%</span>` : ""}
-      </div>
-      <div class="kpi-sub muted">对比1号单人裸测全队放大: <strong>${sim.teamVsSolo.toFixed(2)}x</strong></div>
-    </div>
-
     <div class="kpi-card">
       <div class="kpi-head">
         <span>额外能力点亮与支援形态</span>
@@ -1072,18 +1065,24 @@ function renderSection02KPIsAndDiag(sim) {
   });
 
   diagWrap.innerHTML = `
-    <div class="ws-grid-2">
+    ${sim.notes.length === 0 ? `
+      <div class="diag-pass">
+        <span class="diag-pass-ico" data-no-i18n>✓</span>
+        <span>[健康通过] 当前三人套装无同名光环撞车、无跨职业音擎失效、无暴击溢出、无合轴断招与支援点透支。</span>
+      </div>
+    ` : ""}
+    <div class="${sim.notes.length > 0 ? "ws-grid-2" : ""}">
+      ${sim.notes.length > 0 ? `
       <div class="card">
         <div class="sec-mini-title">智能配装防呆与合轴风险诊断 (${sim.notes.length} 条)</div>
-        ${sim.notes.length > 0 ? `
           <ul class="diag-list">
             ${sim.notes.map(n => {
               const cls = n.includes("警告") || n.includes("冲突") || n.includes("风险") || n.includes("失效") || n.includes("撞车") ? "d-warn" : "d-info";
               return `<li class="${cls}">${escHtml(n)}</li>`;
             }).join("")}
           </ul>
-        ` : `<div class="txt-ok" style="font-size:12px;padding:6px 0;">[健康通过] 当前三人套装无同名光环撞车、无跨职业音擎失效、无暴击溢出、无合轴断招与支援点透支。</div>`}
       </div>
+      ` : ""}
 
       <div class="card">
         <div class="sec-mini-title">1号位【${escHtml(sr0.ch.n)}】六维乘区雷达透视 &amp; 队友转模达标表</div>
@@ -2912,7 +2911,7 @@ function renderSection05EvalCenter(sim) {
         </div>
       </div>
       <div class="rank-list">
-        ${list.map((it, idx) => `
+        ${list.map((it, idx) => (evalWepShowAll || idx < EVAL_WEP_TOP_N || it.isCur) ? `
           <div class="rank-row has-thumb ${it.isCur ? "cur" : ""}">
             <div class="rank-idx">#${idx + 1}</div>
             ${renderWeaponThumb(it.wid, it.w.n, it.w.r, "wep-md")}
@@ -2932,8 +2931,13 @@ function renderSection05EvalCenter(sim) {
             </div>
             <div><button type="button" class="btn btn-xs" data-equip-wep="${escHtml(it.wid)}:${it.ref}">换装</button></div>
           </div>
-        `).join("")}
+        ` : "").join("")}
       </div>
+      ${list.length > EVAL_WEP_TOP_N ? `
+        <button type="button" class="btn btn-ghost rank-more-btn" id="evalWepMoreBtn">
+          ${evalWepShowAll ? "收起，仅看前 8 名 ▲" : `展开全部 ${list.length} 把音擎 ▼`}
+        </button>
+      ` : ""}
     `;
   } else if (appStore.state.evalTab === "mindscapes") {
     const ladder = computeMindscapeLadder(appStore.state.slots, tSlot, appStore.state.env, CHAR_MAP, SC_WEPS);
@@ -3045,6 +3049,11 @@ function renderSection05EvalCenter(sim) {
   document.getElementById("evalARefSel")?.addEventListener("change", (e: any) => { appStore.state.evalARef = Number(e.target.value); renderSection05EvalCenter(sim); });
   document.getElementById("evalNewWepBtn")?.addEventListener("click", () => openCustomWorkshop("weps"));
   document.getElementById("evalIncRefChk")?.addEventListener("change", (e: any) => { appStore.state.evalIncludeRef = e.target.checked; renderSection05EvalCenter(sim); });
+  wrap.querySelector("#evalWepMoreBtn")?.addEventListener("click", () => {
+    evalWepShowAll = !evalWepShowAll;
+    renderSection05EvalCenter(sim);
+    localizeDOM(wrap, appStore.state.lang || "zh");
+  });
 
   wrap.querySelectorAll<any>("[data-equip-wep]").forEach(btn => {
     btn.addEventListener("click", () => {
