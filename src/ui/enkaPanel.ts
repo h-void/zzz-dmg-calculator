@@ -535,9 +535,11 @@ function bindEnkaPanelEvents(root: HTMLElement): void {
     const cids = Object.keys(enkaVault.agents);
     if (!cids.length) return;
     appStore.state.ownedChars = cids;
+    appStore.state.studioView = "build";
+    appStore.state.pickerCollapsed = false;
     appStore.state.pickerTab = "finder";
     appStore.state.finderUseVault = true;
-    setEnkaStatus(`已将练度柜 ${cids.length} 名角色同步至「01 我的Box智能搜队器」并启用真实面板搜队！`, "ok");
+    setEnkaStatus(`已将练度柜 ${cids.length} 名角色同步至「1.2 我的Box智能搜队器」并启用真实面板搜队！`, "ok");
     triggerRefreshUI();
     document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });

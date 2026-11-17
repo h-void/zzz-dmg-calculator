@@ -135,10 +135,10 @@ export function refreshAllUI() {
   renderSnapshotBar(appStore.lastSimResult);
   renderStudioNavBar(appStore.lastSimResult);
   renderEnkaPanel();
+  renderSection03SlotCards(appStore.lastSimResult);
   renderQuickPresetRibbon();
   renderSection01Picker();
   renderSection02KPIsAndDiag(appStore.lastSimResult);
-  renderSection03SlotCards(appStore.lastSimResult);
   renderSection04SwapAndTimeline(appStore.lastSimResult);
   renderSection05EvalCenter(appStore.lastSimResult);
   renderSection06Environment();
@@ -148,8 +148,8 @@ export function refreshAllUI() {
 function applyStudioVisibility() {
   const view: StudioViewTab = appStore.state.studioView || "build";
   const showMap: Record<string, boolean> = {
-    sec01: view === "build" || view === "all",
     sec03: view === "build" || view === "enka" || view === "all",
+    sec01: view === "build" || view === "all",
     sec04: view === "timeline" || view === "all",
     sec02: view === "diag" || view === "all",
     sec05: view === "eval" || view === "all",
@@ -450,11 +450,9 @@ function renderSnapshotBar(sim: any) {
 
   el.querySelector("#hudOpenRosterBtn")?.addEventListener("click", () => {
     appStore.state.studioView = "build";
-    appStore.state.pickerCollapsed = !appStore.state.pickerCollapsed;
+    appStore.state.pickerCollapsed = false;
     refreshAllUI();
-    if (!appStore.state.pickerCollapsed) {
-      document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   el.querySelectorAll<HTMLElement>("[data-hud-jump]").forEach((pill) => {
