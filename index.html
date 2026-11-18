@@ -1,53 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark light">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0b0b0b">
   <title>绝区零 v3.3 战术配队 · 合轴排轴 · UID 展柜精算台</title>
   <meta name="description" content="绝区零 Zenless Zone Zero v3.3 智能配队、Enka UID 展柜练度一键同步、驱动盘词条工坊评级、Web Worker 后台配装寻优、八维合轴物理推演与伤害拐力计算器">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800;1,900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/main.css">
   <link rel="stylesheet" href="/src/styles/enka-sync.css">
+  <link rel="stylesheet" href="/src/styles/zzz-frame.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
+  <div class="app-frame">
+    <!-- ================= LEFT: in-game style side navigation ================= -->
+    <aside class="side-nav" aria-label="主导航">
       <div class="brand-block">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 28 28" width="26" height="26" fill="none">
-            <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.6" stroke-opacity="0.88"/>
-            <circle cx="14" cy="14" r="7.5" stroke="currentColor" stroke-width="1" stroke-opacity="0.36" stroke-dasharray="3 2.5"/>
-            <circle cx="14" cy="14" r="3.2" fill="var(--primary)"/>
-            <path d="M14 2v3.5M14 22.5V26M2 14h3.5M22.5 14H26" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/>
+          <svg viewBox="0 0 40 40" width="40" height="40">
+            <path d="M4 4h32v8L16 30h20v6H4v-8L24 10H4z" fill="currentColor"/>
           </svg>
         </div>
         <div class="brand-copy">
           <div class="brand-eyebrow" data-no-i18n>ZENLESS ZONE ZERO <span class="brand-ver">v3.3</span></div>
-          <div class="brand-title-row">
-            <h1>绝区零战术配队与合轴精算台</h1>
-          </div>
+          <h1>绝区零战术配队与合轴精算台</h1>
         </div>
       </div>
 
-      <div class="toolbar-actions">
-        <span class="engine-chip mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS 引擎就绪</span>
+      <nav class="studio-nav" id="studioNavBar" aria-label="工作台视图切换"></nav>
 
-        <div class="lang-switch" id="langSwitchBar" data-no-i18n role="group" aria-label="Language">
-          <button class="lang-btn active" data-lang="zh" type="button" data-no-i18n>中文</button>
-          <button class="lang-btn" data-lang="en" type="button" data-no-i18n>EN</button>
-          <button class="lang-btn" data-lang="ja" type="button" data-no-i18n>日本語</button>
-        </div>
-
-        <span class="toolbar-sep" aria-hidden="true"></span>
-
-        <button class="btn btn-ghost has-icon ico-sync" id="toggleEnkaPanelBtn" type="button">UID 展柜同步</button>
-        <button class="btn btn-ghost has-icon ico-wrench" id="openWorkshopTopBtn" type="button">自定义工坊</button>
+      <div class="side-tools">
+        <button class="side-tool has-icon ico-wrench" id="openWorkshopTopBtn" type="button">自定义工坊</button>
 
         <details class="action-dropdown" id="quickToolsDropdown">
-          <summary class="btn btn-ghost has-icon ico-more">快捷工具 ▾</summary>
+          <summary class="side-tool has-icon ico-more">快捷工具 ▾</summary>
           <div class="dropdown-panel">
             <div class="dropdown-group-label">快速练度基准</div>
             <button class="dropdown-item" id="setM0R1Btn" type="button">全队设为 0+1 基准</button>
@@ -56,7 +45,7 @@
             <button class="dropdown-item" id="zeroSubDpsBtn" type="button">仅看 1号位吃拐直伤</button>
             <div class="dropdown-divider"></div>
             <div class="dropdown-group-label">工作区与外观</div>
-            <button class="dropdown-item" id="themeToggleBtn" type="button">切换亮色主题</button>
+            <button class="dropdown-item" id="themeToggleBtn" type="button">切换暗色主题</button>
             <button class="dropdown-item" id="exportWorkspaceBtn" type="button">导出全盘配置 JSON</button>
             <button class="dropdown-item" id="importWorkspaceBtn" type="button">导入配置 JSON</button>
             <div class="dropdown-divider"></div>
@@ -64,115 +53,127 @@
           </div>
         </details>
 
-        <button class="btn btn-primary has-icon ico-spark" id="autoDiscBtn" type="button" title="自动为当前三人匹配不撞车的最优四件套">一键优盘</button>
+        <div class="lang-switch" id="langSwitchBar" data-no-i18n role="group" aria-label="Language">
+          <button class="lang-btn active" data-lang="zh" type="button" data-no-i18n>中</button>
+          <button class="lang-btn" data-lang="en" type="button" data-no-i18n>EN</button>
+          <button class="lang-btn" data-lang="ja" type="button" data-no-i18n>日</button>
+        </div>
+
+        <span class="engine-chip mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS 引擎就绪</span>
       </div>
-    </div>
-    <div class="studio-rail">
-      <nav class="studio-nav" id="studioNavBar" aria-label="工作台视图切换"></nav>
-    </div>
-  </header>
+    </aside>
 
-  <main class="app-shell">
-    <section class="telemetry-stage" aria-label="队伍总输出与方案对比">
-      <div class="telemetry-primary" id="liveTelemetryBar"></div>
-      <div class="telemetry-memory" id="snapshotBar"></div>
-    </section>
-
-    <section class="section-block enka-sec" id="sec00Enka" hidden>
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>UID</span>
-          <div>
-            <h2 class="sec-title">UID 展柜同步</h2>
-            <p class="sec-desc">输入 UID 读取游戏内展柜的角色与驱动盘，自动套用到当前队伍</p>
+    <!-- ================= CENTER: paper workspace ================= -->
+    <main class="app-shell">
+      <section class="section-block enka-sec" id="sec00Enka" hidden>
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>UID</span>
+            <div>
+              <h2 class="sec-title">UID 展柜同步</h2>
+              <p class="sec-desc">输入 UID 读取游戏内展柜的角色与驱动盘，自动套用到当前队伍</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div id="sec00EnkaBody"></div>
-    </section>
+        <div id="sec00EnkaBody"></div>
+      </section>
 
-    <section class="section-block" id="sec03">
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>1.1</span>
-          <div>
-            <h2 class="sec-title">代理人配装</h2>
-            <p class="sec-desc">为每位代理人选择音擎、影画与驱动盘；可自动寻优，也可逐盘精调</p>
+      <section class="section-block" id="sec03">
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>01<small>A</small></span>
+            <div>
+              <h2 class="sec-title">代理人配装</h2>
+              <p class="sec-desc">为每位代理人选择音擎、影画与驱动盘；可自动寻优，也可逐盘精调</p>
+            </div>
+          </div>
+          <div class="bangboo-inline" id="sec03BangbooBar"></div>
+        </div>
+        <div class="slots-grid" id="sec03SlotGrid"></div>
+      </section>
+
+      <section class="section-block" id="sec01">
+        <div class="sec-header sec-header-compact">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>01<small>B</small></span>
+            <div>
+              <h2 class="sec-title">选择队伍</h2>
+              <p class="sec-desc">一键套用热门配队，或自由挑选代理人、按自己的 Box 智能搜队</p>
+            </div>
+          </div>
+          <button class="btn btn-tonal" id="togglePickerCollapseBtn" type="button">展开选人台 ▼</button>
+        </div>
+        <div id="quickPresetRibbon"></div>
+        <div id="sec01Body"></div>
+      </section>
+
+      <section class="section-block" id="sec04">
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>02</span>
+            <div>
+              <h2 class="sec-title">合轴与排轴</h2>
+              <p class="sec-desc">选择切人手法、拖动出招顺序，实时计算一轮循环耗时与增益覆盖</p>
+            </div>
           </div>
         </div>
-        <div class="bangboo-inline" id="sec03BangbooBar"></div>
-      </div>
-      <div class="slots-grid" id="sec03SlotGrid"></div>
-    </section>
+        <div id="sec04Body"></div>
+      </section>
 
-    <section class="section-block" id="sec01">
-      <div class="sec-header sec-header-compact">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>1.2</span>
-          <div>
-            <h2 class="sec-title">选择队伍</h2>
-            <p class="sec-desc">一键套用热门配队，或自由挑选代理人、按自己的 Box 智能搜队</p>
+      <section class="section-block" id="sec02">
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>03</span>
+            <div>
+              <h2 class="sec-title">伤害分析</h2>
+              <p class="sec-desc">输出构成、乘区拆解与配装体检，找出伤害短板</p>
+            </div>
           </div>
         </div>
-        <button class="btn btn-tonal" id="togglePickerCollapseBtn" type="button">展开选人台 ▼</button>
-      </div>
-      <div id="quickPresetRibbon"></div>
-      <div id="sec01Body"></div>
-    </section>
+        <div class="kpi-grid kpi-grid-2" id="sec02KPIs"></div>
+        <div id="sec02Diag"></div>
+      </section>
 
-    <section class="section-block" id="sec04">
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>2</span>
-          <div>
-            <h2 class="sec-title">合轴与排轴</h2>
-            <p class="sec-desc">选择切人手法、拖动出招顺序，实时计算一轮循环耗时与增益覆盖</p>
+      <section class="section-block" id="sec05">
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>04</span>
+            <div>
+              <h2 class="sec-title">养成收益</h2>
+              <p class="sec-desc">对比每把音擎、每层影画与驱动盘套装的提升幅度，帮你决定下一抽</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div id="sec04Body"></div>
-    </section>
+        <div id="sec05Body"></div>
+      </section>
 
-    <section class="section-block" id="sec02">
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>3</span>
-          <div>
-            <h2 class="sec-title">伤害分析</h2>
-            <p class="sec-desc">输出构成、乘区拆解与配装体检，找出伤害短板</p>
+      <section class="section-block" id="sec06">
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>05</span>
+            <div>
+              <h2 class="sec-title">敌人与环境</h2>
+              <p class="sec-desc">设置首领的属性抗性、弱点、失衡与关卡增益</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="kpi-grid kpi-grid-2" id="sec02KPIs"></div>
-      <div id="sec02Diag"></div>
-    </section>
+        <div id="sec06Body"></div>
+      </section>
+    </main>
 
-    <section class="section-block" id="sec05">
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>4</span>
-          <div>
-            <h2 class="sec-title">养成收益</h2>
-            <p class="sec-desc">对比每把音擎、每层影画与驱动盘套装的提升幅度，帮你决定下一抽</p>
-          </div>
+    <!-- ================= RIGHT: sticky yellow team-output rail ================= -->
+    <aside class="output-rail" aria-label="队伍总输出与方案对比">
+      <div class="rail-inner">
+        <div class="rail-stamp" aria-hidden="true">
+          <span class="rail-stamp-txt" data-no-i18n>TEAM OUTPUT</span>
+          <span class="rail-stamp-flag"></span>
         </div>
+        <div class="telemetry-primary" id="liveTelemetryBar"></div>
+        <div class="telemetry-memory" id="snapshotBar"></div>
+        <button class="btn rail-cta has-icon ico-spark" id="autoDiscBtn" type="button" title="自动为当前三人匹配不撞车的最优四件套">一键优盘</button>
       </div>
-      <div id="sec05Body"></div>
-    </section>
-
-    <section class="section-block" id="sec06">
-      <div class="sec-header">
-        <div class="sec-heading-group">
-          <span class="sec-num" data-no-i18n>5</span>
-          <div>
-            <h2 class="sec-title">敌人与环境</h2>
-            <p class="sec-desc">设置首领的属性抗性、弱点、失衡与关卡增益</p>
-          </div>
-        </div>
-      </div>
-      <div id="sec06Body"></div>
-    </section>
-  </main>
+    </aside>
+  </div>
 
   <div id="workshopModal" class="ws-modal" hidden></div>
 

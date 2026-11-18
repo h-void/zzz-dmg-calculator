@@ -138,7 +138,7 @@ export function makeInitialState(): WorkbenchAppState {
   }
   return {
     lang: "zh",
-    theme: "dark",
+    theme: "light",
     studioView: "build",
     pickerCollapsed: true,
     enkaPanelOpen: false,

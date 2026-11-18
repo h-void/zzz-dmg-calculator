@@ -244,9 +244,28 @@ export function getAgentCircleUrl(cid: string | undefined): string | null {
   return rec ? `${ENKA_CDN}${rec.c}` : null;
 }
 
+export const ELEM_ACCENT_HEX: Record<string, string> = {
+  Physical: "#f0c419",
+  Fire: "#ff5a1f",
+  Ice: "#6fdcf2",
+  Electric: "#2f9dff",
+  Ether: "#ff3d8b",
+  Wind: "#3fe0a0",
+  Lumiflux: "#ffe98a"
+};
+
 export function getAgentAccentHex(cid: string | undefined, fallback = "#dbb368"): string {
   if (!cid) return fallback;
   return AGENT_ASSETS[cid]?.a || fallback;
+}
+
+export function getElemAccentHex(
+  eb: string | undefined,
+  cid?: string,
+  fallback = "#ffe01b"
+): string {
+  if (eb && ELEM_ACCENT_HEX[eb]) return ELEM_ACCENT_HEX[eb];
+  return getAgentAccentHex(cid, fallback);
 }
 
 export function getWeaponIconUrl(wid: string | undefined): string | null {

@@ -1,6 +1,7 @@
 import {
+  getAgentFullArtUrl,
   getAgentSplashUrl,
-  renderAgentAvatar,
+  getElemAccentHex,
   renderDiscVinyl,
   renderWeaponThumb
 } from "../data/enkaAssets";
@@ -294,6 +295,8 @@ export function renderEnkaPanel(): void {
             const w = SC_WEPS[rec.wid];
             const inSlot = activeCidToSlot.get(rec.cid);
             const splashUrl = getAgentSplashUrl(rec.cid);
+            const fullArtUrl = getAgentFullArtUrl(rec.cid) || splashUrl;
+            const elemHex = getElemAccentHex(ch.eb, ch.id);
             const setLabel =
               rec.fourPc !== "无"
                 ? `${rec.fourPc}4${rec.twoPc !== "无" ? ` + ${rec.twoPc}2` : ""}`
@@ -301,27 +304,33 @@ export function renderEnkaPanel(): void {
                 ? `${rec.twoPc}2 散搭`
                 : "散件";
             return `
-              <div class="enka-agent-card ${inSlot !== undefined ? "in-active-team" : ""}">
-                ${
-                  splashUrl
-                    ? `<div class="enka-card-splash" data-no-i18n="1"><img src="${escHtml(splashUrl)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>`
-                    : ""
-                }
-                <div class="enka-agent-head">
-                  <div class="enka-agent-id">
-                    ${renderAgentAvatar(ch.id, ch.n, ch.eb, "av-md")}
-                    <div class="enka-agent-id-copy">
-                      <div class="row" style="gap:5px;flex-wrap:nowrap;">
-                        <strong style="font-size:14px;white-space:nowrap;">[${ch.r}] ${escHtml(ch.n)}</strong>
-                        <span class="badge" data-no-i18n>M${rec.m}</span>
-                        ${inSlot !== undefined ? `<span class="badge b-ok">#${inSlot + 1}</span>` : ""}
-                      </div>
-                      <div class="muted mono" style="font-size:11px;">Lv.${rec.agentLv} · ${CORE_LABELS[rec.coreLv] || "核心F"} · 技Lv.${rec.skillLv}</div>
+              <div class="enka-agent-card ${inSlot !== undefined ? "in-active-team" : ""}" style="--slot-elem:${elemHex};">
+                <div class="enka-hero-banner ${fullArtUrl ? "has-art" : ""}">
+                  ${
+                    fullArtUrl
+                      ? `<div class="enka-portrait-wrap" data-no-i18n="1"><img class="enka-portrait-img" src="${escHtml(fullArtUrl)}" alt="${escHtml(ch.n)}" loading="eager" decoding="async" referrerpolicy="no-referrer" ${splashUrl && splashUrl !== fullArtUrl ? `data-alt-src="${escHtml(splashUrl)}"` : ""} onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src');this.classList.add('is-bust');}else{this.parentElement.style.display='none';this.closest('.enka-hero-banner').classList.remove('has-art');}"></div>`
+                      : ""
+                  }
+                  <div class="enka-banner-top">
+                    <div class="slot-meta-pills">
+                      <span class="slot-rank-pill rank-${ch.r}" data-no-i18n>${ch.r}</span>
+                      <span class="slot-role-meta"><span class="elem-dot elem-${ch.eb}"></span>${escHtml(ch.e)} · ${escHtml(ch.p)}</span>
+                      ${inSlot !== undefined ? `<span class="enka-active-tag" data-no-i18n>上阵 0${inSlot + 1}</span>` : ""}
                     </div>
+                    <button type="button" class="slot-close-btn" data-vault-remove="${escHtml(rec.cid)}" title="从本地练度柜移除此角色">×</button>
                   </div>
-                  <div class="enka-agent-score">
-                    <span class="grade-badge grade-${rec.overallGrade}" data-no-i18n>${rec.overallGrade}</span>
-                    <span class="mono muted" style="font-size:10.5px;">${rec.effectiveRollsTotal.toFixed(1)}词</span>
+
+                  <div class="enka-banner-mid">
+                    <span class="slot-agent-title enka-agent-title">${escHtml(ch.n)}</span>
+                    <span class="enka-m-pill" data-no-i18n>M${rec.m}</span>
+                  </div>
+
+                  <div class="enka-banner-bot">
+                    <span class="enka-lv-chip mono">Lv.${rec.agentLv} · ${CORE_LABELS[rec.coreLv] || "核心F"} · 技Lv.${rec.skillLv}</span>
+                    <div class="build-grade-stamp grade-${rec.overallGrade}">
+                      <span class="bgs-tier" data-no-i18n>${rec.overallGrade}</span>
+                      <span class="bgs-rolls mono">${rec.effectiveRollsTotal.toFixed(1)}词</span>
+                    </div>
                   </div>
                 </div>
 
@@ -345,7 +354,7 @@ export function renderEnkaPanel(): void {
                         ${renderDiscVinyl(ps.set, ps.setName, "disc-2xs")}
                       </div>
                       <strong>${escHtml(shortMain)}</strong>
-                      <span class="grade-${ps.grade}" style="padding:0 3px;border-radius:3px;font-weight:700;font-size:10px;">${ps.effectiveRolls}词·${ps.grade}</span>
+                      <span class="grade-${ps.grade}" style="padding:0 3px;border-radius:0;font-weight:800;font-size:10px;">${ps.effectiveRolls}词·${ps.grade}</span>
                     </div>
                   `;
                       }
@@ -354,7 +363,7 @@ export function renderEnkaPanel(): void {
                 </div>
 
                 <div class="enka-slot-btns">
-                  <span class="muted" style="font-size:11px;">上阵:</span>
+                  <span class="muted" style="font-size:11px;font-weight:700;">上阵:</span>
                   ${[0, 1, 2]
                     .map(
                       (sIdx) => `
@@ -364,7 +373,6 @@ export function renderEnkaPanel(): void {
                   `
                     )
                     .join("")}
-                  <button type="button" class="btn btn-xs btn-ghost" style="margin-left:auto;" data-vault-remove="${escHtml(rec.cid)}" title="从本地练度柜移除此角色">×</button>
                 </div>
               </div>
             `;

@@ -30,8 +30,11 @@ import {
   fmtDiscZh
 } from "../engine/constants";
 import {
+  ELEM_ACCENT_HEX,
   getAgentAccentHex,
   getAgentSplashUrl,
+  getAgentFullArtUrl,
+  getElemAccentHex,
   renderAgentAvatar,
   renderDiscVinyl,
   renderWeaponThumb
@@ -205,84 +208,79 @@ function renderLiveTelemetryBar(sim: any) {
     avatar: renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-xs")
   }));
 
+  const maxPct = Math.max(1, ...shareRows.map((r: any) => r.pct), bbShare * 100);
+
   el.innerHTML = `
     <div class="tele-top-row">
-      <div class="tele-eyebrow">
-        <span class="tele-title">队伍总输出</span>
-        <div class="metric-switch" role="group" aria-label="主口径切换">
-          <button type="button" class="metric-switch-btn ${isDps ? "active" : ""}" data-set-metric="dps">每秒 DPS</button>
-          <button type="button" class="metric-switch-btn ${!isDps ? "active" : ""}" data-set-metric="dpr">单轮 DPR</button>
-        </div>
-      </div>
-      <div class="row" style="gap:6px;">
-        <span class="badge b-info mono">${limGold} 限定金</span>
-        ${
-          sim.activeCount > 0
-            ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? `额外能力 ${sim.aaLitCount}/${sim.activeCount} 激活` : `额外能力 ${sim.aaLitCount}/${sim.activeCount} 未满`}</span>`
-            : ""
-        }
+      <span class="tele-title">队伍总输出</span>
+      <div class="metric-switch" role="group" aria-label="主口径切换">
+        <button type="button" class="metric-switch-btn ${isDps ? "active" : ""}" data-set-metric="dps">每秒 DPS</button>
+        <button type="button" class="metric-switch-btn ${!isDps ? "active" : ""}" data-set-metric="dpr">单轮 DPR</button>
       </div>
     </div>
 
-    <div class="tele-readout-grid">
-      <div class="tele-hero-metric">
-        <span class="tele-hero-caption">${heroCaption}</span>
-        <div class="tele-hero-number">
-          <span>${heroVal}</span>
-          <span class="tele-hero-unit">${heroUnit}</span>
-        </div>
-      </div>
-
-      <div class="tele-sub-metrics">
-        <div class="tele-stat-cell">
-          <span class="tele-stat-label">${isDps ? "单轮总伤 DPR" : "真实每秒 DPS"}</span>
-          <span class="tele-stat-val">${isDps ? fmtWan(sim.teamDpr) : fmtNum(sim.teamActualDps)}</span>
-          <span class="tele-stat-note">较单人放大 ${(sim.teamVsSolo || 1).toFixed(2)}×</span>
-        </div>
-        <div class="tele-stat-cell">
-          <span class="tele-stat-label">一轮循环耗时</span>
-          <span class="tele-stat-val">${(sim.cycleSec || 0).toFixed(2)}s</span>
-          <span class="tele-stat-note">合轴省 ${(qa?.savedOverlapSec || 0).toFixed(1)}s</span>
-        </div>
-        <div class="tele-stat-cell">
-          <span class="tele-stat-label">危局3分钟预估</span>
-          <span class="tele-stat-val">${fmtWan(sim.da3MinTotal)}</span>
-          <span class="tele-stat-note">约 ${Math.max(1, (180 / Math.max(6, sim.cycleSec || 18))).toFixed(1)} 轮循环</span>
-        </div>
+    <div class="tele-hero-metric">
+      <span class="tele-hero-caption">${heroCaption}</span>
+      <div class="tele-hero-number">
+        <span class="tele-hero-val">${heroVal}</span>
+        <span class="tele-hero-unit">${heroUnit}</span>
       </div>
     </div>
+
+    <div class="tele-badges">
+      <span class="badge b-info mono">${limGold} 限定金</span>
+      ${
+        sim.activeCount > 0
+          ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? `额外能力 ${sim.aaLitCount}/${sim.activeCount} 激活` : `额外能力 ${sim.aaLitCount}/${sim.activeCount} 未满`}</span>`
+          : ""
+      }
+    </div>
+
+    <dl class="tele-sub-metrics">
+      <div class="tele-stat-cell">
+        <dt class="tele-stat-label">${isDps ? "单轮总伤 DPR" : "真实每秒 DPS"}</dt>
+        <dd class="tele-stat-val">${isDps ? fmtWan(sim.teamDpr) : fmtNum(sim.teamActualDps)}</dd>
+        <dd class="tele-stat-note">较单人放大 ${(sim.teamVsSolo || 1).toFixed(2)}×</dd>
+      </div>
+      <div class="tele-stat-cell">
+        <dt class="tele-stat-label">一轮循环耗时</dt>
+        <dd class="tele-stat-val">${(sim.cycleSec || 0).toFixed(2)}s</dd>
+        <dd class="tele-stat-note">合轴省 ${(qa?.savedOverlapSec || 0).toFixed(1)}s</dd>
+      </div>
+      <div class="tele-stat-cell">
+        <dt class="tele-stat-label">危局3分钟预估</dt>
+        <dd class="tele-stat-val">${fmtWan(sim.da3MinTotal)}</dd>
+        <dd class="tele-stat-note">约 ${Math.max(1, (180 / Math.max(6, sim.cycleSec || 18))).toFixed(1)} 轮循环</dd>
+      </div>
+    </dl>
 
     <div class="tele-share-footer">
       <div class="tele-share-head">
         <span>输出占比</span>
         <span class="mono">${SWAP_PRESETS[appStore.state.env.swapConfig?.preset]?.name || "自定义合轴"}</span>
       </div>
-      <div class="share-bar share-bar-lg">
-        ${shareRows
-          .map((r: any) => `<div style="width:${r.pct.toFixed(1)}%;background:${r.color};" title="${escHtml(r.name)}: ${r.pct.toFixed(1)}%"></div>`)
-          .join("")}
-        ${bbShare > 0.002 ? `<div style="width:${(bbShare * 100).toFixed(1)}%;background:var(--chart-5);" title="邦布: ${(bbShare * 100).toFixed(1)}%"></div>` : ""}
-      </div>
-      <div class="tele-share-legend">
+      <div class="tele-share-rows">
         ${
           shareRows.length > 0
             ? shareRows
                 .map(
                   (r: any) => `
-              <span class="tele-legend-agent" style="--lg-c:${r.color};">
+              <div class="tele-share-row" style="--lg-c:${r.color};" title="${escHtml(r.name)}: ${r.pct.toFixed(1)}%">
                 ${r.avatar}
-                <span class="tele-legend-copy">
-                  <span class="tele-legend-name">${escHtml(r.name)}</span>
-                  <span class="tele-legend-pct mono">${r.pct.toFixed(1)}%</span>
-                </span>
-              </span>`
+                <span class="tele-share-track"><span class="tele-share-fill" style="width:${((r.pct / maxPct) * 100).toFixed(1)}%"></span><span class="tele-legend-name">${escHtml(r.name)}</span></span>
+                <span class="tele-legend-pct mono">${r.pct.toFixed(1)}%</span>
+              </div>`
                 )
                 .join("")
-            : `<span>暂无上阵代理人</span>`
+            : `<span class="muted">暂无上阵代理人</span>`
         }
         ${
           bbShare > 0.002
-            ? `<span class="tele-legend-agent bb" style="--lg-c:var(--chart-5);"><span class="tele-legend-copy"><span class="tele-legend-name">邦布</span><span class="tele-legend-pct mono">${(bbShare * 100).toFixed(1)}%</span></span></span>`
+            ? `<div class="tele-share-row bb" style="--lg-c:var(--chart-5);" title="邦布: ${(bbShare * 100).toFixed(1)}%">
+                <span class="tele-bb-tag">BB</span>
+                <span class="tele-share-track"><span class="tele-share-fill" style="width:${((bbShare * 100 / maxPct) * 100).toFixed(1)}%"></span><span class="tele-legend-name">邦布</span></span>
+                <span class="tele-legend-pct mono">${(bbShare * 100).toFixed(1)}%</span>
+              </div>`
             : ""
         }
       </div>
@@ -307,33 +305,33 @@ function renderStudioNavBar(sim: any) {
   const vaultCount = Object.keys(enkaVault.agents || {}).length;
   const aaWarn = sim.activeCount > 0 && sim.aaLitCount < sim.activeCount ? 1 : 0;
 
-  const tabs: Array<{ id: StudioViewTab; step: number; label: string; count?: string; warn?: boolean }> = [
-    { id: "build", step: 1, label: "配队配装", count: `${sim.activeCount || 0}/3` },
-    { id: "timeline", step: 2, label: "合轴排轴", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
-    { id: "diag", step: 3, label: "伤害分析", count: aaWarn ? "!" : undefined, warn: Boolean(aaWarn) },
-    { id: "eval", step: 4, label: "养成收益" },
-    { id: "env", step: 5, label: "敌人环境" }
+  const tabs: Array<{ id: StudioViewTab; step: number; label: string; ico: string; count?: string; warn?: boolean }> = [
+    { id: "build", step: 1, label: "配队配装", ico: "ico-squad", count: `${sim.activeCount || 0}/3` },
+    { id: "timeline", step: 2, label: "合轴排轴", ico: "ico-timeline", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
+    { id: "diag", step: 3, label: "伤害分析", ico: "ico-chart", count: aaWarn ? "!" : undefined, warn: Boolean(aaWarn) },
+    { id: "eval", step: 4, label: "养成收益", ico: "ico-growth" },
+    { id: "env", step: 5, label: "敌人环境", ico: "ico-target" }
   ];
 
   nav.innerHTML = `
     ${tabs
       .map(
         (t) => `
-      <button type="button" class="studio-tab ${cur === t.id ? "active" : ""}" data-studio-tab="${t.id}">
-        <span class="tab-step" data-no-i18n>${t.step}</span>
-        <span>${t.label}</span>
+      <button type="button" class="studio-tab has-icon ${t.ico} ${cur === t.id ? "active" : ""}" data-studio-tab="${t.id}" title="${t.label}">
+        <span class="tab-step" data-no-i18n>${String(t.step).padStart(2, "0")}</span>
+        <span class="tab-label">${t.label}</span>
         ${t.count ? `<span class="tab-count ${t.warn ? "warn" : ""}">${t.count}</span>` : ""}
       </button>
     `
       )
       .join("")}
-    <span class="studio-nav-spacer"></span>
-    <button type="button" class="studio-tab util ${cur === "enka" ? "active" : ""}" data-studio-tab="enka">
-      <span>UID 展柜</span>
+    <span class="studio-nav-spacer" aria-hidden="true"></span>
+    <button type="button" class="studio-tab util has-icon ico-sync ${cur === "enka" ? "active" : ""}" data-studio-tab="enka" title="UID 展柜同步">
+      <span class="tab-label">UID 展柜</span>
       <span class="tab-count">${vaultCount > 0 ? `${vaultCount}` : "Sync"}</span>
     </button>
-    <button type="button" class="studio-tab util ${cur === "all" ? "active" : ""}" data-studio-tab="all">
-      <span>全部展开</span>
+    <button type="button" class="studio-tab util has-icon ico-expand ${cur === "all" ? "active" : ""}" data-studio-tab="all" title="全部展开">
+      <span class="tab-label">全部展开</span>
     </button>
   `;
 
@@ -373,14 +371,23 @@ function renderSnapshotBar(sim: any) {
               .map((m) => {
                 const w = SC_WEPS[m.cfg.wid];
                 const ref = m.cfg.ref ?? 1;
+                const elemHex = getElemAccentHex(m.ch.eb, m.ch.id);
+                const bustUrl = getAgentSplashUrl(m.ch.id);
+                const fullUrl = getAgentFullArtUrl(m.ch.id);
+                const artUrl = bustUrl || fullUrl;
                 return `
-                  <span class="squad-pill" data-hud-jump="build" title="点击定位配装台 · ${escHtml(m.ch.n)}">
-                    ${renderAgentAvatar(m.ch.id, m.ch.n, m.ch.eb, "av-sm")}
+                  <span class="squad-pill ${artUrl ? "has-art" : ""}" style="--slot-elem:${elemHex};" data-hud-jump="build" title="点击定位配装台 · ${escHtml(m.ch.n)}">
+                    ${
+                      artUrl
+                        ? `<span class="squad-pill-bg" data-no-i18n="1"><img class="squad-pill-art" src="${escHtml(artUrl)}" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer" ${bustUrl && fullUrl && bustUrl !== fullUrl ? `data-alt-src="${escHtml(fullUrl)}"` : ""} onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src');this.classList.add('is-full');}else{this.parentElement.style.display='none';this.closest('.squad-pill').classList.remove('has-art');}"></span>`
+                        : ""
+                    }
+                    <span class="squad-pos-tag" data-no-i18n>0${m.slotIdx + 1}</span>
                     <span class="squad-pill-copy">
                       <span class="squad-pill-name">${escHtml(m.ch.n)}</span>
-                      <span class="squad-meta mono" data-no-i18n>M${m.m}${w ? ` · R${ref}` : ""}</span>
+                      <span class="squad-meta mono" data-no-i18n>${m.ch.r} · M${m.m}${w ? ` · R${ref}` : ""}</span>
                     </span>
-                    ${w ? renderWeaponThumb(w.id, w.n, w.r, "wep-xs") : ""}
+                    ${w ? `<span class="squad-wep-chip">${renderWeaponThumb(w.id, w.n, w.r, "wep-xs")}</span>` : ""}
                   </span>
                 `;
               })
@@ -1198,16 +1205,6 @@ function renderMultiplierRadarSvg(bd0: any, ch0: any): string {
 // ============================================================================
 // Section 03: 3-Slot Showcase Gear Cards + 4th-Slot Bangboo Bar
 // ============================================================================
-const ELEM_ACCENT_HEX: Record<string, string> = {
-  Physical: "#d6a24a",
-  Fire: "#d66556",
-  Ice: "#78b4d6",
-  Electric: "#5789c7",
-  Ether: "#cc6677",
-  Wind: "#58b08c",
-  Lumiflux: "#e0c167"
-};
-
 const SUB_SHORT_ZH: Record<string, string> = {
   CR: "暴击",
   CD: "暴伤",
@@ -1402,8 +1399,9 @@ function renderSingleSlotCard(slotIdx: number, sim: any) {
   const st = sr?.st;
   const bd = sr?.bd;
   const bm = sl.buildMode || "auto";
-  const elemHex = ELEM_ACCENT_HEX[ch.eb] || getAgentAccentHex(ch.id, "#dbb368");
+  const elemHex = ELEM_ACCENT_HEX[ch.eb] || getAgentAccentHex(ch.id, "#ffe01b");
   const splashUrl = getAgentSplashUrl(ch.id);
+  const fullArtUrl = getAgentFullArtUrl(ch.id) || splashUrl;
 
   const sameWeps = WEP_LIST.filter(w => w.wt === ch.wt);
   const otherWeps = WEP_LIST.filter(w => w.wt !== ch.wt);
@@ -1572,10 +1570,10 @@ function renderSingleSlotCard(slotIdx: number, sim: any) {
 
   return `
     <div class="slot-card" style="--slot-elem:${elemHex};">
-      <div class="slot-hero-banner">
+      <div class="slot-hero-banner ${fullArtUrl ? "has-art" : ""}">
         ${
-          splashUrl
-            ? `<div class="slot-portrait-wrap" data-no-i18n="1"><img class="slot-portrait-img" src="${escHtml(splashUrl)}" alt="${escHtml(ch.n)}" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>`
+          fullArtUrl
+            ? `<div class="slot-portrait-wrap" data-no-i18n="1"><img class="slot-portrait-img" src="${escHtml(fullArtUrl)}" alt="${escHtml(ch.n)}" loading="eager" decoding="async" referrerpolicy="no-referrer" ${splashUrl && splashUrl !== fullArtUrl ? `data-alt-src="${escHtml(splashUrl)}"` : ""} onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src');this.classList.add('is-bust');}else{this.parentElement.style.display='none';this.closest('.slot-hero-banner').classList.remove('has-art');}"></div>`
             : ""
         }
         <div class="slot-banner-top">
@@ -2393,25 +2391,25 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
   const stunW = Math.max(0, xOf(stunEnd) - stunX);
   const preStunW = Math.max(0, stunX - leftPad);
 
-  // Curated Mineral Studio Track Palette (Prussian Slate, Celadon Jade, Burnished Bronze)
-  const trackColors = ["#4678a8", "#388276", "#a37b3b"];
+  // ZZZ in-game track palette (Electric blue, Ether pink, Fire orange) on an ink-black lane
+  const trackColors = ["#1f7ae0", "#e0306d", "#e06a00"];
 
   let defsSvg = `
     <pattern id="tlHatch0" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#4678a8" fill-opacity="0.15" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#8ab4dc" stroke-opacity="0.50" stroke-width="2" />
+      <rect width="8" height="8" fill="#1f7ae0" fill-opacity="0.18" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#6bb4ff" stroke-opacity="0.55" stroke-width="2" />
     </pattern>
     <pattern id="tlHatch1" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#388276" fill-opacity="0.15" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#7cc2b6" stroke-opacity="0.50" stroke-width="2" />
+      <rect width="8" height="8" fill="#e0306d" fill-opacity="0.18" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#ff7aa6" stroke-opacity="0.55" stroke-width="2" />
     </pattern>
     <pattern id="tlHatch2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#a37b3b" fill-opacity="0.15" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#dfc082" stroke-opacity="0.50" stroke-width="2" />
+      <rect width="8" height="8" fill="#e06a00" fill-opacity="0.18" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#ffa64d" stroke-opacity="0.55" stroke-width="2" />
     </pattern>
     <pattern id="tlHatchDanger" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="8" height="8" fill="#b84a50" fill-opacity="0.18" />
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#e08287" stroke-opacity="0.65" stroke-width="2.2" />
+      <rect width="8" height="8" fill="#ff3e3e" fill-opacity="0.2" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#ff7b7b" stroke-opacity="0.7" stroke-width="2.2" />
     </pattern>
   `;
 
@@ -2433,14 +2431,14 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     ${
       stunW > 24
         ? `
-      <rect x="${stunX}" y="${phaseY}" width="${stunW}" height="${phaseH}" rx="4" fill="#d6ad60" fill-opacity="0.14" stroke="#d6ad60" stroke-opacity="0.38" stroke-width="1" />
+      <rect x="${stunX}" y="${phaseY}" width="${stunW}" height="${phaseH}" rx="4" fill="#ffe01b" fill-opacity="0.14" stroke="#ffe01b" stroke-opacity="0.5" stroke-width="1" />
       <text x="${stunX + 8}" y="${phaseY + 14}" fill="var(--primary)" font-size="11" font-weight="700">${escHtml(fitSvgLabel(`${inStunTitle} (${stunStart.toFixed(1)}s – ${stunEnd.toFixed(1)}s)`, stunW - 6, 11))}</text>
     `
         : ""
     }
     ${
       stunW > 0
-        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#d6ad60" fill-opacity="0.045" pointer-events="none" />`
+        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#ffe01b" fill-opacity="0.05" pointer-events="none" />`
         : ""
     }
   `;
@@ -2505,7 +2503,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     const isSel = b.id === selectedId;
     const baseCol = trackColors[rowIdx % 3];
     const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || b._truncPct > 0.03;
-    const tailStroke = isDanger ? "#d16868" : baseCol;
+    const tailStroke = isDanger ? "#ff3e3e" : baseCol;
     const hatchId = isDanger ? "tlHatchDanger" : `tlHatch${rowIdx % 3}`;
 
     const rawShort = String(b.label || "").replace(/^.+·/, "");
@@ -2563,7 +2561,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
           height="${h}"
           rx="5"
           fill="${baseCol}"
-          stroke="${isSel ? "#eceef2" : "rgba(255,255,255,0.16)"}"
+          stroke="${isSel ? "#ffe01b" : "rgba(255,255,255,0.18)"}"
           stroke-width="${isSel ? "1.8" : "0.8"}"
         />
         ${
@@ -2572,7 +2570,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
           <g clip-path="url(#${clipId})" pointer-events="none">
             ${
               textBackdropW > wOn
-                ? `<rect x="${(xStart + 2).toFixed(1)}" y="${y + 5}" width="${textBackdropW.toFixed(1)}" height="${h - 10}" rx="4" fill="#0b0c0e" fill-opacity="0.86" />`
+                ? `<rect x="${(xStart + 2).toFixed(1)}" y="${y + 5}" width="${textBackdropW.toFixed(1)}" height="${h - 10}" rx="4" fill="#0b0b0b" fill-opacity="0.88" />`
                 : ""
             }
             <text x="${(xStart + 6).toFixed(1)}" y="${y + 19}" fill="#f4f6f9" font-size="11" font-weight="600">${escHtml(fitted)}</text>
@@ -2603,7 +2601,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
 
       buffSvg += `
         <g>
-          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#3d7d63" fill-opacity="0.86" />
+          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#5c8c00" fill-opacity="0.92" />
           ${
             bFit
               ? `<text x="${(bx + 5).toFixed(1)}" y="${ly + 11.5}" fill="#f4f6f9" font-size="10" font-weight="600" clip-path="url(#${bClip})" pointer-events="none">${escHtml(bFit)}</text>`
@@ -3211,6 +3209,21 @@ function renderSection06Environment() {
 export function initApp() {
   registerRefreshHandler(refreshAllUI);
   loadWorkspaceFromStorage();
+
+  // Deep link: #/timeline, #/diag, #/eval, #/env, #/enka, #/all opens that workspace view
+  const applyHashView = () => {
+    const hashView = (typeof location !== "undefined" ? location.hash : "").replace(/^#\/?/, "");
+    if (["build", "enka", "timeline", "diag", "eval", "env", "all"].includes(hashView)) {
+      appStore.state.studioView = hashView as StudioViewTab;
+      if (hashView === "enka") appStore.state.enkaPanelOpen = true;
+      return true;
+    }
+    return false;
+  };
+  applyHashView();
+  window.addEventListener("hashchange", () => {
+    if (applyHashView()) refreshAllUI();
+  });
 
   document.querySelectorAll<HTMLButtonElement>("#langSwitchBar .lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
