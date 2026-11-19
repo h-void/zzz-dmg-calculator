@@ -19,7 +19,15 @@ import {
   calcBaseStatLvMult,
   calcDefLevelFactor
 } from "./constants";
-import { evalSwapCancelEngine, makeDefaultSwapConfig } from "./swapTimeline";
+import {
+  ANOMALY_BAR_SPECS,
+  type SlotAnomalyTelemetry,
+  computeBarDurationExtMap,
+  computeTeamAnomalyContext,
+  evalOwnAnomalyRealization,
+  resolveAgentAnomalyBar
+} from "./anomalyEngine";
+import { analyzeTimeline, evalSwapCancelEngine, makeDefaultSwapConfig } from "./swapTimeline";
 
 // ============================================================================
 // Weapon Effects (Built-in + Full Custom Override/Additive Support)
@@ -317,9 +325,10 @@ export function getFourPcSelfBonus(fourPc, ch, initStats, ctx, slotCfg = null) {
   if (!fourPc || fourPc === "无") return f;
 
   let fUptime = slotCfg?.fourPcUptime !== undefined ? Math.max(0, Math.min(1.0, Number(slotCfg.fourPcUptime))) : 1.0;
-  // Swap-cancel hormone Cov scaling when user keeps default 1.0 uptime on Hormone Punk
+  // Swap-cancel / coupled-timeline Hormone Punk 4pc (10s window / 20s CD) coverage scaling
   if (fourPc === "激素" && (slotCfg?.fourPcUptime === undefined || slotCfg?.fourPcUptime === 1.0) && ctx.qaSwap) {
-    fUptime *= (0.82 + 0.18 * (ctx.qaSwap.hormoneCov || 0.90));
+    const exactHCov = ctx.qaSwap.hormoneCovByCid?.[ch.id];
+    fUptime *= exactHCov !== undefined ? exactHCov : (0.82 + 0.18 * (ctx.qaSwap.hormoneCov || 0.90));
   }
 
   const ds = DISC_SETS[fourPc];
@@ -719,14 +728,14 @@ export function computePairBuff(src, dst, ctx, notes) {
   }
 
   if (cid === "1031") {
-    const nCov = ctx.qaSwap ? ctx.qaSwap.nicoleCov : 1.0;
+    const nCov = ctx.qaSwap ? (ctx.qaSwap.nicoleCovByCid?.[dst.ch.id] ?? ctx.qaSwap.nicoleCov ?? 1.0) : 1.0;
     b.def_shred += 0.40 * coreScale * up * nCov; if (aa && tb === "Ether") b.dmg += 0.25 * up * nCov;
   } else if (cid === "1131") {
     b.atk_flat += Math.min(1000, st.init_atk * 0.40) * coreScale * up; if (aa && tb === "Ice") b.dmg += 0.20 * up;
   } else if (cid === "1151") {
     b.atk_flat += Math.min(600, st.init_atk * 0.258 + 104) * coreScale * up;
   } else if (cid === "1211") {
-    const rCov = (m === 0 && ctx.qaSwap) ? ctx.qaSwap.rinaCovM0 : 1.0;
+    const rCov = ctx.qaSwap ? (ctx.qaSwap.rinaCovByCid?.[dst.ch.id] ?? (m === 0 ? ctx.qaSwap.rinaCovM0 : 1.0)) : 1.0;
     const basePen = Math.min(0.30, st.init_pen * 0.25 + 0.12) * coreScale;
     b.pen += Math.min(0.39, basePen * mods.tb_pen_mult) * up * rCov;
     if (potOn) { b.atk_flat += Math.min(576, st.init_pen * 800) * up * rCov; b.def_flat += Math.min(468, st.init_pen * 650) * up * rCov; }
@@ -854,7 +863,8 @@ export function computePairBuff(src, dst, ctx, notes) {
   }
   if (cid !== "1461" && cid !== "1311") b.atk_flat += (mods.tb_atk_flat || 0) * up;
   b.atk_pct += (mods.tb_atk_pct || 0) * up; b.cd += (mods.tb_cd || 0) * up;
-  b.cr += (mods.tb_cr || 0) * up * (cid === "1031" && ctx.qaSwap ? ctx.qaSwap.nicoleCov : 1.0);
+  const nicCrCov = cid === "1031" && ctx.qaSwap ? (ctx.qaSwap.nicoleCovByCid?.[dst.ch.id] ?? ctx.qaSwap.nicoleCov ?? 1.0) : 1.0;
+  b.cr += (mods.tb_cr || 0) * up * nicCrCov;
   b.pen += (mods.tb_pen || 0) * up;
   if (cid === "1361") b.stun_mult_alltime += (mods.tb_stun_mult || 0) * up;
   else b.stun_mult += (mods.tb_stun_mult || 0) * up;
@@ -1128,9 +1138,19 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
     const anomCrit = Math.max(ownAnomCrit, phxCritM);
     const refringeM = 1.0 + (tb.refringe_mult || 0);
 
+    const ownBar = resolveAgentAnomalyBar(ch);
+    const ownDurExt = ctx.barDurExt?.[ownBar] ?? 0;
+    const ownReal = evalOwnAnomalyRealization(ownBar, ownDurExt, amFactor, ctx.canDisorder, cid);
+    const charAnomInfo = ctx.anomCtx?.perChar?.[cid];
+    const dilutionMult = charAnomInfo?.dilutionMult ?? 1.0;
+
     const swapDisBonus = ctx.qaSwap?.disorderBonusSec || 0;
-    const effDisSec = Math.min(13, Math.max(0, (env.disorderSec ?? 7) + ctx.anomDurBonus + swapDisBonus));
-    const disDurM = 0.72 + 0.04 * effDisSec;
+    const effDisSec = charAnomInfo
+      ? charAnomInfo.underlayEffRemSec
+      : Math.min(13, Math.max(0, (env.disorderSec ?? 7) + ownDurExt + swapDisBonus));
+    const disDurM = charAnomInfo
+      ? charAnomInfo.disorderScaleMult
+      : (0.72 + 0.04 * effDisSec);
     const canSelfPolDis = (cid === "1221" || cid === "1401" || cid === "1511" || ctx.hasNangongPol);
     const disAvailM = (ctx.canDisorder || canSelfPolDis) ? 1.0 : 0.15;
 
@@ -1141,7 +1161,7 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
       anomMechM = (ctx.activeCount >= 2 ? lumApScale : 0.55) * (mods.rem_lum_mult || 1);
     }
 
-    const anomVal = combat_atk * (c_ap / 100) * anomLvMult * anomDmgM * defM * resM * stunMult * anomCrit * refringeM * amFactor * 0.45 * anomMechM;
+    const anomVal = combat_atk * (c_ap / 100) * anomLvMult * anomDmgM * defM * resM * stunMult * anomCrit * refringeM * amFactor * 0.45 * ownReal.anomRealizationMult * dilutionMult * anomMechM;
     const disDmgM = anomDmgM + disorder_extra * miasmaMult;
     const disVal = combat_atk * (c_ap / 100) * anomLvMult * disDmgM * defM * resM * stunMult * anomCrit * refringeM * amFactor * 0.45 * disDurM * disAvailM * (mods.yanagi_pol_mult || 1) * (ctx.hasNangongPol ? 1.14 : 1.0);
     const abDefM = calcDefMult(tb.def_ign_abloom || 0);
@@ -1161,11 +1181,32 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
     if (pAnom > 0) subParts[cid === "1581" ? "luminize" : (cid === "1561" ? "vortex" : "anom")] = pAnom;
     if (pDis > 0) subParts.disorder = pDis;
     if (pAb > 0) subParts.abloom = pAb;
+
+    const uBar = charAnomInfo?.primaryUnderlayBar ?? null;
+    const anomTelemetry: SlotAnomalyTelemetry = {
+      bar: ownBar,
+      barZh: ownReal.spec.zhName,
+      kind: ownReal.spec.kind,
+      baseAnomMvPct: Math.round(ownReal.spec.baseTotalMv * 100),
+      realizedAnomMvPct: Math.round(ownReal.realizedAnomMv * 100),
+      anomRealizationMult: ownReal.anomRealizationMult,
+      overwriteLossPct: ownReal.overwriteLossPct,
+      underlayBar: uBar,
+      underlayBarZh: uBar ? ANOMALY_BAR_SPECS[uBar].zhName : ownReal.spec.zhName,
+      effRemSec: Number(effDisSec.toFixed(1)),
+      disorderMvPct: Math.round((charAnomInfo?.underlayDisorderMv ?? 11.5) * 100),
+      disorderScaleMult: disDurM,
+      icdClampMult: ctx.anomCtx?.icdClampMult ?? 1.0,
+      snapshotPurity: charAnomInfo?.snapshotPurity ?? 1.0,
+      dilutionMult,
+      dilutedBy: charAnomInfo?.dilutedBy ?? null
+    };
+
     breakdown = {
       formulaType: cid === "1581" ? "异常·流明耀化" : (cid === "1561" ? "异常·风化涡流异放" : "异常·紊乱/异放混合"),
       baseLabel: "局内攻击", baseVal: combat_atk, combat_atk, c_ap, combat_am, init_er, eff_er,
       critM, anomCrit, refringeM, dmgM: anomDmgM, defM, abDefM, resM, stunMult, sShare,
-      c_cr, c_cd, totalPen, shred: Math.min(1, baseShred), enemyElemRes, effDisSec, subParts
+      c_cr, c_cd, totalPen, shred: Math.min(1, baseShred), enemyElemRes, effDisSec, anomTelemetry, subParts
     };
   } else {
     let critM = 1.0 + Math.min(1.0, Math.max(0, c_cr)) * c_cd;
@@ -1540,35 +1581,40 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     notes.push(`[注意] 蕾米埃尔单人无法通过队友触发【耀化】积攒虚芒，实战需搭配其他异常队友`);
   }
 
-  let anomDurBonus = 0, hasNangongPol = false;
+  const barDurExt = computeBarDurationExtMap(activeMembers);
+  const anomDurBonus = Math.max(0, ...Object.values(barDurExt));
+  let hasNangongPol = false;
   activeMembers.forEach(m => {
-    if (!m.aa.active) return;
-    if (["1171","1211","1501","1541"].includes(m.ch.id)) anomDurBonus += 3;
-    if (m.ch.id === "1511") hasNangongPol = true;
+    if (m.aa.active && m.ch.id === "1511") hasNangongPol = true;
   });
 
   // Evaluate 8-Dimension Swap-Cancel Engine (+ optional Timeline Coupling when team matches)
   const swapCfg = env.swapConfig || makeDefaultSwapConfig(env.swapMode || "standard");
-  const tlMatch = !fastMode && env.timelineCoupled && env.timelineAnalysis && env.timelineAnalysis.active
-    && (!env.timelineCids || env.timelineCids.length === 0 || env.timelineCids.join(",") === activeMembers.map(m => m.ch.id).join(","));
-  const qaSwap = evalSwapCancelEngine(activeMembers, swapCfg, env, bangboo, tlMatch ? env.timelineAnalysis : null);
-  qaSwap.diagnostics.forEach(d => notes.push(d));
+  const tlCidsMatch = !env.timelineCids || env.timelineCids.length === 0 || env.timelineCids.join(",") === activeMembers.map(m => m.ch.id).join(",");
+  const tlMatch = !fastMode && !!env.timelineCoupled && tlCidsMatch && !!(
+    (Array.isArray(env.timelineBlocks) && env.timelineBlocks.length > 0) ||
+    (env.timelineAnalysis && env.timelineAnalysis.active)
+  );
+  let qaSwap = evalSwapCancelEngine(activeMembers, swapCfg, env, bangboo, tlMatch ? env.timelineAnalysis : null);
 
-  const effStunShare = {};
+  const effStunShare: Record<string, number> = {};
   const hasStunExt = activeMembers.some(m => ["1161","1471"].includes(m.ch.id) || (m.aa.active && ["1511","1571","1621"].includes(m.ch.id)));
-  activeMembers.forEach(m => {
-    let baseS = m.ch.prof?.stun_share || 0.50;
-    if (env.stunPhysicsMode === "physics" && qaSwap.realStunShare[m.ch.id] !== undefined) {
-      baseS = qaSwap.realStunShare[m.ch.id];
-    } else {
-      if (stunCount === 0) baseS *= (m.ch.prof?.veil_vuln ? 1.0 : 0.76);
-      else if (stunCount === 1) baseS = Math.min(0.85, baseS * 1.04 + (hasStunExt ? 0.06 : 0));
-      else if (stunCount >= 2) baseS = Math.min(0.92, baseS * 1.12 + (hasStunExt ? 0.06 : 0));
-    }
-    effStunShare[m.ch.id] = baseS;
-  });
+  const recomputeBaseStunShares = () => {
+    activeMembers.forEach(m => {
+      let baseS = m.ch.prof?.stun_share || 0.50;
+      if (env.stunPhysicsMode === "physics" && qaSwap.realStunShare[m.ch.id] !== undefined) {
+        baseS = qaSwap.realStunShare[m.ch.id];
+      } else {
+        if (stunCount === 0) baseS *= (m.ch.prof?.veil_vuln ? 1.0 : 0.76);
+        else if (stunCount === 1) baseS = Math.min(0.85, baseS * 1.04 + (hasStunExt ? 0.06 : 0));
+        else if (stunCount >= 2) baseS = Math.min(0.92, baseS * 1.12 + (hasStunExt ? 0.06 : 0));
+      }
+      effStunShare[m.ch.id] = baseS;
+    });
+  };
+  recomputeBaseStunShares();
 
-  const freedomBluesElems = new Set();
+  const freedomBluesElems = new Set<string>();
   activeMembers.forEach(m => {
     const fp = m.cfg?.buildMode === "pieces"
       ? (m.cfg.pieces?.filter(p => p?.set === "自由").length >= 4 ? "自由" : m.fourPc)
@@ -1576,17 +1622,18 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     if (fp === "自由") freedomBluesElems.add(m.ch.eb);
   });
 
-  const ctx = {
+  const ctx: any = {
     qaSwap,
     bangboo,
     activeCount: activeMembers.length,
     teamElems, anomCount, stunCount, attackCount, windCount, nonWindCount,
     hasAtkOrRup, teamHasVeil, mateHasVeil, teamHasPhoenix, teamHasJane,
-    velinaVortexOk, teamHasContam, canDisorder, anomDurBonus, hasNangongPol,
+    velinaVortexOk, teamHasContam, canDisorder, anomDurBonus, barDurExt, hasNangongPol,
     effStunShare, freedomBluesElems, teamDazeBuff: bangboo?.dazeBonus || 0,
     slotMvMult: Object.fromEntries(activeMembers.map(m => [m.ch.id, m.cfg.mvMult ?? 1.0])),
     potAwakening: env.potAwakening !== false,
-    er2pcCountsInit: env.er2pcCountsInit !== false
+    er2pcCountsInit: env.er2pcCountsInit !== false,
+    anomCtx: null
   };
 
   activeMembers.forEach(m => {
@@ -1626,6 +1673,36 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     m.sheet = bestSt;
     m.baseBuffUtil = calcMemberTeamBuffUtil(m, bestSt, activeMembers, ctx);
   });
+
+  // Live Timeline State-Machine Sync using Pass-1 equipped sheets (ER / IMP / AM / 4pc)!
+  if (!fastMode && !opts.skipSoloBaseline && Array.isArray(env.timelineBlocks) && env.timelineBlocks.length > 0) {
+    const cidsKey = activeMembers.map(m => m.ch.id).join(",");
+    const tlKey = (env.timelineCids || []).join(",");
+    if (cidsKey === tlKey) {
+      const liveTl = analyzeTimeline(env.timelineBlocks, activeMembers, env, bangboo);
+      env.timelineAnalysis = liveTl;
+      if (tlMatch) {
+        qaSwap = evalSwapCancelEngine(activeMembers, swapCfg, env, bangboo, liveTl);
+        ctx.qaSwap = qaSwap;
+        recomputeBaseStunShares();
+      }
+    }
+  } else if (tlMatch && Array.isArray(env.timelineBlocks) && env.timelineBlocks.length > 0) {
+    const liveTl = analyzeTimeline(env.timelineBlocks, activeMembers, env, bangboo);
+    qaSwap = evalSwapCancelEngine(activeMembers, swapCfg, env, bangboo, liveTl);
+    ctx.qaSwap = qaSwap;
+    recomputeBaseStunShares();
+  }
+  qaSwap.diagnostics.forEach(d => notes.push(d));
+
+  // Team Anomaly Physics: Snapshot Dilution, Underlay t_rem Disorder, 3.0s ICD & Secondary Debuffs
+  const anomCtx = computeTeamAnomalyContext(activeMembers, env, qaSwap, freedomBluesElems, bangboo);
+  ctx.anomCtx = anomCtx;
+  if (!fastMode) {
+    anomCtx.diagnostics.forEach(d => notes.push(d));
+  }
+  // Physical Flinch (畏缩): +7.5% Daze taken by enemy!
+  ctx.teamDazeBuff += anomCtx.flinchUptime * 0.075;
 
   // Stunner Daze Power -> Stun Window Share shift + Cycle Speedup refinement!
   const stunMembers = activeMembers.filter(m => m.ch.wt === "Stun");
@@ -1686,7 +1763,10 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
       if (ds.customMods.replaceBuiltin) return;
     }
 
-    if (fp === "月光") squadSetBuff.dmg += 0.18 * u;
+    if (fp === "月光") {
+      const mlCov = qaSwap.mode === "timeline_exact" ? (qaSwap.moonlightCov ?? 1.0) : 1.0;
+      squadSetBuff.dmg += 0.18 * mlCov * u;
+    }
     else if (fp === "山大王") {
       const crNow = m.sheet.init_cr + (m.ch.prof?.self_cr || 0) + m.sheet.eff.c_cr;
       const kotsCd = crNow >= 0.50 ? 0.30 : 0.15;
@@ -1701,7 +1781,10 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     }
     else if (fp === "雪兔") squadSetBuff.dmg += 0.18 * u;
     else if (fp === "原始") squadSetBuff.dmg += (activeMembers.some(x => x.ch.defAssist) ? 0.15 : 0.08) * Math.min(1.0, 0.45 + 0.55 * qaSwap.protoCov) * u;
-    else if (fp === "摇摆") squadSetBuff.dmg += 0.15 * u;
+    else if (fp === "摇摆") {
+      const swCov = qaSwap.mode === "timeline_exact" ? (qaSwap.swingCov ?? 1.0) : 1.0;
+      squadSetBuff.dmg += 0.15 * swCov * u;
+    }
   });
 
   const autoWeights = getAutoRotationWeights(activeMembers);
@@ -1711,12 +1794,16 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
   // Pass 2: Evaluate Final Damage for each slot
   activeMembers.forEach((m, i) => {
     const tb = emptyTeamBuffs();
+    const fbCov = qaSwap.frostbiteCovByCid?.[m.ch.id] ?? anomCtx.frostbiteUptime;
     tb.dmg += squadSetBuff.dmg + (bangboo?.teamDmg || 0);
-    tb.cd += squadSetBuff.cd;
+    tb.cd += squadSetBuff.cd + fbCov * 0.10; // Ice / Frost Frostbite (霜寒): +10% CRIT DMG taken!
     tb.atk_pct += squadSetBuff.atk_pct;
     tb.atk_flat += bangboo?.teamAtkFlat || 0;
     tb.ap += squadSetBuff.ap + (bangboo?.teamAp || 0);
     tb.res_shred += squadSetBuff.res_shred;
+    if (m.ch.id !== "1091") {
+      tb.buildup += anomCtx.icefireUptime * 0.20; // Miyabi Icefire (冰焰): +20% teammate Anomaly Buildup!
+    }
     if (m.ch.wt === "Rupture") tb.sheer += bangboo?.teamSheer || 0;
 
     activeMembers.forEach(src => mergeBuffs(tb, computePairBuff(src, m, ctx, notes)));

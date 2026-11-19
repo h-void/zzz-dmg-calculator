@@ -1082,7 +1082,18 @@ function renderSection02KPIsAndDiag(sim) {
         <div class="sec-mini-title">智能配装防呆与合轴风险诊断 (${sim.notes.length} 条)</div>
           <ul class="diag-list">
             ${sim.notes.map(n => {
-              const cls = n.includes("警告") || n.includes("冲突") || n.includes("风险") || n.includes("失效") || n.includes("撞车") ? "d-warn" : "d-info";
+              const cls =
+                n.includes("警告") ||
+                n.includes("冲突") ||
+                n.includes("风险") ||
+                n.includes("失效") ||
+                n.includes("撞车") ||
+                n.includes("断档") ||
+                n.includes("不足") ||
+                n.includes("稀释") ||
+                n.includes("偏移")
+                  ? "d-warn"
+                  : "d-info";
               return `<li class="${cls}">${escHtml(n)}</li>`;
             }).join("")}
           </ul>
@@ -1104,6 +1115,43 @@ function renderSection02KPIsAndDiag(sim) {
               <span class="mpill">抗性区: <strong>×${(bd0.resM || 1).toFixed(3)}</strong></span>
               <span class="mpill">失衡易伤区: <strong>×${(bd0.stunMult || 1).toFixed(3)}</strong></span>
             </div>
+            ${(() => {
+              const at = bd0.anomTelemetry;
+              const actx = sim.ctx?.anomCtx;
+              if (!at && !(actx && (actx.frostbiteUptime > 0.02 || actx.flinchUptime > 0.02 || actx.icefireUptime > 0.02))) {
+                return "";
+              }
+              const pills: string[] = [];
+              if (at) {
+                pills.push(
+                  `<span class="mpill">异常底倍率(${escHtml(at.barZh)}): <strong>${at.realizedAnomMvPct}%</strong>${
+                    at.overwriteLossPct > 1.5 ? ` <span class="txt-warn">(覆盖折损-${at.overwriteLossPct.toFixed(0)}%)</span>` : ""
+                  }</span>`
+                );
+                if (sim.ctx?.canDisorder) {
+                  pills.push(
+                    `<span class="mpill">紊乱底色(${escHtml(at.underlayBarZh)} 剩${at.effRemSec}s): <strong>${at.disorderMvPct}%</strong>${
+                      at.icdClampMult < 0.99 ? ` <span class="txt-warn">(3sCD×${at.icdClampMult.toFixed(2)})</span>` : ""
+                    }</span>`
+                  );
+                }
+                pills.push(
+                  `<span class="mpill">积蓄快照纯度: <strong class="${at.dilutionMult < 0.96 ? "txt-warn" : ""}">${(at.snapshotPurity * 100).toFixed(0)}%</strong>${
+                    at.dilutionMult < 0.985 ? ` (染色×${at.dilutionMult.toFixed(3)})` : ""
+                  }</span>`
+                );
+              }
+              if (actx?.frostbiteUptime > 0.02) {
+                pills.push(`<span class="mpill">霜寒(+10%暴伤): <strong>${(actx.frostbiteUptime * 100).toFixed(0)}%</strong></span>`);
+              }
+              if (actx?.flinchUptime > 0.02) {
+                pills.push(`<span class="mpill">畏缩(+7.5%失衡): <strong>${(actx.flinchUptime * 100).toFixed(0)}%</strong></span>`);
+              }
+              if (actx?.icefireUptime > 0.02) {
+                pills.push(`<span class="mpill">冰焰(+20%积蓄): <strong>${(actx.icefireUptime * 100).toFixed(0)}%</strong></span>`);
+              }
+              return `<div class="mult-pills" style="margin-top:6px;">${pills.join("")}</div>`;
+            })()}
             ${threshItems.length > 0 ? `
               <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:12px;">
                 ${threshItems.map(t => `
@@ -2330,10 +2378,73 @@ function renderSection04SwapAndTimeline(sim: any) {
         <span class="tl-stat-chip">顺序总耗时 <strong>${tl.seqCycleSec.toFixed(2)}s</strong></span>
         <span class="tl-stat-chip">合轴压缩后实轴 <strong>${tl.cycleSec.toFixed(2)}s</strong></span>
         <span class="tl-stat-chip">并行省帧 <strong style="color:var(--accent);">-${tl.savedSec.toFixed(2)}s (${(tl.overlapPct * 100).toFixed(1)}%)</strong></span>
+        <span class="tl-stat-chip">首领失衡 <strong>${
+          tl.autoStunTriggered
+            ? `${tl.autoStunStartSec.toFixed(1)}s 打满${tl.totalizeTriggered ? " (决算瞬结)" : ""}`
+            : `单轮破韧 ${((tl.dazeFillRatio || 0) * 100).toFixed(0)}%`
+        }</strong></span>
+        ${
+          (tl.anomEvents?.length || 0) > 0
+            ? `<span class="tl-stat-chip ${tl.disorderIcdHits > 0 ? "txt-warn" : ""}">异常 <strong>${tl.anomEvents.length}次</strong> · 紊乱 <strong>${tl.disorderCount || 0}次${
+                tl.disorderAvgMv ? ` (${Math.round(tl.disorderAvgMv * 100)}%)` : ""
+              }${tl.disorderIcdHits > 0 ? ` · 3sCD撞车${tl.disorderIcdHits}次` : ""}</strong></span>`
+            : ""
+        }
         <span class="tl-stat-chip">安全合轴 <strong>${tl.safeSwaps}次</strong></span>
         <span class="tl-stat-chip ${tl.exposedSwaps > 0 ? "txt-warn" : ""}">裸露合轴 <strong>${tl.exposedSwaps}次 (${tl.exposedSec.toFixed(1)}s)</strong></span>
-        ${tl.nicoleCov !== null ? `<span class="tl-stat-chip">妮可减防覆盖1号位 <strong>${(tl.nicoleCov * 100).toFixed(1)}%</strong></span>` : ""}
+        ${tl.nicoleCov !== null && tl.nicoleCov !== undefined ? `<span class="tl-stat-chip">妮可减防覆盖1号位 <strong>${(tl.nicoleCov * 100).toFixed(1)}%</strong></span>` : ""}
+        ${tl.rinaCov !== null && tl.rinaCov !== undefined ? `<span class="tl-stat-chip">丽娜穿透覆盖1号位 <strong>${(tl.rinaCov * 100).toFixed(1)}%</strong></span>` : ""}
+        ${tl.hormoneCov !== null && tl.hormoneCov !== undefined ? `<span class="tl-stat-chip ${tl.hormoneCov < 0.62 ? "txt-warn" : ""}">激素朋克覆盖1号位 <strong>${(tl.hormoneCov * 100).toFixed(1)}%</strong></span>` : ""}
       </div>
+
+      ${
+        Array.isArray(tl.agentTelemetry) && tl.agentTelemetry.length > 0
+          ? `
+        <div class="tl-agent-tele-grid mono">
+          ${tl.agentTelemetry
+            .map((at: any) => {
+              const hasEDef = at.energyDeficits > 0;
+              const hasDDef = at.decibelDeficits > 0;
+              const covTags: string[] = [];
+              if (at.nicoleCov !== null && at.nicoleCov !== undefined && at.slotIdx === 0) {
+                covTags.push(`妮可 ${(at.nicoleCov * 100).toFixed(0)}%`);
+              }
+              if (at.rinaCov !== null && at.rinaCov !== undefined && at.slotIdx === 0) {
+                covTags.push(`丽娜 ${(at.rinaCov * 100).toFixed(0)}%`);
+              }
+              if (at.hormoneCov !== null && at.hormoneCov !== undefined) {
+                covTags.push(`激素 ${(at.hormoneCov * 100).toFixed(0)}%`);
+              }
+              if (at.frostbiteCov > 0.05 && at.slotIdx === 0) {
+                covTags.push(`霜寒 ${(at.frostbiteCov * 100).toFixed(0)}%`);
+              }
+              return `
+                <div class="tl-agent-tele-card">
+                  <div class="tl-agent-tele-head">
+                    <strong>${at.slotIdx + 1}号 · ${escHtml(at.name)} (${escHtml(at.fourPc)}4)</strong>
+                    <span class="muted">回能 ${at.erPerSec}/s · 动作量 ×${(at.mvVolume ?? 1).toFixed(2)}</span>
+                  </div>
+                  <div class="tl-agent-tele-row">
+                    <span class="${hasEDef ? "txt-warn" : ""}">能量: <strong>${at.energyStart}→低${at.energyMin}→终${at.energyEnd}</strong>${
+                hasEDef ? ` [断档${at.energyDeficits}次]` : ""
+              }</span>
+                    <span class="${hasDDef ? "txt-warn" : ""}">喧响: <strong>+${at.decibelEarned} (峰${at.decibelPeak}/${at.decibelCap})</strong>${
+                at.freeUltsUsed > 0 ? ` [赠大×${at.freeUltsUsed}]` : ""
+              }${hasDDef ? ` [缺口${at.decibelDeficits}次]` : ""}</span>
+                  </div>
+                  ${
+                    covTags.length > 0
+                      ? `<div class="tl-agent-tele-row"><span>实轴吃拐积分: <strong>${escHtml(covTags.join(" · "))}</strong></span></div>`
+                      : ""
+                  }
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      `
+          : ""
+      }
 
       <div class="tl-svg-container" id="timelineSvgWrap">
         ${renderTimelineSVG(appStore.state.timelineBlocks, active, tl, selectedBlk?.id)}
@@ -2366,6 +2477,8 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
   const rulerY = 28;
   const topPad = 50;
   const trackH = 46;
+  const bossTrackY = topPad + activeMembers.length * trackH + 2;
+  const bossTrackH = 36;
 
   // Greedily pack buff windows into non-overlapping lanes
   const buffLanes: number[] = [];
@@ -2378,10 +2491,10 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     return { ...bw, lane, idx };
   });
 
-  const buffSectionPad = placedBuffs.length > 0 ? 10 : 0;
+  const buffSectionPad = placedBuffs.length > 0 ? 8 : 0;
   const buffLaneH = 20;
   const buffTotalH = placedBuffs.length > 0 ? buffSectionPad + Math.max(1, buffLanes.length) * buffLaneH + 6 : 0;
-  const height = topPad + activeMembers.length * trackH + buffTotalH + 10;
+  const height = bossTrackY + bossTrackH + buffTotalH + 10;
 
   const xOf = (sec: number) => leftPad + sec * pxPerSec;
 
@@ -2416,7 +2529,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
   // Phase header ribbon (strictly above ruler & tracks — never collides with bars)
   const phaseLabelTitle = lang === "en" ? "PHASE" : lang === "ja" ? "フェーズ" : "战斗阶段";
   const outStunTitle = tr("失衡外破韧期");
-  const inStunTitle = tr("失衡爆发窗口");
+  const inStunTitle = tr(tl.autoStunTriggered ? "实轴失衡爆发期" : "预期爆发阶段");
 
   const phaseSvg = `
     <text x="12" y="${phaseY + 14}" fill="var(--muted-foreground)" font-size="11" font-weight="700">${escHtml(phaseLabelTitle)}</text>
@@ -2438,7 +2551,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     }
     ${
       stunW > 0
-        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + 2}" fill="#ffe01b" fill-opacity="0.05" pointer-events="none" />`
+        ? `<rect x="${stunX}" y="${topPad - 2}" width="${stunW}" height="${activeMembers.length * trackH + bossTrackH}" fill="#ffe01b" fill-opacity="0.05" pointer-events="none" />`
         : ""
     }
   `;
@@ -2502,7 +2615,8 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     const wLinger = Math.max(0, linger * pxPerSec);
     const isSel = b.id === selectedId;
     const baseCol = trackColors[rowIdx % 3];
-    const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || b._truncPct > 0.03;
+    const hasResWarn = b._energyOk === false || b._decibelOk === false;
+    const isDanger = (b.safety === "unsafe_exposed" && linger > 0.1) || b._truncPct > 0.03 || hasResWarn;
     const tailStroke = isDanger ? "#ff3e3e" : baseCol;
     const hatchId = isDanger ? "tlHatchDanger" : `tlHatch${rowIdx % 3}`;
 
@@ -2511,7 +2625,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     const fullTip = tr(
       `${b.label} | ${b.startSec}s -> +${b.swapDur}s / ${b.totalDur}s | 脱手并行 ${linger.toFixed(2)}s${
         b._truncPct > 0.03 ? ` | 早切截断 -${(b._truncPct * 100).toFixed(0)}%` : ""
-      }`
+      }${b._energyOk === false ? " | 能量断档" : ""}${b._decibelOk === false ? " | 喧响不足" : ""}`
     );
 
     // 1. Off-field parallel tail rendered in bottom layer so later solid blocks sit cleanly on top
@@ -2561,8 +2675,8 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
           height="${h}"
           rx="5"
           fill="${baseCol}"
-          stroke="${isSel ? "#ffe01b" : "rgba(255,255,255,0.18)"}"
-          stroke-width="${isSel ? "1.8" : "0.8"}"
+          stroke="${isSel ? "#ffe01b" : hasResWarn ? "#ff3e3e" : "rgba(255,255,255,0.18)"}"
+          stroke-width="${isSel ? "1.8" : hasResWarn ? "1.5" : "0.8"}"
         />
         ${
           fitted
@@ -2583,10 +2697,94 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
     `;
   });
 
+  // Boss Daze Curve & Anomaly/Disorder Event Track
+  let bossPhysicsSvg = "";
+  {
+    const by = bossTrackY;
+    const bh = bossTrackH - 4; // 32px
+    const bossTitle = tr("首领失衡与异常");
+    const bossSub = tl.autoStunTriggered
+      ? tr(`失衡 ${tl.autoStunStartSec.toFixed(1)}s${tl.totalizeTriggered ? " · 决算" : ""}`)
+      : tr(`破韧 ${((tl.dazeFillRatio || 0) * 100).toFixed(0)}%`);
+
+    bossPhysicsSvg += `
+      <rect x="0" y="${by}" width="${width}" height="${bh}" rx="6" fill="var(--card)" opacity="0.68" />
+      <rect x="0" y="${by}" width="${leftPad - 8}" height="${bh}" rx="6" fill="var(--card-elev)" stroke="var(--card-border)" stroke-width="1" />
+      <rect x="0" y="${by + 5}" width="3" height="${bh - 10}" rx="1.5" fill="#d98a00" />
+      <text x="11" y="${by + 14}" fill="var(--foreground)" font-size="11" font-weight="700">${escHtml(fitSvgLabel(bossTitle, leftPad - 16, 11))}</text>
+      <text x="11" y="${by + 27}" fill="var(--muted-foreground)" font-size="10" font-family="JetBrains Mono, monospace">${escHtml(fitSvgLabel(bossSub, leftPad - 16, 10))}</text>
+    `;
+
+    const curve = Array.isArray(tl.dazeCurve) ? tl.dazeCurve : [];
+    if (curve.length >= 2) {
+      const plotTop = by + 5;
+      const plotBot = by + bh - 4;
+      const plotH = plotBot - plotTop;
+      const pts = curve.map((pt: any) => {
+        const px = xOf(Math.min(maxT, pt.t));
+        const py = plotBot - Math.max(0, Math.min(1, pt.dazePct)) * plotH;
+        return `${px.toFixed(1)},${py.toFixed(1)}`;
+      });
+      const firstX = xOf(curve[0].t).toFixed(1);
+      const lastX = xOf(Math.min(maxT, curve[curve.length - 1].t)).toFixed(1);
+      bossPhysicsSvg += `
+        <polygon points="${firstX},${plotBot.toFixed(1)} ${pts.join(" ")} ${lastX},${plotBot.toFixed(1)}" fill="#d98a00" fill-opacity="0.20" />
+        <polyline points="${pts.join(" ")}" fill="none" stroke="#d98a00" stroke-width="1.6" />
+      `;
+    }
+
+    // Anomaly & Disorder Event Markers
+    const disTimes = new Set((tl.disorderEvents || []).map((d: any) => Number(d.t.toFixed(2))));
+    let lastMarkerEndX = leftPad - 10;
+
+    (tl.anomEvents || []).forEach((ae: any) => {
+      if (disTimes.has(Number(ae.t.toFixed(2)))) return; // Disorder marker already renders at this timestamp
+      const ax = xOf(Math.min(maxT, ae.t));
+      const tag = tr(ae.barZh);
+      const wTag = Math.max(30, estimateSvgTextPx(tag, 9.5) + 10);
+      bossPhysicsSvg += `<line x1="${ax.toFixed(1)}" y1="${by + 2}" x2="${ax.toFixed(1)}" y2="${by + bh - 2}" stroke="#9a6bff" stroke-width="1.4" />`;
+      if (ax >= lastMarkerEndX + 3) {
+        bossPhysicsSvg += `
+          <g>
+            <rect x="${(ax + 2).toFixed(1)}" y="${by + 8}" width="${wTag.toFixed(1)}" height="15" rx="3" fill="#4c2c92" fill-opacity="0.92" />
+            <text x="${(ax + 7).toFixed(1)}" y="${by + 18.5}" fill="#f4f6f9" font-size="9.5" font-weight="600">${escHtml(tag)}</text>
+            <title>${escHtml(tr(`${ae.t.toFixed(2)}s 触发异常【${ae.barZh}】 | 积蓄快照纯度 ${(ae.purity * 100).toFixed(0)}%`))}</title>
+          </g>
+        `;
+        lastMarkerEndX = ax + 2 + wTag;
+      }
+    });
+
+    let lastDisEndX = leftPad - 10;
+    (tl.disorderEvents || []).forEach((de: any) => {
+      const dx = xOf(Math.min(maxT, de.t));
+      const isIcd = !!de.icdBlocked;
+      const col = isIcd ? "#c92a2a" : "#0b7285";
+      const label = isIcd ? tr("3sCD吞没") : tr(`紊乱 ${de.mvPct}%`);
+      const wBadge = Math.max(44, estimateSvgTextPx(label, 9.5) + 12);
+      const drawX = Math.max(dx + 2, lastDisEndX + 4);
+      bossPhysicsSvg += `
+        <g>
+          <line x1="${dx.toFixed(1)}" y1="${by + 1}" x2="${dx.toFixed(1)}" y2="${by + bh - 1}" stroke="${isIcd ? "#ff4d4f" : "#15aabf"}" stroke-width="2" />
+          <rect x="${drawX.toFixed(1)}" y="${by + 6}" width="${wBadge.toFixed(1)}" height="17" rx="4" fill="${col}" stroke="rgba(255,255,255,0.28)" stroke-width="0.8" />
+          <text x="${(drawX + 6).toFixed(1)}" y="${by + 17.5}" fill="#ffffff" font-size="9.5" font-weight="700">${escHtml(label)}</text>
+          <title>${escHtml(
+            tr(
+              isIcd
+                ? `${de.t.toFixed(2)}s 紊乱撞上 3.0s 内置CD！底色【${de.underlayZh}】(剩${de.tRem.toFixed(1)}s)未能结算紊乱`
+                : `${de.t.toFixed(2)}s 触发【紊乱】结算底色【${de.underlayZh}】剩余 ${de.tRem.toFixed(1)}s -> 倍率 ${de.mvPct}%`
+            )
+          )}</title>
+        </g>
+      `;
+      lastDisEndX = drawX + wBadge;
+    });
+  }
+
   // Buff Coverage Lanes
   let buffSvg = "";
   if (placedBuffs.length > 0) {
-    const baseBy = topPad + activeMembers.length * trackH + buffSectionPad;
+    const baseBy = bossTrackY + bossTrackH + buffSectionPad;
     const buffHeader = tr("短轴拐覆盖窗");
     buffSvg += `<text x="11" y="${baseBy + 13}" fill="var(--muted-foreground)" font-size="11" font-weight="700">${escHtml(fitSvgLabel(buffHeader, leftPad - 16, 11))}</text>`;
 
@@ -2597,11 +2795,12 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
       const bClip = `tlBuffClip_${bw.idx}`;
       const bLabel = tr(String(bw.label || ""));
       const bFit = fitSvgLabel(bLabel, bwPx, 10);
+      const buffFill = bw.kind === "debuff" ? "#1971c2" : bw.kind === "set" ? "#7048e8" : "#5c8c00";
       defsSvg += `<clipPath id="${bClip}"><rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" /></clipPath>`;
 
       buffSvg += `
         <g>
-          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="#5c8c00" fill-opacity="0.92" />
+          <rect x="${bx.toFixed(1)}" y="${ly}" width="${bwPx.toFixed(1)}" height="16" rx="4" fill="${buffFill}" fill-opacity="0.92" />
           ${
             bFit
               ? `<text x="${(bx + 5).toFixed(1)}" y="${ly + 11.5}" fill="#f4f6f9" font-size="10" font-weight="600" clip-path="url(#${bClip})" pointer-events="none">${escHtml(bFit)}</text>`
@@ -2621,6 +2820,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
       ${tracksSvg}
       <g class="tl-tails-layer">${tailsLayerSvg}</g>
       <g class="tl-solids-layer">${solidsLayerSvg}</g>
+      <g class="tl-boss-physics-layer">${bossPhysicsSvg}</g>
       ${buffSvg}
     </svg>
   `;
@@ -2628,7 +2828,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
 
 function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
   const m = activeMembers.find((x) => x.ch.id === blk.cid) || activeMembers[0];
-  const movePool = m ? getMovePoolForChar(m.ch) : [];
+  const movePool = m ? getMovePoolForChar(m.ch, m.m ?? 0) : [];
   const cats = [
     ["basic", "普攻/蓄力"],
     ["dash", "闪反/振刀"],
@@ -2638,15 +2838,27 @@ function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
     ["qa", "快速支援"]
   ];
 
+  const eCast = Math.round(blk._energyAtCast ?? 68);
+  const dCast = Math.round(blk._decibelAtCast ?? 1950);
+  const eCost = Number(blk.energyCost ?? (blk.cat === "ex" ? 50 : 0));
+  const stunFracPct = Math.round((blk._realStunFrac ?? (blk.phase === "stun" ? 1 : 0)) * 100);
+
   return `
     <div class="tl-inspector">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px;">
-        <div class="row" style="gap:8px;">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+        <div class="row" style="gap:8px;flex-wrap:wrap;">
           <strong>选中动作块精调：${escHtml(blk.label)}</strong>
           ${
             blk._truncPct > 0.03
               ? `<span class="badge b-warn">当前切人点早于收尾帧(${blk.minSwap}s)，截断丢伤 ${(blk._truncPct * 100).toFixed(0)}%</span>`
               : `<span class="badge b-ok">完整保留脱手判定 (后台并行 ${(blk.totalDur - blk.swapDur).toFixed(2)}s)</span>`
+          }
+          ${
+            blk._energyOk === false
+              ? `<span class="badge b-warn">能量断档 (${eCast}/${eCost})</span>`
+              : blk._decibelOk === false
+              ? `<span class="badge b-warn">喧响不足 (${dCast}/3000)</span>`
+              : `<span class="badge b-info mono">出手能量 ${eCast}${eCost > 0 ? `(-${eCost})` : ""} · 喧响 ${dCast} · 实轴失衡覆盖 ${stunFracPct}%</span>`
           }
         </div>
         <div class="row" style="gap:6px;">
@@ -2687,14 +2899,37 @@ function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
         <label class="ws-field"><span>起始时间 start(秒)</span><input type="number" step="0.1" min="0" id="tl_blk_start" value="${blk.startSec}"></label>
         <label class="ws-field"><span>招式总动画长(秒)</span><input type="number" step="0.05" min="0.2" id="tl_blk_tot" value="${blk.totalDur}"></label>
         <label class="ws-field"><span>最早无损切人帧(秒)</span><input type="number" step="0.05" min="0.15" id="tl_blk_min" value="${blk.minSwap}"></label>
-        <label class="ws-field" style="grid-column:span 2;">
-          <span>实际切人合轴点 swapDur: <strong class="mono">${blk.swapDur}s</strong> (越小越早切人合轴)</span>
+        <label class="ws-field">
+          <span>实际切人 swapDur: <strong class="mono">${blk.swapDur}s</strong></span>
           <input type="range" min="0.20" max="${blk.totalDur}" step="0.05" value="${blk.swapDur}" id="tl_blk_swap">
         </label>
         <label class="ws-field"><span>动作倍率权重 MV</span><input type="number" step="50" min="50" id="tl_blk_mv" value="${blk.mv}"></label>
+        <label class="ws-field"><span>消耗能量 Cost</span><input type="number" step="5" min="0" max="120" id="tl_blk_ecost" value="${eCost}"></label>
       </div>
     </div>
   `;
+}
+
+function applyMoveTemplateToBlock(blk: any, mv: any) {
+  blk.moveKey = mv.key;
+  blk.label = mv.label;
+  blk.cat = mv.cat;
+  blk.totalDur = mv.totalDur;
+  blk.minSwap = mv.minSwap;
+  blk.swapDur = calcSwapSecForMove(mv, appStore.state.env.swapConfig);
+  blk.mv = mv.mv;
+  blk.daze = mv.daze;
+  blk.anom = mv.anom;
+  blk.energyCost = mv.energyCost ?? (mv.cat === "ex" ? 50 : 0);
+  blk.energyGen = mv.energyGen ?? (mv.cat === "basic" ? 15 : 8);
+  blk.teamEnergyGen = mv.teamEnergyGen ?? 0;
+  blk.decibelGen = mv.decibelGen ?? (mv.cat === "ult" ? 0 : 280);
+  blk.triggersQA = !!mv.triggersQA;
+  blk.triggersPolarityDisorder = !!mv.triggersPolarityDisorder;
+  blk.grantsFreeUlt = !!mv.grantsFreeUlt;
+  blk.totalizesStun = mv.totalizesStun || null;
+  blk.safety = mv.safety;
+  blk.buffTag = mv.buffTag ? { ...mv.buffTag } : null;
 }
 
 function bindSection04Events(wrap: HTMLElement, active: any[]) {
@@ -2754,28 +2989,19 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
   document.getElementById("tlAddBlockBtn")?.addEventListener("click", () => {
     if (active.length === 0) return;
     const m0 = active[0];
-    const mv = getMovePoolForChar(m0.ch)[0];
+    const mv = getMovePoolForChar(m0.ch, m0.m ?? 0)[0];
     const last = appStore.state.timelineBlocks[appStore.state.timelineBlocks.length - 1];
     const start = last ? Number((last.startSec + last.swapDur).toFixed(2)) : 0;
-    const nb = {
+    const nb: any = {
       id: "blk_" + Date.now().toString(36).slice(-5),
       slotIdx: m0.slotIdx,
       memberIdx: 0,
       cid: m0.ch.id,
       charName: m0.ch.n,
-      label: mv.label,
-      cat: mv.cat,
       phase: "stun",
-      startSec: start,
-      totalDur: mv.totalDur,
-      minSwap: mv.minSwap,
-      swapDur: calcSwapSecForMove(mv, appStore.state.env.swapConfig),
-      mv: mv.mv,
-      daze: mv.daze,
-      anom: mv.anom,
-      safety: mv.safety,
-      buffTag: mv.buffTag ? { ...mv.buffTag } : null
+      startSec: start
     };
+    applyMoveTemplateToBlock(nb, mv);
     appStore.state.timelineBlocks.push(nb);
     appStore.state.selectedBlockId = nb.id;
     refreshAllUI();
@@ -2834,19 +3060,17 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
     if (!nc) return;
     blk.cid = nc.id;
     blk.charName = nc.n;
-    const mv = getMovePoolForChar(nc)[0];
-    blk.label = mv.label; blk.cat = mv.cat; blk.totalDur = mv.totalDur; blk.minSwap = mv.minSwap;
-    blk.swapDur = calcSwapSecForMove(mv, appStore.state.env.swapConfig); blk.mv = mv.mv; blk.safety = mv.safety;
-    blk.buffTag = mv.buffTag ? { ...mv.buffTag } : null;
+    const am = active.find(x => x.ch.id === nc.id);
+    const mv = getMovePoolForChar(nc, am?.m ?? 0)[0];
+    applyMoveTemplateToBlock(blk, mv);
     commitBlkEdit();
   });
   document.getElementById("tl_blk_tpl")?.addEventListener("change", (e: any) => {
     const nc = CHAR_MAP[blk.cid];
-    const mv = nc ? getMovePoolForChar(nc).find(x => x.key === e.target.value) : null;
+    const am = active.find(x => x.ch.id === blk.cid);
+    const mv = nc ? getMovePoolForChar(nc, am?.m ?? 0).find(x => x.key === e.target.value) : null;
     if (!mv) return;
-    blk.label = mv.label; blk.cat = mv.cat; blk.totalDur = mv.totalDur; blk.minSwap = mv.minSwap;
-    blk.swapDur = calcSwapSecForMove(mv, appStore.state.env.swapConfig); blk.mv = mv.mv; blk.safety = mv.safety;
-    blk.buffTag = mv.buffTag ? { ...mv.buffTag } : null;
+    applyMoveTemplateToBlock(blk, mv);
     commitBlkEdit();
   });
   document.getElementById("tl_blk_label")?.addEventListener("change", (e: any) => { blk.label = e.target.value; refreshAllUI(); });
@@ -2866,6 +3090,7 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
   document.getElementById("tl_blk_min")?.addEventListener("change", (e: any) => { blk.minSwap = Math.max(0.15, parseFloat(e.target.value) || 0.5); refreshAllUI(); });
   document.getElementById("tl_blk_swap")?.addEventListener("change", (e: any) => { blk.swapDur = Math.max(0.15, parseFloat(e.target.value) || 0.5); commitBlkEdit(); });
   document.getElementById("tl_blk_mv")?.addEventListener("change", (e: any) => { blk.mv = Math.max(20, parseFloat(e.target.value) || 1000); refreshAllUI(); });
+  document.getElementById("tl_blk_ecost")?.addEventListener("change", (e: any) => { blk.energyCost = Math.max(0, parseFloat(e.target.value) || 0); refreshAllUI(); });
 }
 
 // ============================================================================

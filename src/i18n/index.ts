@@ -552,7 +552,52 @@ const RAW_TOKENS: Array<[string, string, string]> = [
   ["火", "Fire", "炎"],
   ["冰", "Ice", "氷"],
   ["电", "Electric", "電気"],
-  ["风", "Wind", "風"]
+  ["风", "Wind", "風"],
+
+  // Live Timeline Physics State Machine & Authentic Anomaly/Disorder Telemetry
+  ["首领失衡与异常", "Boss Daze & Anomaly", "ボスブレイク＆異常"],
+  ["实轴失衡爆发期", "Live Stun Burst", "実ローテブレイク爆発"],
+  ["预期爆发阶段", "Burst Window", "爆発フェーズ"],
+  ["妮可减防覆盖", "Nicole Shred Cov ", "ニコ防デバフカバー"],
+  ["丽娜穿透覆盖", "Rina PEN Cov ", "リナ貫通カバー"],
+  ["激素朋克覆盖", "Hormone Cov ", "ホルモンカバー"],
+  ["实轴失衡覆盖", "Live Stun Cov", "実ブレイクカバー"],
+  ["实轴吃拐积分", "Buff Integral", "バフ被覆積分"],
+  ["积蓄快照纯度", "Buildup Purity", "蓄積スナップ純度"],
+  ["异常底倍率", "Anomaly Base MV", "異常基礎倍率"],
+  ["消耗能量 Cost", "Energy Cost", "消費エネルギー"],
+  ["短轴拐覆盖窗", "Buff Windows", "短時間バフ窓"],
+  ["紊乱底色", "Disorder Underlay", "混沌下地"],
+  ["覆盖折损", "Overwrite Loss", "上書き損失"],
+  ["首领失衡", "Boss Stun", "ボスブレイク"],
+  ["决算瞬结", "Totalize", "決算即終了"],
+  ["单轮破韧", "Cycle Daze", "1ローテブレイク"],
+  ["3sCD吞没", "3s ICD Blocked", "3秒CT消失"],
+  ["3sCD撞车", "3s ICD Hit ", "3秒CT衝突"],
+  ["能量断档", "Energy Deficit", "エネルギー不足"],
+  ["喧响不足", "Decibel Deficit", "デシベル不足"],
+  ["出手能量", "Cast Energy", "発動エネルギー"],
+  ["动作量", "MV Vol", "モーション量"],
+  ["霜寒", "Frostbite", "霜寒"],
+  ["畏缩", "Flinch", "畏縮"],
+  ["冰焰", "Icefire", "氷焔"],
+  ["烈霜", "Frost", "烈霜"],
+  ["灼烧", "Burn", "熱傷"],
+  ["强击", "Assault", "強撃"],
+  ["碎冰", "Shatter", "砕氷"],
+  ["感电", "Shock", "感電"],
+  ["侵蚀", "Corruption", "侵蝕"],
+  ["风化", "Erosion", "風化"],
+  ["耀化", "Radiance", "耀化"],
+  ["紊乱", "Disorder", "混沌"],
+  ["决算", "Totalize", "決算"],
+  ["能量", "Energy", "エネルギー"],
+  ["喧响", "Decibels", "デシベル"],
+  ["破韧", "Daze", "ブレイク"],
+  ["染色", "Diluted", "希釈"],
+  ["赠大", "Free Ult", "無料終結"],
+  ["断档", "Deficit ", "枯渇"],
+  ["缺口", "Short ", "不足"]
 ];
 
 const SORTED_TOKENS = [...RAW_TOKENS].sort((a, b) => b[0].length - a[0].length);
@@ -664,6 +709,18 @@ export function translateText(raw: string, lang: LangCode = currentLang): string
   );
   s = s.replace(/R([1-5])星/g, (_m, r) =>
     lang === "en" ? `W${r}` : `R${r}`
+  );
+  s = s.replace(/剩([\d.]+)s/g, (_m, t) =>
+    lang === "en" ? `${t}s left` : `残${t}s`
+  );
+  s = s.replace(/→低(\d+)→终(\d+)/g, (_m, mn, ed) =>
+    lang === "en" ? `→min ${mn}→end ${ed}` : `→低${mn}→終${ed}`
+  );
+  s = s.replace(/峰(\d+)/g, (_m, pk) =>
+    lang === "en" ? `peak ${pk}` : `最大${pk}`
+  );
+  s = s.replace(/([\d.]+)s\s*打满/g, (_m, t) =>
+    lang === "en" ? `${t}s Stun` : `${t}s 到達`
   );
 
   // Pattern: (+ 记录至方案 A) / 方案A: / 当前 +4.5%

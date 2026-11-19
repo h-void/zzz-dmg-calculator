@@ -1420,6 +1420,39 @@ input[type="range"] {
   border: 1px solid var(--card-border);
 }
 
+.tl-agent-tele-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.tl-agent-tele-card {
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  background: var(--well);
+  border: 1px solid var(--card-border);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tl-agent-tele-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.tl-agent-tele-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+}
+.tl-agent-tele-row strong {
+  color: var(--foreground);
+}
+
 /* ==========================================================================
    Section 05: Editorial Rankings & Ladder
    ========================================================================== */

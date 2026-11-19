@@ -301,7 +301,9 @@ export function ensureTimelineInitialized(forceRegen = false): void {
     state.env.timelineCids = active.map((x) => x.ch.id);
     state.selectedBlockId = state.timelineBlocks[0]?.id || null;
   }
-  state.env.timelineAnalysis = analyzeTimeline(state.timelineBlocks, active);
+  state.env.timelineBlocks = state.timelineBlocks;
+  const bb = state.env.bangbooId ? BANGBOO_MAP[state.env.bangbooId] : null;
+  state.env.timelineAnalysis = analyzeTimeline(state.timelineBlocks, active, state.env, bb);
 }
 
 export function snapTimelineSequential(blocks: any[]): void {
