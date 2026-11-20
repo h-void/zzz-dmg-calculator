@@ -1,0 +1,5451 @@
+{
+  "version": "3.3.0",
+  "charRowsData": [
+    {
+      "cid": "1291",
+      "name": "雨果",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "冰",
+      "teamLabel": "雨果 + 莱特 + 莱卡恩",
+      "setCombo": "激素4+折枝2",
+      "bestDiscZh": "暴击/攻击%/攻击%",
+      "combatBase": 5001,
+      "baseExpand": 3.06,
+      "critOrAnomStr": "100%/273%",
+      "effCritOrApMult": 3.73,
+      "dmgM": 2.3,
+      "defM": 0.518,
+      "resM": 1.4,
+      "stunMult": 1.79,
+      "teamDps": 161198,
+      "selfWeightedDps": 147881,
+      "subCr": 0,
+      "subCd": 0.0129,
+      "subStat": 0.0122,
+      "subAp": 0,
+      "gDmg30": 0.1307,
+      "gCd40": 0.1071,
+      "gPen24": 0.1308,
+      "gShred20": 0.142,
+      "gRes15": 0.1071,
+      "gStun30": 0.1558,
+      "d5BestZh": "攻击%",
+      "diag": "暴率达顶(101%)+暴伤饱和(273%)；补穿透/减抗优先于增伤，5号选【攻击%】(胜穿透% 0.6%)"
+    },
+    {
+      "cid": "1431",
+      "name": "叶瞬光",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "物理",
+      "teamLabel": "叶瞬光 + 千夏 + 照",
+      "setCombo": "沧浪4+折枝2",
+      "bestDiscZh": "暴伤/穿透%/攻击%",
+      "combatBase": 5419,
+      "baseExpand": 3.22,
+      "critOrAnomStr": "98%/291%",
+      "effCritOrApMult": 3.86,
+      "dmgM": 2.7,
+      "defM": 0.523,
+      "resM": 1.2,
+      "stunMult": 2.23,
+      "teamDps": 128068,
+      "selfWeightedDps": 114261,
+      "subCr": 0.0136,
+      "subCd": 0.0122,
+      "subStat": 0.0121,
+      "subAp": 0,
+      "gDmg30": 0.1111,
+      "gCd40": 0.1018,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.125,
+      "gStun30": 0.0815,
+      "d5BestZh": "穿透%",
+      "diag": "暴伤饱和(291%)+增伤严重稀释(2.70×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 2.6%)"
+    },
+    {
+      "cid": "1301",
+      "name": "奥菲丝&「鬼火」",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "火",
+      "teamLabel": "奥菲丝&「鬼火」 + 琉音 + 耀嘉音",
+      "setCombo": "炎狱4+摇摆2",
+      "bestDiscZh": "暴伤/攻击%/攻击%",
+      "combatBase": 4864,
+      "baseExpand": 2.96,
+      "critOrAnomStr": "100%/255%",
+      "effCritOrApMult": 3.54,
+      "dmgM": 2.93,
+      "defM": 0.649,
+      "resM": 1,
+      "stunMult": 1.66,
+      "teamDps": 137954,
+      "selfWeightedDps": 108810,
+      "subCr": 0.0029,
+      "subCd": 0.0135,
+      "subStat": 0.0101,
+      "subAp": 0,
+      "gDmg30": 0.1026,
+      "gCd40": 0.1125,
+      "gPen24": 0.0919,
+      "gShred20": 0.1846,
+      "gRes15": 0.15,
+      "gStun30": 0.1485,
+      "d5BestZh": "攻击%",
+      "diag": "暴伤饱和(255%)+增伤严重稀释(2.92×)+高减防压低穿透(55%)；续叠+20%减防反升至+18.5%，5号选【攻击%】"
+    },
+    {
+      "cid": "1591",
+      "name": "希格莉德",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "冰",
+      "teamLabel": "希格莉德 + 洛克茜 + 千夏",
+      "setCombo": "獠牙4+折枝2",
+      "bestDiscZh": "暴伤/穿透%/攻击%",
+      "combatBase": 5032,
+      "baseExpand": 3.05,
+      "critOrAnomStr": "100%/341%",
+      "effCritOrApMult": 4.4,
+      "dmgM": 2.48,
+      "defM": 0.523,
+      "resM": 1.2,
+      "stunMult": 2.06,
+      "teamDps": 129008,
+      "selfWeightedDps": 105632,
+      "subCr": 0.0015,
+      "subCd": 0.0109,
+      "subStat": 0.0108,
+      "subAp": 0,
+      "gDmg30": 0.1212,
+      "gCd40": 0.0911,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.125,
+      "gStun30": 0.1189,
+      "d5BestZh": "穿透%",
+      "diag": "暴伤饱和(341%)；补穿透/减抗优先于增伤，5号选【穿透%】(胜属伤% 2.6%)"
+    },
+    {
+      "cid": "1461",
+      "name": "「席德」",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "电",
+      "teamLabel": "「席德」 + 雨果 + 「扳机」",
+      "setCombo": "雷暴4+啄木2",
+      "bestDiscZh": "暴击/攻击%/攻击%",
+      "combatBase": 5022,
+      "baseExpand": 3.06,
+      "critOrAnomStr": "98%/213%",
+      "effCritOrApMult": 3.08,
+      "dmgM": 2.11,
+      "defM": 0.579,
+      "resM": 1.18,
+      "stunMult": 1.76,
+      "teamDps": 181090,
+      "selfWeightedDps": 99527,
+      "subCr": 0.0166,
+      "subCd": 0.0152,
+      "subStat": 0.0126,
+      "subAp": 0,
+      "gDmg30": 0.1425,
+      "gCd40": 0.1267,
+      "gPen24": 0.1124,
+      "gShred20": 0.1614,
+      "gRes15": 0.1271,
+      "gStun30": 0.14,
+      "d5BestZh": "攻击%",
+      "diag": "攻击池膨胀(3.06×)；补穿透/减抗优先于增伤，5号选【攻击%】(胜属伤% 0.1%)"
+    },
+    {
+      "cid": "1631",
+      "name": "赛维里安",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "风",
+      "teamLabel": "赛维里安 + 洛克茜 + 耀嘉音",
+      "setCombo": "拂晓4+折枝2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 4807,
+      "baseExpand": 2.92,
+      "critOrAnomStr": "100%/322%",
+      "effCritOrApMult": 4.22,
+      "dmgM": 2.86,
+      "defM": 0.523,
+      "resM": 1.15,
+      "stunMult": 1.64,
+      "teamDps": 118816,
+      "selfWeightedDps": 97412,
+      "subCr": 0,
+      "subCd": 0.0114,
+      "subStat": 0.0113,
+      "subAp": 0,
+      "gDmg30": 0.105,
+      "gCd40": 0.0948,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1304,
+      "gStun30": 0.1456,
+      "d5BestZh": "穿透%",
+      "diag": "暴率达顶(102%)+暴伤饱和(322%)+增伤严重稀释(2.86×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 3.3%)"
+    },
+    {
+      "cid": "1321",
+      "name": "伊芙琳",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "火",
+      "teamLabel": "伊芙琳 + 耀嘉音 + 妮可",
+      "setCombo": "啄木4+折枝2",
+      "bestDiscZh": "暴伤/属伤%/攻击%",
+      "combatBase": 4675,
+      "baseExpand": 2.85,
+      "critOrAnomStr": "99%/261%",
+      "effCritOrApMult": 3.57,
+      "dmgM": 2.63,
+      "defM": 0.581,
+      "resM": 1.17,
+      "stunMult": 1.33,
+      "teamDps": 117678,
+      "selfWeightedDps": 96665,
+      "subCr": 0.0102,
+      "subCd": 0.0132,
+      "subStat": 0.0124,
+      "subAp": 0,
+      "gDmg30": 0.1143,
+      "gCd40": 0.1104,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.1284,
+      "gStun30": 0.1505,
+      "d5BestZh": "属伤%",
+      "diag": "暴伤饱和(261%)+高减防压低穿透(40%)；续叠+20%减防反升至+16.2%，5号选【属伤%】"
+    },
+    {
+      "cid": "1201",
+      "name": "悠真",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "电",
+      "teamLabel": "悠真 + 琉音 + 耀嘉音",
+      "setCombo": "雷暴4+折枝2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 5702,
+      "baseExpand": 3.5,
+      "critOrAnomStr": "98%/288%",
+      "effCritOrApMult": 3.81,
+      "dmgM": 2.86,
+      "defM": 0.523,
+      "resM": 1.12,
+      "stunMult": 1.7,
+      "teamDps": 117003,
+      "selfWeightedDps": 94028,
+      "subCr": 0.0166,
+      "subCd": 0.0123,
+      "subStat": 0.012,
+      "subAp": 0,
+      "gDmg30": 0.1049,
+      "gCd40": 0.1026,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1339,
+      "gStun30": 0.1549,
+      "d5BestZh": "穿透%",
+      "diag": "暴伤饱和(288%)+增伤严重稀释(2.86×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 2.2%)"
+    },
+    {
+      "cid": "1551",
+      "name": "佩洛伊斯",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "以太",
+      "teamLabel": "佩洛伊斯 + 耀嘉音 + 妮可",
+      "setCombo": "拂晓行纪4+啄木2",
+      "bestDiscZh": "暴伤/攻击%/攻击%",
+      "combatBase": 5025,
+      "baseExpand": 3.07,
+      "critOrAnomStr": "98%/251%",
+      "effCritOrApMult": 3.47,
+      "dmgM": 2.84,
+      "defM": 0.581,
+      "resM": 1.16,
+      "stunMult": 1.32,
+      "teamDps": 100973,
+      "selfWeightedDps": 80303,
+      "subCr": 0.0116,
+      "subCd": 0.0136,
+      "subStat": 0.0108,
+      "subAp": 0,
+      "gDmg30": 0.1058,
+      "gCd40": 0.1136,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.1293,
+      "gStun30": 0.1465,
+      "d5BestZh": "攻击%",
+      "diag": "暴伤饱和(251%)+增伤严重稀释(2.83×)+高减防压低穿透(40%)；续叠+20%减防反升至+16.2%，5号选【攻击%】"
+    },
+    {
+      "cid": "1521",
+      "name": "希希芙",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "电",
+      "teamLabel": "希希芙 + 「席德」 + 耀嘉音",
+      "setCombo": "雷暴4+摇摆2",
+      "bestDiscZh": "暴击/属伤%/攻击%",
+      "combatBase": 5417,
+      "baseExpand": 3.28,
+      "critOrAnomStr": "100%/232%",
+      "effCritOrApMult": 3.32,
+      "dmgM": 2.29,
+      "defM": 0.599,
+      "resM": 1,
+      "stunMult": 1.3,
+      "teamDps": 143453,
+      "selfWeightedDps": 74315,
+      "subCr": 0,
+      "subCd": 0.0145,
+      "subStat": 0.0117,
+      "subAp": 0,
+      "gDmg30": 0.131,
+      "gCd40": 0.1205,
+      "gPen24": 0.1064,
+      "gShred20": 0.1681,
+      "gRes15": 0.15,
+      "gStun30": 0.1392,
+      "d5BestZh": "属伤%",
+      "diag": "暴率达顶(101%)+高减防压低穿透(44%)；续叠+20%减防反升至+16.8%，5号选【属伤%】"
+    },
+    {
+      "cid": "1191",
+      "name": "艾莲",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "冰",
+      "teamLabel": "艾莲 + 雨果 + 琉音",
+      "setCombo": "啄木4+折枝2",
+      "bestDiscZh": "攻击%/穿透%/攻击%",
+      "combatBase": 4428,
+      "baseExpand": 2.68,
+      "critOrAnomStr": "100%/279%",
+      "effCritOrApMult": 3.79,
+      "dmgM": 2.04,
+      "defM": 0.523,
+      "resM": 1.1,
+      "stunMult": 1.62,
+      "teamDps": 136698,
+      "selfWeightedDps": 71236,
+      "subCr": 0,
+      "subCd": 0.0127,
+      "subStat": 0.0132,
+      "subAp": 0,
+      "gDmg30": 0.1474,
+      "gCd40": 0.1056,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1364,
+      "gStun30": 0.1429,
+      "d5BestZh": "穿透%",
+      "diag": "暴伤饱和(279%)；补穿透/减抗优先于增伤，5号选【穿透%】(胜属伤% 0.3%)"
+    },
+    {
+      "cid": "1021",
+      "name": "猫又",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "物理",
+      "teamLabel": "猫又 + 琉音 + 千夏",
+      "setCombo": "沧浪4+啄木2",
+      "bestDiscZh": "暴伤/穿透%/攻击%",
+      "combatBase": 4368,
+      "baseExpand": 2.74,
+      "critOrAnomStr": "100%/261%",
+      "effCritOrApMult": 3.61,
+      "dmgM": 3.47,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.86,
+      "teamDps": 95086,
+      "selfWeightedDps": 70319,
+      "subCr": 0,
+      "subCd": 0.0133,
+      "subStat": 0.0131,
+      "subAp": 0,
+      "gDmg30": 0.0863,
+      "gCd40": 0.1107,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1259,
+      "d5BestZh": "穿透%",
+      "diag": "暴伤饱和(261%)+增伤严重稀释(3.47×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 1.2%)"
+    },
+    {
+      "cid": "1241",
+      "name": "朱鸢",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "以太",
+      "teamLabel": "朱鸢 + 耀嘉音 + 妮可",
+      "setCombo": "拂晓行纪4+啄木2",
+      "bestDiscZh": "暴伤/攻击%/攻击%",
+      "combatBase": 4476,
+      "baseExpand": 2.74,
+      "critOrAnomStr": "100%/302%",
+      "effCritOrApMult": 4.02,
+      "dmgM": 3.22,
+      "defM": 0.581,
+      "resM": 1,
+      "stunMult": 1.35,
+      "teamDps": 85738,
+      "selfWeightedDps": 67059,
+      "subCr": 0,
+      "subCd": 0.0119,
+      "subStat": 0.012,
+      "subAp": 0,
+      "gDmg30": 0.0932,
+      "gCd40": 0.0996,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.15,
+      "gStun30": 0.1564,
+      "d5BestZh": "攻击%",
+      "diag": "暴率达顶(102%)+暴伤饱和(302%)+增伤严重稀释(3.22×)+高减防压低穿透(40%)；续叠+20%减防反升至+16.2%，5号选【攻击%】"
+    },
+    {
+      "cid": "1061",
+      "name": "可琳",
+      "rankCfg": "A(6+5)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "物理",
+      "teamLabel": "可琳 + 琉音 + 千夏",
+      "setCombo": "沧浪4+啄木2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 4194,
+      "baseExpand": 2.93,
+      "critOrAnomStr": "93%/196%",
+      "effCritOrApMult": 2.83,
+      "dmgM": 3.11,
+      "defM": 0.523,
+      "resM": 1.15,
+      "stunMult": 1.97,
+      "teamDps": 80047,
+      "selfWeightedDps": 56134,
+      "subCr": 0.0167,
+      "subCd": 0.0158,
+      "subStat": 0.0123,
+      "subAp": 0,
+      "gDmg30": 0.0966,
+      "gCd40": 0.1316,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1304,
+      "gStun30": 0.134,
+      "d5BestZh": "穿透%",
+      "diag": "增伤严重稀释(3.11×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 2.4%)"
+    },
+    {
+      "cid": "1381",
+      "name": "零号·安比",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "电",
+      "teamLabel": "零号·安比 + 奥菲丝&「鬼火」 + 「扳机」",
+      "setCombo": "雷暴4+折枝2",
+      "bestDiscZh": "暴击/属伤%/攻击%",
+      "combatBase": 4291,
+      "baseExpand": 2.61,
+      "critOrAnomStr": "89%/218%",
+      "effCritOrApMult": 2.95,
+      "dmgM": 2.24,
+      "defM": 0.625,
+      "resM": 1,
+      "stunMult": 1.75,
+      "teamDps": 99364,
+      "selfWeightedDps": 50121,
+      "subCr": 0.0178,
+      "subCd": 0.0145,
+      "subStat": 0.0147,
+      "subAp": 0,
+      "gDmg30": 0.1342,
+      "gCd40": 0.1211,
+      "gPen24": 0.0989,
+      "gShred20": 0.1765,
+      "gRes15": 0.15,
+      "gStun30": 0.1364,
+      "d5BestZh": "属伤%",
+      "diag": "高减防压低穿透(50%)；续叠+20%减防反升至+17.6%，5号选【属伤%】"
+    },
+    {
+      "cid": "1081",
+      "name": "比利",
+      "rankCfg": "A(6+5)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "物理",
+      "teamLabel": "比利 + 琉音 + 耀嘉音",
+      "setCombo": "啄木4+折枝2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 4205,
+      "baseExpand": 2.98,
+      "critOrAnomStr": "96%/223%",
+      "effCritOrApMult": 3.15,
+      "dmgM": 3.7,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.66,
+      "teamDps": 70428,
+      "selfWeightedDps": 47531,
+      "subCr": 0.017,
+      "subCd": 0.0147,
+      "subStat": 0.0119,
+      "subAp": 0,
+      "gDmg30": 0.081,
+      "gCd40": 0.1223,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1486,
+      "d5BestZh": "穿透%",
+      "diag": "增伤严重稀释(3.70×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 2.8%)"
+    },
+    {
+      "cid": "1041",
+      "name": "「11号」",
+      "rankCfg": "S(0+1)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "火",
+      "teamLabel": "「11号」 + 「席德」 + 琉音",
+      "setCombo": "炎狱4+啄木2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 4760,
+      "baseExpand": 3.03,
+      "critOrAnomStr": "100%/260%",
+      "effCritOrApMult": 3.6,
+      "dmgM": 2.62,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.64,
+      "teamDps": 106401,
+      "selfWeightedDps": 43928,
+      "subCr": 0,
+      "subCd": 0.0133,
+      "subStat": 0.0123,
+      "subAp": 0,
+      "gDmg30": 0.1147,
+      "gCd40": 0.1111,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1464,
+      "d5BestZh": "穿透%",
+      "diag": "暴率达顶(101%)+暴伤饱和(260%)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 2.4%)"
+    },
+    {
+      "cid": "1111",
+      "name": "安东",
+      "rankCfg": "A(6+5)",
+      "wt": "Attack",
+      "wtZh": "强攻",
+      "elemZh": "电",
+      "teamLabel": "安东 + 「席德」 + 耀嘉音",
+      "setCombo": "雷暴4+啄木2",
+      "bestDiscZh": "暴击/穿透%/攻击%",
+      "combatBase": 5015,
+      "baseExpand": 3.54,
+      "critOrAnomStr": "90%/177%",
+      "effCritOrApMult": 2.6,
+      "dmgM": 2.9,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.3,
+      "teamDps": 83791,
+      "selfWeightedDps": 27727,
+      "subCr": 0.0164,
+      "subCd": 0.0167,
+      "subStat": 0.0108,
+      "subAp": 0,
+      "gDmg30": 0.1033,
+      "gCd40": 0.139,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1374,
+      "d5BestZh": "穿透%",
+      "diag": "增伤严重稀释(2.90×)；补穿透/减抗优先于增伤，5号选【穿透%】(胜攻击% 3.7%)"
+    },
+    {
+      "cid": "1091",
+      "name": "雅",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "冰",
+      "teamLabel": "雅 + 耀嘉音 + 妮可",
+      "setCombo": "折枝4+啄木2",
+      "bestDiscZh": "暴伤/攻击%/攻击%",
+      "combatBase": 4455,
+      "baseExpand": 2.74,
+      "critOrAnomStr": "100/257%·精238",
+      "effCritOrApMult": 3.57,
+      "dmgM": 2.81,
+      "defM": 0.581,
+      "resM": 1.22,
+      "stunMult": 1.29,
+      "teamDps": 141640,
+      "selfWeightedDps": 115864,
+      "subCr": 0,
+      "subCd": 0.0111,
+      "subStat": 0.0109,
+      "subAp": 0.0065,
+      "gDmg30": 0.1068,
+      "gCd40": 0.0928,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.123,
+      "gStun30": 0.1354,
+      "d5BestZh": "攻击%",
+      "diag": "暴伤饱和(257%)+增伤严重稀释(2.81×)+高减防压低穿透(40%)；续叠+20%减防反升至+16.2%，5号选【攻击%】"
+    },
+    {
+      "cid": "1501",
+      "name": "爱芮",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "以太",
+      "teamLabel": "爱芮 + 蕾米埃尔 + 维琳娜",
+      "setCombo": "法厄同4+法厄同2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 4108,
+      "baseExpand": 2.6,
+      "critOrAnomStr": "精658/掌266",
+      "effCritOrApMult": 6.58,
+      "dmgM": 2.17,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.3,
+      "teamDps": 141515,
+      "selfWeightedDps": 67200,
+      "subCr": 0.0004,
+      "subCd": 0.0001,
+      "subStat": 0.0121,
+      "subAp": 0.0132,
+      "gDmg30": 0.1388,
+      "gCd40": 0.0007,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1387,
+      "d5BestZh": "属伤%",
+      "diag": "精通饱和(658)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1581",
+      "name": "蕾米埃尔",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "流明",
+      "teamLabel": "蕾米埃尔 + 菲欧妮 + 维琳娜",
+      "setCombo": "谶羽4+自由2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 4658,
+      "baseExpand": 2.97,
+      "critOrAnomStr": "精693/掌150",
+      "effCritOrApMult": 9.7,
+      "dmgM": 1.98,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.27,
+      "teamDps": 156303,
+      "selfWeightedDps": 61996,
+      "subCr": 0.0004,
+      "subCd": 0.0001,
+      "subStat": 0.0154,
+      "subAp": 0.0165,
+      "gDmg30": 0.1527,
+      "gCd40": 0.0007,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1263,
+      "d5BestZh": "属伤%",
+      "diag": "精通饱和(693)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1541",
+      "name": "普罗米娅",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "冰",
+      "teamLabel": "普罗米娅 + 蕾米埃尔 + 维琳娜",
+      "setCombo": "囚徒4+法厄同2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 4121,
+      "baseExpand": 2.6,
+      "critOrAnomStr": "精627/掌249",
+      "effCritOrApMult": 6.27,
+      "dmgM": 2.29,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.28,
+      "teamDps": 136138,
+      "selfWeightedDps": 60992,
+      "subCr": 0.0005,
+      "subCd": 0.0001,
+      "subStat": 0.0121,
+      "subAp": 0.0139,
+      "gDmg30": 0.1313,
+      "gCd40": 0.0006,
+      "gPen24": 0.1218,
+      "gShred20": 0.1519,
+      "gRes15": 0.15,
+      "gStun30": 0.1304,
+      "d5BestZh": "属伤%",
+      "diag": "精通饱和(627)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1221",
+      "name": "柳",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "电",
+      "teamLabel": "柳 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "雷暴4+法厄同2",
+      "bestDiscZh": "精通/穿透%/掌控%",
+      "combatBase": 5435,
+      "baseExpand": 3.43,
+      "critOrAnomStr": "精416/掌204",
+      "effCritOrApMult": 5.82,
+      "dmgM": 1.79,
+      "defM": 0.558,
+      "resM": 1,
+      "stunMult": 1.28,
+      "teamDps": 135223,
+      "selfWeightedDps": 60148,
+      "subCr": 0.0006,
+      "subCd": 0.0001,
+      "subStat": 0.0116,
+      "subAp": 0.0205,
+      "gDmg30": 0.1554,
+      "gCd40": 0.001,
+      "gPen24": 0.1915,
+      "gShred20": 0.097,
+      "gRes15": 0.15,
+      "gStun30": 0.1302,
+      "d5BestZh": "穿透%",
+      "diag": "攻精均衡；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1561",
+      "name": "维琳娜",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "风",
+      "teamLabel": "维琳娜 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "呼啸4+法厄同2",
+      "bestDiscZh": "精通/穿透%/回能%",
+      "combatBase": 4121,
+      "baseExpand": 2.6,
+      "critOrAnomStr": "精572/掌193",
+      "effCritOrApMult": 8.01,
+      "dmgM": 2.07,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.27,
+      "teamDps": 149206,
+      "selfWeightedDps": 59839,
+      "subCr": 0.0006,
+      "subCd": 0.0001,
+      "subStat": 0.0121,
+      "subAp": 0.015,
+      "gDmg30": 0.1455,
+      "gCd40": 0.0009,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1262,
+      "d5BestZh": "穿透%",
+      "diag": "精通饱和(572)；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1331",
+      "name": "薇薇安",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "以太",
+      "teamLabel": "薇薇安 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "法厄同4+自由2",
+      "bestDiscZh": "精通/属伤%/攻击%",
+      "combatBase": 4610,
+      "baseExpand": 2.89,
+      "critOrAnomStr": "精612/掌156",
+      "effCritOrApMult": 8.57,
+      "dmgM": 2.06,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.27,
+      "teamDps": 134146,
+      "selfWeightedDps": 54882,
+      "subCr": 0.0005,
+      "subCd": 0.0001,
+      "subStat": 0.0108,
+      "subAp": 0.0141,
+      "gDmg30": 0.1463,
+      "gCd40": 0.0008,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1262,
+      "d5BestZh": "属伤%",
+      "diag": "精通饱和(612)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1401",
+      "name": "爱丽丝",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "物理",
+      "teamLabel": "爱丽丝 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "獠牙4+法厄同2",
+      "bestDiscZh": "精通/穿透%/掌控%",
+      "combatBase": 4610,
+      "baseExpand": 2.89,
+      "critOrAnomStr": "精531/掌256",
+      "effCritOrApMult": 7.43,
+      "dmgM": 2.24,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.29,
+      "teamDps": 126521,
+      "selfWeightedDps": 54414,
+      "subCr": 0.0006,
+      "subCd": 0.0001,
+      "subStat": 0.0108,
+      "subAp": 0.0161,
+      "gDmg30": 0.1342,
+      "gCd40": 0.001,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1334,
+      "d5BestZh": "穿透%",
+      "diag": "精通饱和(531)；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1641",
+      "name": "菲欧妮",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "火",
+      "teamLabel": "菲欧妮 + 维琳娜 + 蕾米埃尔",
+      "setCombo": "流光4+法厄同2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 4121,
+      "baseExpand": 2.6,
+      "critOrAnomStr": "精616/掌255",
+      "effCritOrApMult": 8.62,
+      "dmgM": 2.24,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.27,
+      "teamDps": 147867,
+      "selfWeightedDps": 51083,
+      "subCr": 0.0004,
+      "subCd": 0.0001,
+      "subStat": 0.0121,
+      "subAp": 0.0141,
+      "gDmg30": 0.1342,
+      "gCd40": 0.0007,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1262,
+      "d5BestZh": "属伤%",
+      "diag": "精通饱和(616)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1261",
+      "name": "简",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "物理",
+      "teamLabel": "简 + 雅 + 蕾米埃尔",
+      "setCombo": "獠牙4+自由2",
+      "bestDiscZh": "精通/穿透%/掌控%",
+      "combatBase": 4132,
+      "baseExpand": 2.59,
+      "critOrAnomStr": "精461/掌192",
+      "effCritOrApMult": 8.3,
+      "dmgM": 2.16,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.28,
+      "teamDps": 118383,
+      "selfWeightedDps": 46167,
+      "subCr": 0.0004,
+      "subCd": 0.0001,
+      "subStat": 0.0116,
+      "subAp": 0.0189,
+      "gDmg30": 0.139,
+      "gCd40": 0.0006,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1299,
+      "d5BestZh": "穿透%",
+      "diag": "精通饱和(461)；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1171",
+      "name": "柏妮思",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "火",
+      "teamLabel": "柏妮思 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "自由4+法厄同2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 4581,
+      "baseExpand": 2.9,
+      "critOrAnomStr": "精427/掌163",
+      "effCritOrApMult": 5.98,
+      "dmgM": 2.29,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.25,
+      "teamDps": 125209,
+      "selfWeightedDps": 45094,
+      "subCr": 0.0009,
+      "subCd": 0.0002,
+      "subStat": 0.0108,
+      "subAp": 0.0194,
+      "gDmg30": 0.1313,
+      "gCd40": 0.0015,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1218,
+      "d5BestZh": "属伤%",
+      "diag": "攻精均衡；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1181",
+      "name": "格莉丝",
+      "rankCfg": "S(0+1)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "电",
+      "teamLabel": "格莉丝 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "雷暴4+自由2",
+      "bestDiscZh": "精通/穿透%/掌控%",
+      "combatBase": 4979,
+      "baseExpand": 3.3,
+      "critOrAnomStr": "精437/掌196",
+      "effCritOrApMult": 6.11,
+      "dmgM": 2.15,
+      "defM": 0.616,
+      "resM": 1,
+      "stunMult": 1.25,
+      "teamDps": 101556,
+      "selfWeightedDps": 32726,
+      "subCr": 0.0005,
+      "subCd": 0.0001,
+      "subStat": 0.0132,
+      "subAp": 0.0197,
+      "gDmg30": 0.1411,
+      "gCd40": 0.0009,
+      "gPen24": 0.2156,
+      "gShred20": 0.0833,
+      "gRes15": 0.15,
+      "gStun30": 0.1201,
+      "d5BestZh": "穿透%",
+      "diag": "攻精均衡；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1281",
+      "name": "派派",
+      "rankCfg": "A(6+5)",
+      "wt": "Anomaly",
+      "wtZh": "异常",
+      "elemZh": "物理",
+      "teamLabel": "派派 + 蕾米埃尔 + 菲欧妮",
+      "setCombo": "獠牙4+自由2",
+      "bestDiscZh": "精通/穿透%/掌控%",
+      "combatBase": 4465,
+      "baseExpand": 3.23,
+      "critOrAnomStr": "精429/掌151",
+      "effCritOrApMult": 6.01,
+      "dmgM": 2.36,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.28,
+      "teamDps": 108060,
+      "selfWeightedDps": 32591,
+      "subCr": 0.0008,
+      "subCd": 0.0002,
+      "subStat": 0.0108,
+      "subAp": 0.0196,
+      "gDmg30": 0.1274,
+      "gCd40": 0.0013,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1329,
+      "d5BestZh": "穿透%",
+      "diag": "增伤饱和(2.36×)；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1371",
+      "name": "仪玄",
+      "rankCfg": "S(0+1)",
+      "wt": "Rupture",
+      "wtZh": "命破",
+      "elemZh": "以太",
+      "teamLabel": "仪玄 + 琉音 + 卢西娅",
+      "setCombo": "云岿4+折枝2",
+      "bestDiscZh": "暴击/属伤%/生命%",
+      "combatBase": 3636,
+      "baseExpand": 2.75,
+      "critOrAnomStr": "97%/268%",
+      "effCritOrApMult": 3.6,
+      "dmgM": 3.63,
+      "defM": 1,
+      "resM": 1,
+      "stunMult": 1.7,
+      "teamDps": 159545,
+      "selfWeightedDps": 143766,
+      "subCr": 0.0179,
+      "subCd": 0.0129,
+      "subStat": 0.0083,
+      "subAp": 0,
+      "gDmg30": 0.0909,
+      "gCd40": 0.1078,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.15,
+      "gStun30": 0.154,
+      "d5BestZh": "属伤%",
+      "diag": "增伤高饱和(3.63×)+双暴饱和(3.60×)；天生无视防御/秽盾，5号选【属伤%】(胜生命% 1.5%)"
+    },
+    {
+      "cid": "1531",
+      "name": "星徽·比利",
+      "rankCfg": "S(0+1)",
+      "wt": "Rupture",
+      "wtZh": "命破",
+      "elemZh": "物理",
+      "teamLabel": "星徽·比利 + 琉音 + 卢西娅",
+      "setCombo": "云岿4+折枝2",
+      "bestDiscZh": "暴击/属伤%/生命%",
+      "combatBase": 3650,
+      "baseExpand": 2.77,
+      "critOrAnomStr": "97%/318%",
+      "effCritOrApMult": 4.08,
+      "dmgM": 3.32,
+      "defM": 1,
+      "resM": 1,
+      "stunMult": 1.67,
+      "teamDps": 145670,
+      "selfWeightedDps": 130199,
+      "subCr": 0.0187,
+      "subCd": 0.0114,
+      "subStat": 0.0085,
+      "subAp": 0,
+      "gDmg30": 0.0995,
+      "gCd40": 0.095,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.15,
+      "gStun30": 0.1508,
+      "d5BestZh": "属伤%",
+      "diag": "增伤高饱和(3.32×)+双暴饱和(4.08×)；天生无视防御/秽盾，5号选【属伤%】(胜生命% 2.4%)"
+    },
+    {
+      "cid": "1051",
+      "name": "伊德海莉",
+      "rankCfg": "S(0+1)",
+      "wt": "Rupture",
+      "wtZh": "命破",
+      "elemZh": "冰",
+      "teamLabel": "伊德海莉 + 琉音 + 卢西娅",
+      "setCombo": "云岿4+折枝2",
+      "bestDiscZh": "暴击/属伤%/生命%",
+      "combatBase": 3493,
+      "baseExpand": 2.65,
+      "critOrAnomStr": "100%/260%",
+      "effCritOrApMult": 3.6,
+      "dmgM": 3.91,
+      "defM": 1,
+      "resM": 1,
+      "stunMult": 1.66,
+      "teamDps": 136135,
+      "selfWeightedDps": 120902,
+      "subCr": 0,
+      "subCd": 0.0133,
+      "subStat": 0.0089,
+      "subAp": 0,
+      "gDmg30": 0.0845,
+      "gCd40": 0.111,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.15,
+      "gStun30": 0.1491,
+      "d5BestZh": "属伤%",
+      "diag": "增伤高饱和(3.91×)+双暴饱和(3.60×)；天生无视防御/秽盾，5号选【属伤%】(胜生命% 0.4%)"
+    },
+    {
+      "cid": "1471",
+      "name": "般岳",
+      "rankCfg": "S(0+1)",
+      "wt": "Rupture",
+      "wtZh": "命破",
+      "elemZh": "火",
+      "teamLabel": "般岳 + 琉音 + 卢西娅",
+      "setCombo": "炎狱4+折枝2",
+      "bestDiscZh": "暴伤/属伤%/生命%",
+      "combatBase": 3692,
+      "baseExpand": 2.8,
+      "critOrAnomStr": "96%/312%",
+      "effCritOrApMult": 4,
+      "dmgM": 3.23,
+      "defM": 1,
+      "resM": 1,
+      "stunMult": 1.66,
+      "teamDps": 118209,
+      "selfWeightedDps": 104890,
+      "subCr": 0.0187,
+      "subCd": 0.0115,
+      "subStat": 0.0081,
+      "subAp": 0,
+      "gDmg30": 0.0929,
+      "gCd40": 0.0962,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.15,
+      "gStun30": 0.1489,
+      "d5BestZh": "属伤%",
+      "diag": "增伤高饱和(3.23×)+双暴饱和(4.00×)；天生无视防御/秽盾，5号选【属伤%】(胜生命% 1.8%)"
+    },
+    {
+      "cid": "1441",
+      "name": "真斗",
+      "rankCfg": "A(6+5)",
+      "wt": "Rupture",
+      "wtZh": "命破",
+      "elemZh": "火",
+      "teamLabel": "真斗 + 琉音 + 卢西娅",
+      "setCombo": "炎狱4+折枝2",
+      "bestDiscZh": "暴伤/属伤%/生命%",
+      "combatBase": 3377,
+      "baseExpand": 2.85,
+      "critOrAnomStr": "96%/311%",
+      "effCritOrApMult": 3.98,
+      "dmgM": 3.26,
+      "defM": 1,
+      "resM": 1.08,
+      "stunMult": 1.61,
+      "teamDps": 93147,
+      "selfWeightedDps": 79188,
+      "subCr": 0.0188,
+      "subCd": 0.0116,
+      "subStat": 0.0083,
+      "subAp": 0,
+      "gDmg30": 0.092,
+      "gCd40": 0.0963,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.1389,
+      "gStun30": 0.1428,
+      "d5BestZh": "属伤%",
+      "diag": "增伤高饱和(3.26×)+双暴饱和(3.98×)；天生无视防御/秽盾，5号选【属伤%】(胜生命% 1.7%)"
+    },
+    {
+      "cid": "1611",
+      "name": "克拉蕾",
+      "rankCfg": "S(0+1)",
+      "wt": "Armorer",
+      "wtZh": "锋御",
+      "elemZh": "电",
+      "teamLabel": "克拉蕾 + 洛克茜 + 丽娜",
+      "setCombo": "荆棘4+啄木2",
+      "bestDiscZh": "暴击/穿透%/防御%",
+      "combatBase": 3292,
+      "baseExpand": 3.78,
+      "critOrAnomStr": "暴190%/撕+195%",
+      "effCritOrApMult": 8.14,
+      "dmgM": 2.53,
+      "defM": 0.643,
+      "resM": 1,
+      "stunMult": 1.66,
+      "teamDps": 119269,
+      "selfWeightedDps": 100246,
+      "subCr": 0.0169,
+      "subCd": 0.0118,
+      "subStat": 0.0127,
+      "subAp": 0,
+      "gDmg30": 0.1307,
+      "gCd40": 0,
+      "gPen24": 0.2275,
+      "gShred20": 0.0768,
+      "gRes15": 0.15,
+      "gStun30": 0.1487,
+      "d5BestZh": "穿透%",
+      "diag": "二次撕裂池(190%暴/8.14×)；暴击上限200%平方反稀释，5号选【穿透%】"
+    },
+    {
+      "cid": "1481",
+      "name": "琉音",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "物理",
+      "teamLabel": "叶瞬光 + 琉音 + 千夏",
+      "setCombo": "静听4+啄木2",
+      "bestDiscZh": "暴击/穿透%/冲击%",
+      "combatBase": 3423,
+      "baseExpand": 2.33,
+      "critOrAnomStr": "97%/152%",
+      "effCritOrApMult": 2.72,
+      "dmgM": 2.1,
+      "defM": 0.523,
+      "resM": 1,
+      "stunMult": 1.78,
+      "teamDps": 149864,
+      "selfWeightedDps": 18660,
+      "subCr": 0.0178,
+      "subCd": 0.0171,
+      "subStat": 0.0142,
+      "subAp": 0,
+      "gDmg30": 0.1429,
+      "gCd40": 0.1425,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.15,
+      "gStun30": 0.1191,
+      "d5BestZh": "穿透%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1621",
+      "name": "洛克茜",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "风",
+      "teamLabel": "赛维里安 + 洛克茜 + 耀嘉音",
+      "setCombo": "山大王4+摇摆2",
+      "bestDiscZh": "暴击/穿透%/回能%",
+      "combatBase": 3855,
+      "baseExpand": 2.65,
+      "critOrAnomStr": "100%/203%",
+      "effCritOrApMult": 3.03,
+      "dmgM": 2.76,
+      "defM": 0.523,
+      "resM": 1.15,
+      "stunMult": 1.53,
+      "teamDps": 118816,
+      "selfWeightedDps": 16338,
+      "subCr": 0,
+      "subCd": 0.0159,
+      "subStat": 0.0113,
+      "subAp": 0,
+      "gDmg30": 0.1089,
+      "gCd40": 0.1322,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1304,
+      "gStun30": 0.1293,
+      "d5BestZh": "穿透%",
+      "diag": "暴率达顶(103%)+增伤严重稀释(2.75×)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1511",
+      "name": "南宫羽",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "以太",
+      "teamLabel": "雅 + 南宫羽 + 柚叶",
+      "setCombo": "静听4+法厄同2",
+      "bestDiscZh": "精通/属伤%/掌控%",
+      "combatBase": 3741,
+      "baseExpand": 2.56,
+      "critOrAnomStr": "精650/掌212",
+      "effCritOrApMult": 6.5,
+      "dmgM": 2.6,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.57,
+      "teamDps": 125776,
+      "selfWeightedDps": 15474,
+      "subCr": 0.0032,
+      "subCd": 0.0005,
+      "subStat": 0.0117,
+      "subAp": 0.0106,
+      "gDmg30": 0.1176,
+      "gCd40": 0.0045,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1357,
+      "d5BestZh": "穿透%",
+      "diag": "精通饱和(650)+增伤饱和(2.60×)；双暴近0收益，避低精同色队友，5号选【穿透%】"
+    },
+    {
+      "cid": "1571",
+      "name": "诺姆",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "火",
+      "teamLabel": "佩洛伊斯 + 诺姆 + 耀嘉音",
+      "setCombo": "山大王4+啄木2",
+      "bestDiscZh": "暴击/穿透%/冲击%",
+      "combatBase": 3906,
+      "baseExpand": 2.65,
+      "critOrAnomStr": "100%/262%",
+      "effCritOrApMult": 3.62,
+      "dmgM": 2.17,
+      "defM": 0.523,
+      "resM": 1.15,
+      "stunMult": 1.51,
+      "teamDps": 85871,
+      "selfWeightedDps": 14026,
+      "subCr": 0,
+      "subCd": 0.0133,
+      "subStat": 0.0113,
+      "subAp": 0,
+      "gDmg30": 0.1379,
+      "gCd40": 0.1105,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1304,
+      "gStun30": 0.1263,
+      "d5BestZh": "穿透%",
+      "diag": "暴率达顶(104%)+暴伤饱和(262%)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1391",
+      "name": "橘福福",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "火",
+      "teamLabel": "雨果 + 奥菲丝&「鬼火」 + 橘福福",
+      "setCombo": "山大王4+激素2",
+      "bestDiscZh": "暴击/属伤%/攻击%",
+      "combatBase": 3929,
+      "baseExpand": 2.66,
+      "critOrAnomStr": "72%/147%",
+      "effCritOrApMult": 2.06,
+      "dmgM": 1.7,
+      "defM": 0.526,
+      "resM": 1,
+      "stunMult": 1.31,
+      "teamDps": 125994,
+      "selfWeightedDps": 9499,
+      "subCr": 0.0171,
+      "subCd": 0.0168,
+      "subStat": 0.0113,
+      "subAp": 0,
+      "gDmg30": 0.177,
+      "gCd40": 0.1402,
+      "gPen24": 0.1283,
+      "gShred20": 0.1446,
+      "gRes15": 0.15,
+      "gStun30": 0.14,
+      "d5BestZh": "属伤%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【属伤%】"
+    },
+    {
+      "cid": "1361",
+      "name": "「扳机」",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "电",
+      "teamLabel": "零号·安比 + 奥菲丝&「鬼火」 + 「扳机」",
+      "setCombo": "山大王4+啄木2",
+      "bestDiscZh": "暴击/属伤%/冲击%",
+      "combatBase": 2346,
+      "baseExpand": 1.6,
+      "critOrAnomStr": "90%/152%",
+      "effCritOrApMult": 2.36,
+      "dmgM": 1.84,
+      "defM": 0.625,
+      "resM": 1,
+      "stunMult": 1.68,
+      "teamDps": 99364,
+      "selfWeightedDps": 7926,
+      "subCr": 0.0155,
+      "subCd": 0.0182,
+      "subStat": 0.0187,
+      "subAp": 0,
+      "gDmg30": 0.1635,
+      "gCd40": 0.1519,
+      "gPen24": 0.0989,
+      "gShred20": 0.1765,
+      "gRes15": 0.15,
+      "gStun30": 0.1187,
+      "d5BestZh": "属伤%",
+      "diag": "高减防压低穿透(50%)；拐位先保核心阈值与光环，5号团队最优【属伤%】"
+    },
+    {
+      "cid": "1141",
+      "name": "莱卡恩",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "冰",
+      "teamLabel": "雨果 + 莱特 + 莱卡恩",
+      "setCombo": "摇摆4+震星2",
+      "bestDiscZh": "暴击/攻击%/冲击%",
+      "combatBase": 2575,
+      "baseExpand": 1.82,
+      "critOrAnomStr": "65%/130%",
+      "effCritOrApMult": 1.84,
+      "dmgM": 2.08,
+      "defM": 0.454,
+      "resM": 1.4,
+      "stunMult": 1.58,
+      "teamDps": 161198,
+      "selfWeightedDps": 6394,
+      "subCr": 0.0169,
+      "subCd": 0.0169,
+      "subStat": 0.0164,
+      "subAp": 0,
+      "gDmg30": 0.1439,
+      "gCd40": 0.141,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.1071,
+      "gStun30": 0.1298,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1161",
+      "name": "莱特",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "火",
+      "teamLabel": "伊芙琳 + 莱特 + 耀嘉音",
+      "setCombo": "山大王4+震星2",
+      "bestDiscZh": "暴击/穿透%/冲击%",
+      "combatBase": 3254,
+      "baseExpand": 2.15,
+      "critOrAnomStr": "72%/159%",
+      "effCritOrApMult": 2.15,
+      "dmgM": 2.39,
+      "defM": 0.523,
+      "resM": 1.15,
+      "stunMult": 1.32,
+      "teamDps": 108244,
+      "selfWeightedDps": 6267,
+      "subCr": 0.0178,
+      "subCd": 0.0161,
+      "subStat": 0.0139,
+      "subAp": 0,
+      "gDmg30": 0.1255,
+      "gCd40": 0.1345,
+      "gPen24": 0.1774,
+      "gShred20": 0.1055,
+      "gRes15": 0.1304,
+      "gStun30": 0.1457,
+      "d5BestZh": "穿透%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1351",
+      "name": "波可娜",
+      "rankCfg": "A(6+5)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "物理",
+      "teamLabel": "雨果 + 奥菲丝&「鬼火」 + 波可娜",
+      "setCombo": "山大王4+震星2",
+      "bestDiscZh": "暴击/攻击%/冲击%",
+      "combatBase": 2756,
+      "baseExpand": 2.14,
+      "critOrAnomStr": "75%/140%",
+      "effCritOrApMult": 2.05,
+      "dmgM": 1.71,
+      "defM": 0.526,
+      "resM": 1,
+      "stunMult": 1.32,
+      "teamDps": 108080,
+      "selfWeightedDps": 5445,
+      "subCr": 0.0164,
+      "subCd": 0.0176,
+      "subStat": 0.0154,
+      "subAp": 0,
+      "gDmg30": 0.1756,
+      "gCd40": 0.1464,
+      "gPen24": 0.1283,
+      "gShred20": 0.1446,
+      "gRes15": 0.15,
+      "gStun30": 0.1466,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1251",
+      "name": "青衣",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "电",
+      "teamLabel": "雨果 + 奥菲丝&「鬼火」 + 青衣",
+      "setCombo": "山大王4+震星2",
+      "bestDiscZh": "暴击/属伤%/冲击%",
+      "combatBase": 2792,
+      "baseExpand": 1.9,
+      "critOrAnomStr": "65%/140%",
+      "effCritOrApMult": 1.91,
+      "dmgM": 1.59,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.73,
+      "teamDps": 134414,
+      "selfWeightedDps": 5094,
+      "subCr": 0.0176,
+      "subCd": 0.0163,
+      "subStat": 0.0158,
+      "subAp": 0,
+      "gDmg30": 0.1893,
+      "gCd40": 0.1361,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.0977,
+      "d5BestZh": "属伤%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【属伤%】"
+    },
+    {
+      "cid": "1101",
+      "name": "珂蕾妲",
+      "rankCfg": "S(0+1)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "火",
+      "teamLabel": "雨果 + 珂蕾妲 + 莱特",
+      "setCombo": "摇摆4+震星2",
+      "bestDiscZh": "暴击/攻击%/冲击%",
+      "combatBase": 2714,
+      "baseExpand": 1.91,
+      "critOrAnomStr": "65%/147%",
+      "effCritOrApMult": 1.96,
+      "dmgM": 2.04,
+      "defM": 0.454,
+      "resM": 1.15,
+      "stunMult": 1.34,
+      "teamDps": 128457,
+      "selfWeightedDps": 4884,
+      "subCr": 0.0181,
+      "subCd": 0.0159,
+      "subStat": 0.0157,
+      "subAp": 0,
+      "gDmg30": 0.1473,
+      "gCd40": 0.1328,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.1304,
+      "gStun30": 0.1513,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1011",
+      "name": "安比",
+      "rankCfg": "A(6+5)",
+      "wt": "Stun",
+      "wtZh": "击破",
+      "elemZh": "电",
+      "teamLabel": "雨果 + 安比 + 青衣",
+      "setCombo": "摇摆4+震星2",
+      "bestDiscZh": "暴击/攻击%/冲击%",
+      "combatBase": 2369,
+      "baseExpand": 1.85,
+      "critOrAnomStr": "58%/111%",
+      "effCritOrApMult": 1.64,
+      "dmgM": 1.87,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.77,
+      "teamDps": 114870,
+      "selfWeightedDps": 3952,
+      "subCr": 0.0162,
+      "subCd": 0.0169,
+      "subStat": 0.0162,
+      "subAp": 0,
+      "gDmg30": 0.1608,
+      "gCd40": 0.1408,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1005,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1071",
+      "name": "凯撒",
+      "rankCfg": "S(0+1)",
+      "wt": "Defense",
+      "wtZh": "防护",
+      "elemZh": "物理",
+      "teamLabel": "雅 + 凯撒 + 耀嘉音",
+      "setCombo": "雪兔4+震星2",
+      "bestDiscZh": "暴击/属伤%/回能%",
+      "combatBase": 3984,
+      "baseExpand": 2.8,
+      "critOrAnomStr": "65%/142%",
+      "effCritOrApMult": 1.92,
+      "dmgM": 2.64,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.25,
+      "teamDps": 131885,
+      "selfWeightedDps": 5982,
+      "subCr": 0.0177,
+      "subCd": 0.0162,
+      "subStat": 0.0107,
+      "subAp": 0,
+      "gDmg30": 0.1139,
+      "gCd40": 0.1354,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1193,
+      "d5BestZh": "穿透%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1341",
+      "name": "照",
+      "rankCfg": "S(0+1)",
+      "wt": "Defense",
+      "wtZh": "防护",
+      "elemZh": "冰",
+      "teamLabel": "叶瞬光 + 千夏 + 照",
+      "setCombo": "雪兔4+云岿2",
+      "bestDiscZh": "暴击/生命%/生命%",
+      "combatBase": 4254,
+      "baseExpand": 2.88,
+      "critOrAnomStr": "84%/111%",
+      "effCritOrApMult": 1.93,
+      "dmgM": 2.1,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.42,
+      "teamDps": 128068,
+      "selfWeightedDps": 5552,
+      "subCr": 0.0138,
+      "subCd": 0.0208,
+      "subStat": 0.0125,
+      "subAp": 0,
+      "gDmg30": 0.1429,
+      "gCd40": 0.1736,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1105,
+      "d5BestZh": "穿透%",
+      "diag": "攻击池膨胀(2.88×)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1121",
+      "name": "本",
+      "rankCfg": "A(6+5)",
+      "wt": "Defense",
+      "wtZh": "防护",
+      "elemZh": "火",
+      "teamLabel": "伊芙琳 + 本 + 耀嘉音",
+      "setCombo": "雪兔4+灵魂2",
+      "bestDiscZh": "暴击/属伤%/回能%",
+      "combatBase": 3883,
+      "baseExpand": 3.04,
+      "critOrAnomStr": "74%/147%",
+      "effCritOrApMult": 2.08,
+      "dmgM": 2.66,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.23,
+      "teamDps": 77587,
+      "selfWeightedDps": 4644,
+      "subCr": 0.0164,
+      "subCd": 0.0165,
+      "subStat": 0.0096,
+      "subAp": 0,
+      "gDmg30": 0.1097,
+      "gCd40": 0.1375,
+      "gPen24": 0.1463,
+      "gShred20": 0.1189,
+      "gRes15": 0.1457,
+      "gStun30": 0.1093,
+      "d5BestZh": "穿透%",
+      "diag": "增伤严重稀释(2.66×)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1421",
+      "name": "潘引壶",
+      "rankCfg": "A(6+5)",
+      "wt": "Defense",
+      "wtZh": "防护",
+      "elemZh": "物理",
+      "teamLabel": "仪玄 + 橘福福 + 潘引壶",
+      "setCombo": "静听4+激素2",
+      "bestDiscZh": "暴击/攻击%/攻击%",
+      "combatBase": 3107,
+      "baseExpand": 2.42,
+      "critOrAnomStr": "65%/173%",
+      "effCritOrApMult": 2.13,
+      "dmgM": 2.17,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.3,
+      "teamDps": 88576,
+      "selfWeightedDps": 3679,
+      "subCr": 0.0196,
+      "subCd": 0.0147,
+      "subStat": 0.0124,
+      "subAp": 0,
+      "gDmg30": 0.1385,
+      "gCd40": 0.1223,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1342,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1271",
+      "name": "赛斯",
+      "rankCfg": "A(6+5)",
+      "wt": "Defense",
+      "wtZh": "防护",
+      "elemZh": "电",
+      "teamLabel": "叶瞬光 + 「席德」 + 赛斯",
+      "setCombo": "雪兔4+激素2",
+      "bestDiscZh": "暴击/属伤%/回能%",
+      "combatBase": 2598,
+      "baseExpand": 2.05,
+      "critOrAnomStr": "精271/掌86",
+      "effCritOrApMult": 2.71,
+      "dmgM": 1.57,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.24,
+      "teamDps": 78723,
+      "selfWeightedDps": 1987,
+      "subCr": 0.0166,
+      "subCd": 0.0094,
+      "subStat": 0.0138,
+      "subAp": 0.0045,
+      "gDmg30": 0.1917,
+      "gCd40": 0.078,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1157,
+      "d5BestZh": "属伤%",
+      "diag": "染色稀释(-26.0%)；双暴近0收益，避低精同色队友，5号选【属伤%】"
+    },
+    {
+      "cid": "1131",
+      "name": "苍角",
+      "rankCfg": "A(6+5)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "冰",
+      "teamLabel": "雨果 + 莱卡恩 + 苍角",
+      "setCombo": "月光4+激素2",
+      "bestDiscZh": "暴击/属伤%/回能%",
+      "combatBase": 3785,
+      "baseExpand": 2.93,
+      "critOrAnomStr": "66%/126%",
+      "effCritOrApMult": 1.83,
+      "dmgM": 2.46,
+      "defM": 0.454,
+      "resM": 1.35,
+      "stunMult": 1.51,
+      "teamDps": 161712,
+      "selfWeightedDps": 15549,
+      "subCr": 0.0165,
+      "subCd": 0.0172,
+      "subStat": 0.0133,
+      "subAp": 0,
+      "gDmg30": 0.1222,
+      "gCd40": 0.1437,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.1111,
+      "gStun30": 0.1194,
+      "d5BestZh": "穿透%",
+      "diag": "攻击池膨胀(2.93×)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1031",
+      "name": "妮可",
+      "rankCfg": "A(6+5)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "以太",
+      "teamLabel": "佩洛伊斯 + 耀嘉音 + 妮可",
+      "setCombo": "月光4+摇摆2",
+      "bestDiscZh": "暴击/攻击%/回能%",
+      "combatBase": 3210,
+      "baseExpand": 2.52,
+      "critOrAnomStr": "73%/147%",
+      "effCritOrApMult": 2.07,
+      "dmgM": 2.41,
+      "defM": 0.581,
+      "resM": 1,
+      "stunMult": 1.24,
+      "teamDps": 100973,
+      "selfWeightedDps": 14418,
+      "subCr": 0.0162,
+      "subCd": 0.016,
+      "subStat": 0.0119,
+      "subAp": 0.005,
+      "gDmg30": 0.1247,
+      "gCd40": 0.1334,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.15,
+      "gStun30": 0.1152,
+      "d5BestZh": "攻击%",
+      "diag": "高减防压低穿透(40%)；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1151",
+      "name": "露西",
+      "rankCfg": "A(6+5)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "火",
+      "teamLabel": "雅 + 莱特 + 露西",
+      "setCombo": "静听4+摇摆2",
+      "bestDiscZh": "暴击/属伤%/攻击%",
+      "combatBase": 3078,
+      "baseExpand": 2.4,
+      "critOrAnomStr": "65%/187%",
+      "effCritOrApMult": 2.21,
+      "dmgM": 2.36,
+      "defM": 0.454,
+      "resM": 1.15,
+      "stunMult": 1.34,
+      "teamDps": 110188,
+      "selfWeightedDps": 8702,
+      "subCr": 0.0202,
+      "subCd": 0.0141,
+      "subStat": 0.0144,
+      "subAp": 0,
+      "gDmg30": 0.127,
+      "gCd40": 0.1175,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.1304,
+      "gStun30": 0.1528,
+      "d5BestZh": "穿透%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1491",
+      "name": "千夏",
+      "rankCfg": "S(0+1)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "物理",
+      "teamLabel": "叶瞬光 + 千夏 + 照",
+      "setCombo": "静听4+激素2",
+      "bestDiscZh": "暴击/属伤%/攻击%",
+      "combatBase": 6274,
+      "baseExpand": 4.29,
+      "critOrAnomStr": "46%/111%",
+      "effCritOrApMult": 1.51,
+      "dmgM": 2.4,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.4,
+      "teamDps": 128068,
+      "selfWeightedDps": 7304,
+      "subCr": 0.0177,
+      "subCd": 0.0146,
+      "subStat": 0.0095,
+      "subAp": 0,
+      "gDmg30": 0.125,
+      "gCd40": 0.1214,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1071,
+      "d5BestZh": "穿透%",
+      "diag": "攻击池膨胀(4.29×)；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1311",
+      "name": "耀嘉音",
+      "rankCfg": "S(0+1)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "以太",
+      "teamLabel": "佩洛伊斯 + 耀嘉音 + 妮可",
+      "setCombo": "静听4+激素2",
+      "bestDiscZh": "暴击/攻击%/回能%",
+      "combatBase": 4731,
+      "baseExpand": 3.31,
+      "critOrAnomStr": "61%/104%",
+      "effCritOrApMult": 1.63,
+      "dmgM": 2.34,
+      "defM": 0.581,
+      "resM": 1,
+      "stunMult": 1.24,
+      "teamDps": 100973,
+      "selfWeightedDps": 5550,
+      "subCr": 0.0153,
+      "subCd": 0.0179,
+      "subStat": 0.0091,
+      "subAp": 0,
+      "gDmg30": 0.1285,
+      "gCd40": 0.1491,
+      "gPen24": 0.1117,
+      "gShred20": 0.1622,
+      "gRes15": 0.15,
+      "gStun30": 0.1152,
+      "d5BestZh": "攻击%",
+      "diag": "高减防压低穿透(40%)；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    },
+    {
+      "cid": "1211",
+      "name": "丽娜",
+      "rankCfg": "S(0+1)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "电",
+      "teamLabel": "克拉蕾 + 洛克茜 + 丽娜",
+      "setCombo": "月光4+河豚2",
+      "bestDiscZh": "暴击/穿透%/回能%",
+      "combatBase": 2461,
+      "baseExpand": 1.76,
+      "critOrAnomStr": "65%/133%",
+      "effCritOrApMult": 1.87,
+      "dmgM": 2,
+      "defM": 1,
+      "resM": 1,
+      "stunMult": 1.5,
+      "teamDps": 119269,
+      "selfWeightedDps": 4689,
+      "subCr": 0.017,
+      "subCd": 0.0168,
+      "subStat": 0.0171,
+      "subAp": 0,
+      "gDmg30": 0.1503,
+      "gCd40": 0.1401,
+      "gPen24": 0,
+      "gShred20": 0,
+      "gRes15": 0.15,
+      "gStun30": 0.1243,
+      "d5BestZh": "穿透%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【穿透%】"
+    },
+    {
+      "cid": "1411",
+      "name": "柚叶",
+      "rankCfg": "S(0+1)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "物理",
+      "teamLabel": "雅 + 南宫羽 + 柚叶",
+      "setCombo": "月光4+法厄同2",
+      "bestDiscZh": "精通/攻击%/掌控%",
+      "combatBase": 4274,
+      "baseExpand": 2.9,
+      "critOrAnomStr": "精245/掌201",
+      "effCritOrApMult": 2.45,
+      "dmgM": 2.3,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.53,
+      "teamDps": 125776,
+      "selfWeightedDps": 4274,
+      "subCr": 0.0092,
+      "subCd": 0.0037,
+      "subStat": 0.0103,
+      "subAp": 0.0175,
+      "gDmg30": 0.1369,
+      "gCd40": 0.0311,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1301,
+      "d5BestZh": "攻击%",
+      "diag": "攻精均衡；双暴近0收益，避低精同色队友，5号选【攻击%】"
+    },
+    {
+      "cid": "1451",
+      "name": "卢西娅",
+      "rankCfg": "S(0+1)",
+      "wt": "Support",
+      "wtZh": "支援",
+      "elemZh": "以太",
+      "teamLabel": "仪玄 + 琉音 + 卢西娅",
+      "setCombo": "静听4+云岿2",
+      "bestDiscZh": "生命%/生命%/生命%",
+      "combatBase": 1935,
+      "baseExpand": 1.31,
+      "critOrAnomStr": "27%/178%",
+      "effCritOrApMult": 1.47,
+      "dmgM": 2.12,
+      "defM": 0.454,
+      "resM": 1,
+      "stunMult": 1.55,
+      "teamDps": 159545,
+      "selfWeightedDps": 2341,
+      "subCr": 0.029,
+      "subCd": 0.0087,
+      "subStat": 0.0228,
+      "subAp": 0,
+      "gDmg30": 0.1415,
+      "gCd40": 0.0722,
+      "gPen24": 0.1506,
+      "gShred20": 0.1225,
+      "gRes15": 0.15,
+      "gStun30": 0.1334,
+      "d5BestZh": "攻击%",
+      "diag": "温和稀释；拐位先保核心阈值与光环，5号团队最优【攻击%】"
+    }
+  ],
+  "stageMatrixRows": [
+    {
+      "id": "p_pyr_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【佩耀妮】佩洛伊斯 + 耀嘉音 + 妮可",
+      "baseDps": 100973,
+      "baseD5": "攻击%",
+      "perStage": {
+        "none": {
+          "dps": 100973,
+          "gainVsNone": 0,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1058,
+          "remCd40": 0.1136,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p1": {
+          "dps": 105486,
+          "gainVsNone": 0.0447,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1022,
+          "remCd40": 0.1136,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p2": {
+          "dps": 120594,
+          "gainVsNone": 0.1943,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1005,
+          "remCd40": 0.1136,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p3": {
+          "dps": 152499,
+          "gainVsNone": 0.5103,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1005,
+          "remCd40": 0.102,
+          "remPen24": 0.0844
+        },
+        "da_veil": {
+          "dps": 132895,
+          "gainVsNone": 0.3161,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0972,
+          "remCd40": 0.1033,
+          "remPen24": 0.1117
+        },
+        "tower_high": {
+          "dps": 99651,
+          "gainVsNone": -0.0131,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1058,
+          "remCd40": 0.1136,
+          "remPen24": 0.1117
+        }
+      },
+      "shiftNote": "全天气锁【攻击%】"
+    },
+    {
+      "id": "p_miy_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【雅耀妮】雅 + 耀嘉音 + 妮可",
+      "baseDps": 141640,
+      "baseD5": "攻击%",
+      "perStage": {
+        "none": {
+          "dps": 141640,
+          "gainVsNone": 0,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1068,
+          "remCd40": 0.0928,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p1": {
+          "dps": 161097,
+          "gainVsNone": 0.1374,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1008,
+          "remCd40": 0.0886,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p2": {
+          "dps": 168315,
+          "gainVsNone": 0.1883,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1014,
+          "remCd40": 0.0928,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p3": {
+          "dps": 209012,
+          "gainVsNone": 0.4757,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1014,
+          "remCd40": 0.0905,
+          "remPen24": 0.0844
+        },
+        "da_veil": {
+          "dps": 180730,
+          "gainVsNone": 0.276,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.098,
+          "remCd40": 0.0886,
+          "remPen24": 0.1117
+        },
+        "tower_high": {
+          "dps": 139718,
+          "gainVsNone": -0.0136,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1068,
+          "remCd40": 0.0928,
+          "remPen24": 0.1117
+        }
+      },
+      "shiftNote": "全天气锁【攻击%】"
+    },
+    {
+      "id": "p_eve_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【伊耀妮】伊芙琳 + 耀嘉音 + 妮可",
+      "baseDps": 117678,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 117678,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1143,
+          "remCd40": 0.1104,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p1": {
+          "dps": 123366,
+          "gainVsNone": 0.0483,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1237,
+          "remCd40": 0.1104,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p2": {
+          "dps": 141168,
+          "gainVsNone": 0.1996,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1212,
+          "remCd40": 0.1104,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p3": {
+          "dps": 177424,
+          "gainVsNone": 0.5077,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1212,
+          "remCd40": 0.0994,
+          "remPen24": 0.0844
+        },
+        "da_veil": {
+          "dps": 156519,
+          "gainVsNone": 0.3301,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1165,
+          "remCd40": 0.1006,
+          "remPen24": 0.1117
+        },
+        "tower_high": {
+          "dps": 116121,
+          "gainVsNone": -0.0132,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1143,
+          "remCd40": 0.1104,
+          "remPen24": 0.1117
+        }
+      },
+      "shiftNote": "变阵[一期:属伤%→攻击%；二期:属伤%→攻击%；三期:属伤%→攻击%；危局:属伤%→攻击%]"
+    },
+    {
+      "id": "p_zhu_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【朱耀妮】朱鸢 + 耀嘉音 + 妮可",
+      "baseDps": 85738,
+      "baseD5": "攻击%",
+      "perStage": {
+        "none": {
+          "dps": 85738,
+          "gainVsNone": 0,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0932,
+          "remCd40": 0.0996,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p1": {
+          "dps": 89404,
+          "gainVsNone": 0.0428,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0904,
+          "remCd40": 0.0996,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p2": {
+          "dps": 103442,
+          "gainVsNone": 0.2065,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0891,
+          "remCd40": 0.0996,
+          "remPen24": 0.1117
+        },
+        "shiyu_33_p3": {
+          "dps": 127788,
+          "gainVsNone": 0.4904,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0891,
+          "remCd40": 0.0969,
+          "remPen24": 0.0844
+        },
+        "da_veil": {
+          "dps": 111771,
+          "gainVsNone": 0.3036,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0865,
+          "remCd40": 0.0947,
+          "remPen24": 0.1117
+        },
+        "tower_high": {
+          "dps": 84678,
+          "gainVsNone": -0.0124,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.0932,
+          "remCd40": 0.0996,
+          "remPen24": 0.1117
+        }
+      },
+      "shiftNote": "全天气锁【攻击%】"
+    },
+    {
+      "id": "p_rem_phx_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【蕾菲维】蕾米埃尔 + 菲欧妮 + 维琳娜",
+      "baseDps": 156303,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 156303,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1527,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        },
+        "shiyu_33_p1": {
+          "dps": 212110,
+          "gainVsNone": 0.357,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1459,
+          "remCd40": 0.0005,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 192931,
+          "gainVsNone": 0.2343,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1418,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        },
+        "shiyu_33_p3": {
+          "dps": 205410,
+          "gainVsNone": 0.3142,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1419,
+          "remCd40": 0.0007,
+          "remPen24": 0.1332
+        },
+        "da_veil": {
+          "dps": 189896,
+          "gainVsNone": 0.2149,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1355,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        },
+        "tower_high": {
+          "dps": 153848,
+          "gainVsNone": -0.0157,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1527,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        }
+      },
+      "shiftNote": "变阵[一期:属伤%→穿透%]"
+    },
+    {
+      "id": "p_rem_ari_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【爱蕾维】爱芮 + 蕾米埃尔 + 维琳娜",
+      "baseDps": 141515,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 141515,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1388,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        },
+        "shiyu_33_p1": {
+          "dps": 192867,
+          "gainVsNone": 0.3629,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1333,
+          "remCd40": 0.0006,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 174495,
+          "gainVsNone": 0.233,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1492,
+          "remCd40": 0.0007,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 186016,
+          "gainVsNone": 0.3145,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1298,
+          "remCd40": 0.0007,
+          "remPen24": 0.1332
+        },
+        "da_veil": {
+          "dps": 172618,
+          "gainVsNone": 0.2198,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1421,
+          "remCd40": 0.0007,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 139303,
+          "gainVsNone": -0.0156,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1388,
+          "remCd40": 0.0007,
+          "remPen24": 0.1506
+        }
+      },
+      "shiftNote": "变阵[一期:属伤%→穿透%；二期:属伤%→穿透%；危局:属伤%→穿透%]"
+    },
+    {
+      "id": "p_rem_pro_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【普蕾维】普罗米娅 + 蕾米埃尔 + 维琳娜",
+      "baseDps": 136138,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 136138,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1313,
+          "remCd40": 0.0006,
+          "remPen24": 0.1218
+        },
+        "shiyu_33_p1": {
+          "dps": 184033,
+          "gainVsNone": 0.3518,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1121,
+          "remCd40": 0.0005,
+          "remPen24": 0.1216
+        },
+        "shiyu_33_p2": {
+          "dps": 167312,
+          "gainVsNone": 0.229,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1232,
+          "remCd40": 0.0007,
+          "remPen24": 0.1218
+        },
+        "shiyu_33_p3": {
+          "dps": 181086,
+          "gainVsNone": 0.3302,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1232,
+          "remCd40": 0.0006,
+          "remPen24": 0.0968
+        },
+        "da_veil": {
+          "dps": 164435,
+          "gainVsNone": 0.2079,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1184,
+          "remCd40": 0.0007,
+          "remPen24": 0.1218
+        },
+        "tower_high": {
+          "dps": 134003,
+          "gainVsNone": -0.0157,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1313,
+          "remCd40": 0.0006,
+          "remPen24": 0.1218
+        }
+      },
+      "shiftNote": "全天气锁【属伤%】"
+    },
+    {
+      "id": "p_miy_nan_yuz",
+      "cat": "三异常·紊乱公式",
+      "name": "【雅南柚】雅 + 南宫羽 + 柚叶",
+      "baseDps": 125776,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 125776,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1005,
+          "remCd40": 0.0944,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 146787,
+          "gainVsNone": 0.167,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0934,
+          "remCd40": 0.0865,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 149008,
+          "gainVsNone": 0.1847,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0956,
+          "remCd40": 0.0945,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 175689,
+          "gainVsNone": 0.3968,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0957,
+          "remCd40": 0.0921,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 160620,
+          "gainVsNone": 0.277,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0927,
+          "remCd40": 0.0932,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 115018,
+          "gainVsNone": -0.0855,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1008,
+          "remCd40": 0.0944,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_miy_yan_yuz",
+      "cat": "三异常·紊乱公式",
+      "name": "【雅柳柚】雅 + 柳 + 柚叶",
+      "baseDps": 95215,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 95215,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1347,
+          "remCd40": 0.0984,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 119604,
+          "gainVsNone": 0.2562,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.122,
+          "remCd40": 0.0893,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 115200,
+          "gainVsNone": 0.2099,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1262,
+          "remCd40": 0.0987,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 130126,
+          "gainVsNone": 0.3667,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1266,
+          "remCd40": 0.0978,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 122020,
+          "gainVsNone": 0.2815,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1214,
+          "remCd40": 0.0992,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 93678,
+          "gainVsNone": -0.0161,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1347,
+          "remCd40": 0.0984,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_ysg_sun_zhao",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【叶千照】叶瞬光 + 千夏 + 照",
+      "baseDps": 128068,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 128068,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1111,
+          "remCd40": 0.1018,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 132768,
+          "gainVsNone": 0.0367,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1071,
+          "remCd40": 0.1018,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 152307,
+          "gainVsNone": 0.1893,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1053,
+          "remCd40": 0.1018,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 177740,
+          "gainVsNone": 0.3879,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1053,
+          "remCd40": 0.0989,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 161720,
+          "gainVsNone": 0.2628,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1017,
+          "remCd40": 0.0967,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 127014,
+          "gainVsNone": -0.0082,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1114,
+          "remCd40": 0.1018,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_ysg_dia_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【叶琉千】叶瞬光 + 琉音 + 千夏",
+      "baseDps": 149864,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 149864,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1111,
+          "remCd40": 0.1105,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 155653,
+          "gainVsNone": 0.0386,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1071,
+          "remCd40": 0.1105,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 178935,
+          "gainVsNone": 0.194,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1053,
+          "remCd40": 0.1105,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 215111,
+          "gainVsNone": 0.4354,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1053,
+          "remCd40": 0.1091,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 193412,
+          "gainVsNone": 0.2906,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1017,
+          "remCd40": 0.1064,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 138623,
+          "gainVsNone": -0.075,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1114,
+          "remCd40": 0.1105,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_pyr_dia_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【佩琉千】佩洛伊斯 + 琉音 + 千夏",
+      "baseDps": 124781,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 124781,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.113,
+          "remCd40": 0.1242,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 129679,
+          "gainVsNone": 0.0393,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1089,
+          "remCd40": 0.1242,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 149690,
+          "gainVsNone": 0.1996,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.107,
+          "remCd40": 0.1242,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 180650,
+          "gainVsNone": 0.4477,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.107,
+          "remCd40": 0.1105,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 165316,
+          "gainVsNone": 0.3248,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1033,
+          "remCd40": 0.112,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 113850,
+          "gainVsNone": -0.0876,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.113,
+          "remCd40": 0.1242,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_ari_nan_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【爱南千】爱芮 + 南宫羽 + 千夏",
+      "baseDps": 132993,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 132993,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1091,
+          "remCd40": 0.001,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 169517,
+          "gainVsNone": 0.2746,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0957,
+          "remCd40": 0.0008,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 161330,
+          "gainVsNone": 0.2131,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1035,
+          "remCd40": 0.001,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 172459,
+          "gainVsNone": 0.2967,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1035,
+          "remCd40": 0.001,
+          "remPen24": 0.1332
+        },
+        "da_veil": {
+          "dps": 158576,
+          "gainVsNone": 0.1924,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1,
+          "remCd40": 0.001,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 120778,
+          "gainVsNone": -0.0918,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1095,
+          "remCd40": 0.001,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "变阵[三期:穿透%→攻击%]"
+    },
+    {
+      "id": "p_sev_rox_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【赛洛耀】赛维里安 + 洛克茜 + 耀嘉音",
+      "baseDps": 118816,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 118816,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.105,
+          "remCd40": 0.0948,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 123036,
+          "gainVsNone": 0.0355,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1014,
+          "remCd40": 0.0948,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 141461,
+          "gainVsNone": 0.1906,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0997,
+          "remCd40": 0.0948,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 165338,
+          "gainVsNone": 0.3915,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0997,
+          "remCd40": 0.0924,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 154116,
+          "gainVsNone": 0.2971,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.0965,
+          "remCd40": 0.0904,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 108322,
+          "gainVsNone": -0.0883,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1049,
+          "remCd40": 0.0948,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_sig_rox_sun",
+      "cat": "强攻·专拐击破公式",
+      "name": "【希洛千】希格莉德 + 洛克茜 + 千夏",
+      "baseDps": 129008,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 129008,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1212,
+          "remCd40": 0.0911,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 134175,
+          "gainVsNone": 0.04,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1165,
+          "remCd40": 0.0911,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 154010,
+          "gainVsNone": 0.1938,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1143,
+          "remCd40": 0.0911,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 181247,
+          "gainVsNone": 0.4049,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1143,
+          "remCd40": 0.0888,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 166482,
+          "gainVsNone": 0.2905,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1101,
+          "remCd40": 0.087,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 116584,
+          "gainVsNone": -0.0963,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1217,
+          "remCd40": 0.0911,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_pyr_nor_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【佩诺耀】佩洛伊斯 + 诺姆 + 耀嘉音",
+      "baseDps": 85871,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 85871,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1121,
+          "remCd40": 0.1153,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 89216,
+          "gainVsNone": 0.0389,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1081,
+          "remCd40": 0.1153,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 102673,
+          "gainVsNone": 0.1957,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1062,
+          "remCd40": 0.1153,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 122673,
+          "gainVsNone": 0.4286,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1062,
+          "remCd40": 0.1034,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 113444,
+          "gainVsNone": 0.3211,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1026,
+          "remCd40": 0.1047,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 77723,
+          "gainVsNone": -0.0949,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1121,
+          "remCd40": 0.1153,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_eve_lig_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【伊莱耀】伊芙琳 + 莱特 + 耀嘉音",
+      "baseDps": 108244,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 108244,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1099,
+          "remCd40": 0.0942,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p1": {
+          "dps": 112285,
+          "gainVsNone": 0.0373,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.106,
+          "remCd40": 0.0942,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p2": {
+          "dps": 127459,
+          "gainVsNone": 0.1775,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1042,
+          "remCd40": 0.0942,
+          "remPen24": 0.1774
+        },
+        "shiyu_33_p3": {
+          "dps": 154159,
+          "gainVsNone": 0.4242,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1042,
+          "remCd40": 0.0918,
+          "remPen24": 0.1537
+        },
+        "da_veil": {
+          "dps": 143948,
+          "gainVsNone": 0.3299,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1007,
+          "remCd40": 0.0898,
+          "remPen24": 0.1774
+        },
+        "tower_high": {
+          "dps": 101912,
+          "gainVsNone": -0.0585,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1099,
+          "remCd40": 0.0942,
+          "remPen24": 0.1774
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_yix_dia_luc",
+      "cat": "命破&锋御公式",
+      "name": "【仪琉卢】仪玄 + 琉音 + 卢西娅",
+      "baseDps": 159545,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 159545,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0909,
+          "remCd40": 0.1078,
+          "remPen24": 0
+        },
+        "shiyu_33_p1": {
+          "dps": 164598,
+          "gainVsNone": 0.0317,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0883,
+          "remCd40": 0.1078,
+          "remPen24": 0
+        },
+        "shiyu_33_p2": {
+          "dps": 192237,
+          "gainVsNone": 0.2049,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.087,
+          "remCd40": 0.1078,
+          "remPen24": 0
+        },
+        "shiyu_33_p3": {
+          "dps": 194742,
+          "gainVsNone": 0.2206,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.087,
+          "remCd40": 0.0973,
+          "remPen24": 0
+        },
+        "da_veil": {
+          "dps": 241771,
+          "gainVsNone": 0.5154,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0845,
+          "remCd40": 0.0985,
+          "remPen24": 0
+        },
+        "tower_high": {
+          "dps": 146022,
+          "gainVsNone": -0.0848,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0914,
+          "remCd40": 0.1078,
+          "remPen24": 0
+        }
+      },
+      "shiftNote": "全天气锁【属伤%】"
+    },
+    {
+      "id": "p_sbi_dia_luc",
+      "cat": "命破&锋御公式",
+      "name": "【星琉卢】星徽·比利 + 琉音 + 卢西娅",
+      "baseDps": 145670,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 145670,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0995,
+          "remCd40": 0.095,
+          "remPen24": 0
+        },
+        "shiyu_33_p1": {
+          "dps": 150671,
+          "gainVsNone": 0.0343,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0963,
+          "remCd40": 0.095,
+          "remPen24": 0
+        },
+        "shiyu_33_p2": {
+          "dps": 176190,
+          "gainVsNone": 0.2095,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0948,
+          "remCd40": 0.095,
+          "remPen24": 0
+        },
+        "shiyu_33_p3": {
+          "dps": 176926,
+          "gainVsNone": 0.2146,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0948,
+          "remCd40": 0.0868,
+          "remPen24": 0
+        },
+        "da_veil": {
+          "dps": 219417,
+          "gainVsNone": 0.5063,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0919,
+          "remCd40": 0.0877,
+          "remPen24": 0
+        },
+        "tower_high": {
+          "dps": 133539,
+          "gainVsNone": -0.0833,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.0998,
+          "remCd40": 0.095,
+          "remPen24": 0
+        }
+      },
+      "shiftNote": "全天气锁【属伤%】"
+    },
+    {
+      "id": "p_cla_rox_rin",
+      "cat": "命破&锋御公式",
+      "name": "【克洛丽】克拉蕾 + 洛克茜 + 丽娜",
+      "baseDps": 119269,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 119269,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1307,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p1": {
+          "dps": 124374,
+          "gainVsNone": 0.0428,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1252,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p2": {
+          "dps": 194599,
+          "gainVsNone": 0.6316,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1226,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p3": {
+          "dps": 142183,
+          "gainVsNone": 0.1921,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1226,
+          "remCd40": 0,
+          "remPen24": 0.19
+        },
+        "da_veil": {
+          "dps": 147593,
+          "gainVsNone": 0.2375,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1178,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "tower_high": {
+          "dps": 108382,
+          "gainVsNone": -0.0913,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1312,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_cla_nor_rin",
+      "cat": "命破&锋御公式",
+      "name": "【克诺丽】克拉蕾 + 诺姆 + 丽娜",
+      "baseDps": 97884,
+      "baseD5": "穿透%",
+      "perStage": {
+        "none": {
+          "dps": 97884,
+          "gainVsNone": 0,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.125,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p1": {
+          "dps": 102050,
+          "gainVsNone": 0.0426,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.12,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p2": {
+          "dps": 161438,
+          "gainVsNone": 0.6493,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1176,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "shiyu_33_p3": {
+          "dps": 115886,
+          "gainVsNone": 0.1839,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1176,
+          "remCd40": 0,
+          "remPen24": 0.19
+        },
+        "da_veil": {
+          "dps": 120663,
+          "gainVsNone": 0.2327,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1132,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        },
+        "tower_high": {
+          "dps": 88307,
+          "gainVsNone": -0.0978,
+          "d5Zh": "穿透%",
+          "remDmg30": 0.1255,
+          "remCd40": 0,
+          "remPen24": 0.2275
+        }
+      },
+      "shiftNote": "全天气锁【穿透%】"
+    },
+    {
+      "id": "p_cis_see_ast",
+      "cat": "双强攻&双击破公式",
+      "name": "【希席耀】希希芙 + 「席德」 + 耀嘉音",
+      "baseDps": 143453,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 143453,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.131,
+          "remCd40": 0.1205,
+          "remPen24": 0.1064
+        },
+        "shiyu_33_p1": {
+          "dps": 149350,
+          "gainVsNone": 0.0411,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1255,
+          "remCd40": 0.1205,
+          "remPen24": 0.1064
+        },
+        "shiyu_33_p2": {
+          "dps": 173457,
+          "gainVsNone": 0.2092,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.123,
+          "remCd40": 0.1205,
+          "remPen24": 0.1064
+        },
+        "shiyu_33_p3": {
+          "dps": 211071,
+          "gainVsNone": 0.4714,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.123,
+          "remCd40": 0.1075,
+          "remPen24": 0.0775
+        },
+        "da_veil": {
+          "dps": 189890,
+          "gainVsNone": 0.3237,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1181,
+          "remCd40": 0.109,
+          "remPen24": 0.1064
+        },
+        "tower_high": {
+          "dps": 141578,
+          "gainVsNone": -0.0131,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.131,
+          "remCd40": 0.1205,
+          "remPen24": 0.1064
+        }
+      },
+      "shiftNote": "全天气锁【属伤%】"
+    },
+    {
+      "id": "p_s0a_orp_tri",
+      "cat": "双强攻&双击破公式",
+      "name": "【安奥扳】零号·安比 + 奥菲丝&「鬼火」 + 「扳机」",
+      "baseDps": 99364,
+      "baseD5": "属伤%",
+      "perStage": {
+        "none": {
+          "dps": 99364,
+          "gainVsNone": 0,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1342,
+          "remCd40": 0.1211,
+          "remPen24": 0.0989
+        },
+        "shiyu_33_p1": {
+          "dps": 103966,
+          "gainVsNone": 0.0463,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1474,
+          "remCd40": 0.1114,
+          "remPen24": 0.0989
+        },
+        "shiyu_33_p2": {
+          "dps": 122196,
+          "gainVsNone": 0.2298,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1439,
+          "remCd40": 0.1114,
+          "remPen24": 0.0989
+        },
+        "shiyu_33_p3": {
+          "dps": 160385,
+          "gainVsNone": 0.6141,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1439,
+          "remCd40": 0.108,
+          "remPen24": 0.0679
+        },
+        "da_veil": {
+          "dps": 133918,
+          "gainVsNone": 0.3477,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1373,
+          "remCd40": 0.1095,
+          "remPen24": 0.0989
+        },
+        "tower_high": {
+          "dps": 91986,
+          "gainVsNone": -0.0743,
+          "d5Zh": "属伤%",
+          "remDmg30": 0.1342,
+          "remCd40": 0.1211,
+          "remPen24": 0.0989
+        }
+      },
+      "shiftNote": "变阵[一期:属伤%→攻击%；二期:属伤%→攻击%；三期:属伤%→攻击%；危局:属伤%→攻击%]"
+    },
+    {
+      "id": "p_hug_lig_lyc",
+      "cat": "双强攻&双击破公式",
+      "name": "【雨莱狼】雨果 + 莱特 + 莱卡恩",
+      "baseDps": 161198,
+      "baseD5": "攻击%",
+      "perStage": {
+        "none": {
+          "dps": 161198,
+          "gainVsNone": 0,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1307,
+          "remCd40": 0.1071,
+          "remPen24": 0.1308
+        },
+        "shiyu_33_p1": {
+          "dps": 168245,
+          "gainVsNone": 0.0437,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1253,
+          "remCd40": 0.1071,
+          "remPen24": 0.1308
+        },
+        "shiyu_33_p2": {
+          "dps": 190192,
+          "gainVsNone": 0.1799,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1227,
+          "remCd40": 0.1071,
+          "remPen24": 0.1308
+        },
+        "shiyu_33_p3": {
+          "dps": 239570,
+          "gainVsNone": 0.4862,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1227,
+          "remCd40": 0.1003,
+          "remPen24": 0.1086
+        },
+        "da_veil": {
+          "dps": 215877,
+          "gainVsNone": 0.3392,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1179,
+          "remCd40": 0.1015,
+          "remPen24": 0.1308
+        },
+        "tower_high": {
+          "dps": 156711,
+          "gainVsNone": -0.0278,
+          "d5Zh": "攻击%",
+          "remDmg30": 0.1307,
+          "remCd40": 0.1071,
+          "remPen24": 0.1308
+        }
+      },
+      "shiftNote": "全天气锁【攻击%】"
+    }
+  ],
+  "bossMatrixRows": [
+    {
+      "id": "p_pyr_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【佩耀妮】佩洛伊斯 + 耀嘉音 + 妮可",
+      "baseDps": 100973,
+      "perBoss": {
+        "b1_std": {
+          "dps": 100973,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.646
+        },
+        "b2_weak": {
+          "dps": 118812,
+          "ratio": 1.1767,
+          "d5Zh": "攻击%",
+          "sShare": 0.646
+        },
+        "b3_res": {
+          "dps": 83134,
+          "ratio": 0.8233,
+          "d5Zh": "攻击%",
+          "sShare": 0.646
+        },
+        "b4_highdef": {
+          "dps": 80755,
+          "ratio": 0.7998,
+          "d5Zh": "穿透%",
+          "sShare": 0.646
+        },
+        "b5_fragile": {
+          "dps": 147300,
+          "ratio": 1.4588,
+          "d5Zh": "攻击%",
+          "sShare": 0.646
+        },
+        "b6_aggro": {
+          "dps": 95951,
+          "ratio": 0.9503,
+          "d5Zh": "攻击%",
+          "sShare": 0.51
+        },
+        "b7_miasma": {
+          "dps": 70095,
+          "ratio": 0.6942,
+          "d5Zh": "穿透%",
+          "sShare": 0.646
+        },
+        "b8_anomres": {
+          "dps": 100973,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.646
+        }
+      }
+    },
+    {
+      "id": "p_miy_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【雅耀妮】雅 + 耀嘉音 + 妮可",
+      "baseDps": 141640,
+      "perBoss": {
+        "b1_std": {
+          "dps": 141640,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.583
+        },
+        "b2_weak": {
+          "dps": 160635,
+          "ratio": 1.1341,
+          "d5Zh": "攻击%",
+          "sShare": 0.583
+        },
+        "b3_res": {
+          "dps": 117639,
+          "ratio": 0.8305,
+          "d5Zh": "攻击%",
+          "sShare": 0.583
+        },
+        "b4_highdef": {
+          "dps": 113417,
+          "ratio": 0.8007,
+          "d5Zh": "穿透%",
+          "sShare": 0.583
+        },
+        "b5_fragile": {
+          "dps": 204344,
+          "ratio": 1.4427,
+          "d5Zh": "攻击%",
+          "sShare": 0.583
+        },
+        "b6_aggro": {
+          "dps": 134315,
+          "ratio": 0.9483,
+          "d5Zh": "攻击%",
+          "sShare": 0.445
+        },
+        "b7_miasma": {
+          "dps": 98300,
+          "ratio": 0.694,
+          "d5Zh": "穿透%",
+          "sShare": 0.583
+        },
+        "b8_anomres": {
+          "dps": 136395,
+          "ratio": 0.963,
+          "d5Zh": "攻击%",
+          "sShare": 0.583
+        }
+      }
+    },
+    {
+      "id": "p_eve_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【伊耀妮】伊芙琳 + 耀嘉音 + 妮可",
+      "baseDps": 117678,
+      "perBoss": {
+        "b1_std": {
+          "dps": 117678,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        },
+        "b2_weak": {
+          "dps": 134229,
+          "ratio": 1.1406,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        },
+        "b3_res": {
+          "dps": 97065,
+          "ratio": 0.8248,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        },
+        "b4_highdef": {
+          "dps": 93579,
+          "ratio": 0.7952,
+          "d5Zh": "穿透%",
+          "sShare": 0.669
+        },
+        "b5_fragile": {
+          "dps": 172636,
+          "ratio": 1.467,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        },
+        "b6_aggro": {
+          "dps": 111827,
+          "ratio": 0.9503,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b7_miasma": {
+          "dps": 81376,
+          "ratio": 0.6915,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        },
+        "b8_anomres": {
+          "dps": 117678,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.669
+        }
+      }
+    },
+    {
+      "id": "p_zhu_ast_nic",
+      "cat": "耀妮·万能轮椅",
+      "name": "【朱耀妮】朱鸢 + 耀嘉音 + 妮可",
+      "baseDps": 85738,
+      "perBoss": {
+        "b1_std": {
+          "dps": 85738,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        },
+        "b2_weak": {
+          "dps": 102751,
+          "ratio": 1.1984,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        },
+        "b3_res": {
+          "dps": 68725,
+          "ratio": 0.8016,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        },
+        "b4_highdef": {
+          "dps": 68020,
+          "ratio": 0.7933,
+          "d5Zh": "穿透%",
+          "sShare": 0.705
+        },
+        "b5_fragile": {
+          "dps": 126247,
+          "ratio": 1.4725,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        },
+        "b6_aggro": {
+          "dps": 81689,
+          "ratio": 0.9528,
+          "d5Zh": "攻击%",
+          "sShare": 0.573
+        },
+        "b7_miasma": {
+          "dps": 59322,
+          "ratio": 0.6919,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        },
+        "b8_anomres": {
+          "dps": 85738,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.705
+        }
+      }
+    },
+    {
+      "id": "p_rem_phx_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【蕾菲维】蕾米埃尔 + 菲欧妮 + 维琳娜",
+      "baseDps": 156303,
+      "perBoss": {
+        "b1_std": {
+          "dps": 156303,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b2_weak": {
+          "dps": 168702,
+          "ratio": 1.0793,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b3_res": {
+          "dps": 123135,
+          "ratio": 0.7878,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b4_highdef": {
+          "dps": 115215,
+          "ratio": 0.7371,
+          "d5Zh": "穿透%",
+          "sShare": 0.533
+        },
+        "b5_fragile": {
+          "dps": 234640,
+          "ratio": 1.5012,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b6_aggro": {
+          "dps": 148783,
+          "ratio": 0.9519,
+          "d5Zh": "属伤%",
+          "sShare": 0.397
+        },
+        "b7_miasma": {
+          "dps": 104358,
+          "ratio": 0.6677,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        },
+        "b8_anomres": {
+          "dps": 132535,
+          "ratio": 0.8479,
+          "d5Zh": "属伤%",
+          "sShare": 0.533
+        }
+      }
+    },
+    {
+      "id": "p_rem_ari_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【爱蕾维】爱芮 + 蕾米埃尔 + 维琳娜",
+      "baseDps": 141515,
+      "perBoss": {
+        "b1_std": {
+          "dps": 141515,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.601
+        },
+        "b2_weak": {
+          "dps": 154955,
+          "ratio": 1.095,
+          "d5Zh": "属伤%",
+          "sShare": 0.601
+        },
+        "b3_res": {
+          "dps": 113376,
+          "ratio": 0.8012,
+          "d5Zh": "属伤%",
+          "sShare": 0.601
+        },
+        "b4_highdef": {
+          "dps": 106143,
+          "ratio": 0.75,
+          "d5Zh": "穿透%",
+          "sShare": 0.601
+        },
+        "b5_fragile": {
+          "dps": 216841,
+          "ratio": 1.5323,
+          "d5Zh": "属伤%",
+          "sShare": 0.601
+        },
+        "b6_aggro": {
+          "dps": 134696,
+          "ratio": 0.9518,
+          "d5Zh": "属伤%",
+          "sShare": 0.465
+        },
+        "b7_miasma": {
+          "dps": 94064,
+          "ratio": 0.6647,
+          "d5Zh": "穿透%",
+          "sShare": 0.601
+        },
+        "b8_anomres": {
+          "dps": 127038,
+          "ratio": 0.8977,
+          "d5Zh": "属伤%",
+          "sShare": 0.601
+        }
+      }
+    },
+    {
+      "id": "p_rem_pro_vel",
+      "cat": "三异常·紊乱公式",
+      "name": "【普蕾维】普罗米娅 + 蕾米埃尔 + 维琳娜",
+      "baseDps": 136138,
+      "perBoss": {
+        "b1_std": {
+          "dps": 136138,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        },
+        "b2_weak": {
+          "dps": 148336,
+          "ratio": 1.0896,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        },
+        "b3_res": {
+          "dps": 109073,
+          "ratio": 0.8012,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        },
+        "b4_highdef": {
+          "dps": 103714,
+          "ratio": 0.7618,
+          "d5Zh": "穿透%",
+          "sShare": 0.555
+        },
+        "b5_fragile": {
+          "dps": 203138,
+          "ratio": 1.4921,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        },
+        "b6_aggro": {
+          "dps": 129566,
+          "ratio": 0.9517,
+          "d5Zh": "属伤%",
+          "sShare": 0.42
+        },
+        "b7_miasma": {
+          "dps": 91006,
+          "ratio": 0.6685,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        },
+        "b8_anomres": {
+          "dps": 122993,
+          "ratio": 0.9034,
+          "d5Zh": "属伤%",
+          "sShare": 0.555
+        }
+      }
+    },
+    {
+      "id": "p_miy_nan_yuz",
+      "cat": "三异常·紊乱公式",
+      "name": "【雅南柚】雅 + 南宫羽 + 柚叶",
+      "baseDps": 125776,
+      "perBoss": {
+        "b1_std": {
+          "dps": 125776,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.796
+        },
+        "b2_weak": {
+          "dps": 143040,
+          "ratio": 1.1373,
+          "d5Zh": "穿透%",
+          "sShare": 0.796
+        },
+        "b3_res": {
+          "dps": 104563,
+          "ratio": 0.8313,
+          "d5Zh": "穿透%",
+          "sShare": 0.796
+        },
+        "b4_highdef": {
+          "dps": 94920,
+          "ratio": 0.7547,
+          "d5Zh": "穿透%",
+          "sShare": 0.796
+        },
+        "b5_fragile": {
+          "dps": 190717,
+          "ratio": 1.5163,
+          "d5Zh": "攻击%",
+          "sShare": 0.796
+        },
+        "b6_aggro": {
+          "dps": 115928,
+          "ratio": 0.9217,
+          "d5Zh": "穿透%",
+          "sShare": 0.636
+        },
+        "b7_miasma": {
+          "dps": 85849,
+          "ratio": 0.6826,
+          "d5Zh": "穿透%",
+          "sShare": 0.796
+        },
+        "b8_anomres": {
+          "dps": 117772,
+          "ratio": 0.9364,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        }
+      }
+    },
+    {
+      "id": "p_miy_yan_yuz",
+      "cat": "三异常·紊乱公式",
+      "name": "【雅柳柚】雅 + 柳 + 柚叶",
+      "baseDps": 95215,
+      "perBoss": {
+        "b1_std": {
+          "dps": 95215,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.607
+        },
+        "b2_weak": {
+          "dps": 104654,
+          "ratio": 1.0991,
+          "d5Zh": "穿透%",
+          "sShare": 0.607
+        },
+        "b3_res": {
+          "dps": 78430,
+          "ratio": 0.8237,
+          "d5Zh": "穿透%",
+          "sShare": 0.607
+        },
+        "b4_highdef": {
+          "dps": 72639,
+          "ratio": 0.7629,
+          "d5Zh": "穿透%",
+          "sShare": 0.607
+        },
+        "b5_fragile": {
+          "dps": 142882,
+          "ratio": 1.5006,
+          "d5Zh": "属伤%",
+          "sShare": 0.607
+        },
+        "b6_aggro": {
+          "dps": 90453,
+          "ratio": 0.95,
+          "d5Zh": "穿透%",
+          "sShare": 0.468
+        },
+        "b7_miasma": {
+          "dps": 65333,
+          "ratio": 0.6862,
+          "d5Zh": "穿透%",
+          "sShare": 0.607
+        },
+        "b8_anomres": {
+          "dps": 83905,
+          "ratio": 0.8812,
+          "d5Zh": "穿透%",
+          "sShare": 0.604
+        }
+      }
+    },
+    {
+      "id": "p_ysg_sun_zhao",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【叶千照】叶瞬光 + 千夏 + 照",
+      "baseDps": 128068,
+      "perBoss": {
+        "b1_std": {
+          "dps": 128068,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.606
+        },
+        "b2_weak": {
+          "dps": 148572,
+          "ratio": 1.1601,
+          "d5Zh": "穿透%",
+          "sShare": 0.606
+        },
+        "b3_res": {
+          "dps": 106344,
+          "ratio": 0.8304,
+          "d5Zh": "穿透%",
+          "sShare": 0.606
+        },
+        "b4_highdef": {
+          "dps": 96727,
+          "ratio": 0.7553,
+          "d5Zh": "穿透%",
+          "sShare": 0.606
+        },
+        "b5_fragile": {
+          "dps": 159732,
+          "ratio": 1.2472,
+          "d5Zh": "攻击%",
+          "sShare": 0.606
+        },
+        "b6_aggro": {
+          "dps": 125096,
+          "ratio": 0.9768,
+          "d5Zh": "穿透%",
+          "sShare": 0.467
+        },
+        "b7_miasma": {
+          "dps": 86803,
+          "ratio": 0.6778,
+          "d5Zh": "穿透%",
+          "sShare": 0.606
+        },
+        "b8_anomres": {
+          "dps": 127880,
+          "ratio": 0.9985,
+          "d5Zh": "穿透%",
+          "sShare": 0.604
+        }
+      }
+    },
+    {
+      "id": "p_ysg_dia_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【叶琉千】叶瞬光 + 琉音 + 千夏",
+      "baseDps": 149864,
+      "perBoss": {
+        "b1_std": {
+          "dps": 149864,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.822
+        },
+        "b2_weak": {
+          "dps": 175539,
+          "ratio": 1.1713,
+          "d5Zh": "穿透%",
+          "sShare": 0.822
+        },
+        "b3_res": {
+          "dps": 124189,
+          "ratio": 0.8287,
+          "d5Zh": "穿透%",
+          "sShare": 0.822
+        },
+        "b4_highdef": {
+          "dps": 113502,
+          "ratio": 0.7574,
+          "d5Zh": "穿透%",
+          "sShare": 0.822
+        },
+        "b5_fragile": {
+          "dps": 192329,
+          "ratio": 1.2834,
+          "d5Zh": "攻击%",
+          "sShare": 0.822
+        },
+        "b6_aggro": {
+          "dps": 148313,
+          "ratio": 0.9896,
+          "d5Zh": "穿透%",
+          "sShare": 0.645
+        },
+        "b7_miasma": {
+          "dps": 102468,
+          "ratio": 0.6837,
+          "d5Zh": "穿透%",
+          "sShare": 0.822
+        },
+        "b8_anomres": {
+          "dps": 149508,
+          "ratio": 0.9976,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        }
+      }
+    },
+    {
+      "id": "p_pyr_dia_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【佩琉千】佩洛伊斯 + 琉音 + 千夏",
+      "baseDps": 124781,
+      "perBoss": {
+        "b1_std": {
+          "dps": 124781,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.871
+        },
+        "b2_weak": {
+          "dps": 141720,
+          "ratio": 1.1358,
+          "d5Zh": "穿透%",
+          "sShare": 0.871
+        },
+        "b3_res": {
+          "dps": 102681,
+          "ratio": 0.8229,
+          "d5Zh": "穿透%",
+          "sShare": 0.871
+        },
+        "b4_highdef": {
+          "dps": 94479,
+          "ratio": 0.7572,
+          "d5Zh": "穿透%",
+          "sShare": 0.871
+        },
+        "b5_fragile": {
+          "dps": 186650,
+          "ratio": 1.4958,
+          "d5Zh": "攻击%",
+          "sShare": 0.871
+        },
+        "b6_aggro": {
+          "dps": 116070,
+          "ratio": 0.9302,
+          "d5Zh": "穿透%",
+          "sShare": 0.696
+        },
+        "b7_miasma": {
+          "dps": 85279,
+          "ratio": 0.6834,
+          "d5Zh": "穿透%",
+          "sShare": 0.871
+        },
+        "b8_anomres": {
+          "dps": 124568,
+          "ratio": 0.9983,
+          "d5Zh": "穿透%",
+          "sShare": 0.87
+        }
+      }
+    },
+    {
+      "id": "p_ari_nan_sun",
+      "cat": "强攻·琉千/千照公式",
+      "name": "【爱南千】爱芮 + 南宫羽 + 千夏",
+      "baseDps": 132993,
+      "perBoss": {
+        "b1_std": {
+          "dps": 132993,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        },
+        "b2_weak": {
+          "dps": 158276,
+          "ratio": 1.1901,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        },
+        "b3_res": {
+          "dps": 106524,
+          "ratio": 0.801,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        },
+        "b4_highdef": {
+          "dps": 100336,
+          "ratio": 0.7544,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        },
+        "b5_fragile": {
+          "dps": 199018,
+          "ratio": 1.4965,
+          "d5Zh": "攻击%",
+          "sShare": 0.806
+        },
+        "b6_aggro": {
+          "dps": 119702,
+          "ratio": 0.9001,
+          "d5Zh": "穿透%",
+          "sShare": 0.644
+        },
+        "b7_miasma": {
+          "dps": 90739,
+          "ratio": 0.6823,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        },
+        "b8_anomres": {
+          "dps": 126402,
+          "ratio": 0.9504,
+          "d5Zh": "穿透%",
+          "sShare": 0.806
+        }
+      }
+    },
+    {
+      "id": "p_sev_rox_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【赛洛耀】赛维里安 + 洛克茜 + 耀嘉音",
+      "baseDps": 118816,
+      "perBoss": {
+        "b1_std": {
+          "dps": 118816,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b2_weak": {
+          "dps": 138598,
+          "ratio": 1.1665,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b3_res": {
+          "dps": 98173,
+          "ratio": 0.8263,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b4_highdef": {
+          "dps": 90029,
+          "ratio": 0.7577,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b5_fragile": {
+          "dps": 179132,
+          "ratio": 1.5076,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b6_aggro": {
+          "dps": 106318,
+          "ratio": 0.8948,
+          "d5Zh": "穿透%",
+          "sShare": 0.629
+        },
+        "b7_miasma": {
+          "dps": 81241,
+          "ratio": 0.6838,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        },
+        "b8_anomres": {
+          "dps": 118816,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.794
+        }
+      }
+    },
+    {
+      "id": "p_sig_rox_sun",
+      "cat": "强攻·专拐击破公式",
+      "name": "【希洛千】希格莉德 + 洛克茜 + 千夏",
+      "baseDps": 129008,
+      "perBoss": {
+        "b1_std": {
+          "dps": 129008,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        },
+        "b2_weak": {
+          "dps": 146613,
+          "ratio": 1.1365,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        },
+        "b3_res": {
+          "dps": 106881,
+          "ratio": 0.8285,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        },
+        "b4_highdef": {
+          "dps": 97323,
+          "ratio": 0.7544,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        },
+        "b5_fragile": {
+          "dps": 188444,
+          "ratio": 1.4607,
+          "d5Zh": "属伤%",
+          "sShare": 0.817
+        },
+        "b6_aggro": {
+          "dps": 113709,
+          "ratio": 0.8814,
+          "d5Zh": "穿透%",
+          "sShare": 0.655
+        },
+        "b7_miasma": {
+          "dps": 87825,
+          "ratio": 0.6808,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        },
+        "b8_anomres": {
+          "dps": 128689,
+          "ratio": 0.9975,
+          "d5Zh": "穿透%",
+          "sShare": 0.817
+        }
+      }
+    },
+    {
+      "id": "p_pyr_nor_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【佩诺耀】佩洛伊斯 + 诺姆 + 耀嘉音",
+      "baseDps": 85871,
+      "perBoss": {
+        "b1_std": {
+          "dps": 85871,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        },
+        "b2_weak": {
+          "dps": 98271,
+          "ratio": 1.1444,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        },
+        "b3_res": {
+          "dps": 71032,
+          "ratio": 0.8272,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        },
+        "b4_highdef": {
+          "dps": 65040,
+          "ratio": 0.7574,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        },
+        "b5_fragile": {
+          "dps": 130166,
+          "ratio": 1.5158,
+          "d5Zh": "攻击%",
+          "sShare": 0.816
+        },
+        "b6_aggro": {
+          "dps": 74137,
+          "ratio": 0.8634,
+          "d5Zh": "穿透%",
+          "sShare": 0.65
+        },
+        "b7_miasma": {
+          "dps": 58713,
+          "ratio": 0.6837,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        },
+        "b8_anomres": {
+          "dps": 85871,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.816
+        }
+      }
+    },
+    {
+      "id": "p_eve_lig_ast",
+      "cat": "强攻·专拐击破公式",
+      "name": "【伊莱耀】伊芙琳 + 莱特 + 耀嘉音",
+      "baseDps": 108244,
+      "perBoss": {
+        "b1_std": {
+          "dps": 108244,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b2_weak": {
+          "dps": 124281,
+          "ratio": 1.1482,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b3_res": {
+          "dps": 91647,
+          "ratio": 0.8467,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b4_highdef": {
+          "dps": 82048,
+          "ratio": 0.758,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b5_fragile": {
+          "dps": 171118,
+          "ratio": 1.5809,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b6_aggro": {
+          "dps": 105266,
+          "ratio": 0.9725,
+          "d5Zh": "穿透%",
+          "sShare": 0.762
+        },
+        "b7_miasma": {
+          "dps": 74017,
+          "ratio": 0.6838,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        },
+        "b8_anomres": {
+          "dps": 108244,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.88
+        }
+      }
+    },
+    {
+      "id": "p_yix_dia_luc",
+      "cat": "命破&锋御公式",
+      "name": "【仪琉卢】仪玄 + 琉音 + 卢西娅",
+      "baseDps": 159545,
+      "perBoss": {
+        "b1_std": {
+          "dps": 159545,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b2_weak": {
+          "dps": 188767,
+          "ratio": 1.1832,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b3_res": {
+          "dps": 127844,
+          "ratio": 0.8013,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b4_highdef": {
+          "dps": 155531,
+          "ratio": 0.9748,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b5_fragile": {
+          "dps": 204861,
+          "ratio": 1.284,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b6_aggro": {
+          "dps": 152295,
+          "ratio": 0.9546,
+          "d5Zh": "属伤%",
+          "sShare": 0.693
+        },
+        "b7_miasma": {
+          "dps": 154635,
+          "ratio": 0.9692,
+          "d5Zh": "属伤%",
+          "sShare": 0.871
+        },
+        "b8_anomres": {
+          "dps": 159495,
+          "ratio": 0.9997,
+          "d5Zh": "属伤%",
+          "sShare": 0.87
+        }
+      }
+    },
+    {
+      "id": "p_sbi_dia_luc",
+      "cat": "命破&锋御公式",
+      "name": "【星琉卢】星徽·比利 + 琉音 + 卢西娅",
+      "baseDps": 145670,
+      "perBoss": {
+        "b1_std": {
+          "dps": 145670,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b2_weak": {
+          "dps": 174331,
+          "ratio": 1.1968,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b3_res": {
+          "dps": 116741,
+          "ratio": 0.8014,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b4_highdef": {
+          "dps": 141734,
+          "ratio": 0.973,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b5_fragile": {
+          "dps": 186617,
+          "ratio": 1.2811,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b6_aggro": {
+          "dps": 139795,
+          "ratio": 0.9597,
+          "d5Zh": "属伤%",
+          "sShare": 0.666
+        },
+        "b7_miasma": {
+          "dps": 140857,
+          "ratio": 0.967,
+          "d5Zh": "属伤%",
+          "sShare": 0.84
+        },
+        "b8_anomres": {
+          "dps": 145411,
+          "ratio": 0.9982,
+          "d5Zh": "属伤%",
+          "sShare": 0.839
+        }
+      }
+    },
+    {
+      "id": "p_cla_rox_rin",
+      "cat": "命破&锋御公式",
+      "name": "【克洛丽】克拉蕾 + 洛克茜 + 丽娜",
+      "baseDps": 119269,
+      "perBoss": {
+        "b1_std": {
+          "dps": 119269,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b2_weak": {
+          "dps": 140256,
+          "ratio": 1.176,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b3_res": {
+          "dps": 95918,
+          "ratio": 0.8042,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b4_highdef": {
+          "dps": 97218,
+          "ratio": 0.8151,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b5_fragile": {
+          "dps": 169696,
+          "ratio": 1.4228,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b6_aggro": {
+          "dps": 106384,
+          "ratio": 0.892,
+          "d5Zh": "穿透%",
+          "sShare": 0.661
+        },
+        "b7_miasma": {
+          "dps": 83701,
+          "ratio": 0.7018,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        },
+        "b8_anomres": {
+          "dps": 119269,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.821
+        }
+      }
+    },
+    {
+      "id": "p_cla_nor_rin",
+      "cat": "命破&锋御公式",
+      "name": "【克诺丽】克拉蕾 + 诺姆 + 丽娜",
+      "baseDps": 97884,
+      "perBoss": {
+        "b1_std": {
+          "dps": 97884,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b2_weak": {
+          "dps": 115167,
+          "ratio": 1.1766,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b3_res": {
+          "dps": 78713,
+          "ratio": 0.8041,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b4_highdef": {
+          "dps": 79825,
+          "ratio": 0.8155,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b5_fragile": {
+          "dps": 138889,
+          "ratio": 1.4189,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b6_aggro": {
+          "dps": 84099,
+          "ratio": 0.8592,
+          "d5Zh": "穿透%",
+          "sShare": 0.635
+        },
+        "b7_miasma": {
+          "dps": 68704,
+          "ratio": 0.7019,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        },
+        "b8_anomres": {
+          "dps": 97884,
+          "ratio": 1,
+          "d5Zh": "穿透%",
+          "sShare": 0.795
+        }
+      }
+    },
+    {
+      "id": "p_cis_see_ast",
+      "cat": "双强攻&双击破公式",
+      "name": "【希席耀】希希芙 + 「席德」 + 耀嘉音",
+      "baseDps": 143453,
+      "perBoss": {
+        "b1_std": {
+          "dps": 143453,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b2_weak": {
+          "dps": 169307,
+          "ratio": 1.1802,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b3_res": {
+          "dps": 116898,
+          "ratio": 0.8149,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b4_highdef": {
+          "dps": 113574,
+          "ratio": 0.7917,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b5_fragile": {
+          "dps": 207372,
+          "ratio": 1.4456,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b6_aggro": {
+          "dps": 136506,
+          "ratio": 0.9516,
+          "d5Zh": "属伤%",
+          "sShare": 0.467
+        },
+        "b7_miasma": {
+          "dps": 99645,
+          "ratio": 0.6946,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        },
+        "b8_anomres": {
+          "dps": 143453,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.604
+        }
+      }
+    },
+    {
+      "id": "p_s0a_orp_tri",
+      "cat": "双强攻&双击破公式",
+      "name": "【安奥扳】零号·安比 + 奥菲丝&「鬼火」 + 「扳机」",
+      "baseDps": 99364,
+      "perBoss": {
+        "b1_std": {
+          "dps": 99364,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b2_weak": {
+          "dps": 110974,
+          "ratio": 1.1168,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b3_res": {
+          "dps": 79676,
+          "ratio": 0.8019,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b4_highdef": {
+          "dps": 82898,
+          "ratio": 0.8343,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b5_fragile": {
+          "dps": 135985,
+          "ratio": 1.3685,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b6_aggro": {
+          "dps": 96551,
+          "ratio": 0.9717,
+          "d5Zh": "属伤%",
+          "sShare": 0.627
+        },
+        "b7_miasma": {
+          "dps": 70362,
+          "ratio": 0.7081,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        },
+        "b8_anomres": {
+          "dps": 99364,
+          "ratio": 1,
+          "d5Zh": "属伤%",
+          "sShare": 0.795
+        }
+      }
+    },
+    {
+      "id": "p_hug_lig_lyc",
+      "cat": "双强攻&双击破公式",
+      "name": "【雨莱狼】雨果 + 莱特 + 莱卡恩",
+      "baseDps": 161198,
+      "perBoss": {
+        "b1_std": {
+          "dps": 161198,
+          "ratio": 1,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        },
+        "b2_weak": {
+          "dps": 183237,
+          "ratio": 1.1367,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        },
+        "b3_res": {
+          "dps": 138156,
+          "ratio": 0.8571,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        },
+        "b4_highdef": {
+          "dps": 125044,
+          "ratio": 0.7757,
+          "d5Zh": "穿透%",
+          "sShare": 0.93
+        },
+        "b5_fragile": {
+          "dps": 246717,
+          "ratio": 1.5305,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        },
+        "b6_aggro": {
+          "dps": 174067,
+          "ratio": 1.0798,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        },
+        "b7_miasma": {
+          "dps": 110806,
+          "ratio": 0.6874,
+          "d5Zh": "穿透%",
+          "sShare": 0.93
+        },
+        "b8_anomres": {
+          "dps": 160527,
+          "ratio": 0.9958,
+          "d5Zh": "攻击%",
+          "sShare": 0.93
+        }
+      }
+    }
+  ],
+  "defCrossRows": [
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "0% 减防 (无减防常规队)",
+      "defM0": 0.4545,
+      "defM24": 0.523,
+      "defM30": 0.5434,
+      "defM54": 0.6443,
+      "gainPen24": 0.1506,
+      "gainPen24WithRina": 0.1856,
+      "gainShred20": 0.1225,
+      "gainShred20AtPen24": 0.1055,
+      "breakEvenDmg": "增伤>99%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "20% 减防 (式舆三期 / 叶瞬光1影)",
+      "defM0": 0.5102,
+      "defM24": 0.5781,
+      "defM30": 0.598,
+      "defM54": 0.6936,
+      "gainPen24": 0.1332,
+      "gainPen24WithRina": 0.1598,
+      "gainShred20": 0.1396,
+      "gainShred20AtPen24": 0.1179,
+      "breakEvenDmg": "增伤>125%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "25% 减防 (扳机专武R1)",
+      "defM0": 0.5263,
+      "defM24": 0.5938,
+      "defM30": 0.6134,
+      "defM54": 0.7072,
+      "gainPen24": 0.1283,
+      "gainPen24WithRina": 0.1528,
+      "gainShred20": 0.1446,
+      "gainShred20AtPen24": 0.1215,
+      "breakEvenDmg": "增伤>134%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "40% 减防 (满星妮可核心)",
+      "defM0": 0.5813,
+      "defM24": 0.6463,
+      "defM30": 0.6648,
+      "defM54": 0.7512,
+      "gainPen24": 0.1117,
+      "gainPen24WithRina": 0.1298,
+      "gainShred20": 0.1622,
+      "gainShred20AtPen24": 0.1337,
+      "breakEvenDmg": "增伤>169%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "60% 减防 (妮可40% + 式舆三期20%)",
+      "defM0": 0.6756,
+      "defM24": 0.7327,
+      "defM30": 0.7485,
+      "defM54": 0.8191,
+      "gainPen24": 0.0844,
+      "gainPen24WithRina": 0.0944,
+      "gainShred20": 0.1936,
+      "gainShred20AtPen24": 0.1543,
+      "breakEvenDmg": "增伤>255%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "65% 减防 (妮可40% + 扳机专武25%)",
+      "defM0": 0.7042,
+      "defM24": 0.758,
+      "defM30": 0.7728,
+      "defM54": 0.8381,
+      "gainPen24": 0.0764,
+      "gainPen24WithRina": 0.0845,
+      "gainShred20": 0.2034,
+      "gainShred20AtPen24": 0.1605,
+      "breakEvenDmg": "增伤>293%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "82% 减防 (妮可40% + 叶瞬光2影42%)",
+      "defM0": 0.8223,
+      "defM24": 0.859,
+      "defM30": 0.8686,
+      "defM54": 0.9096,
+      "gainPen24": 0.0445,
+      "gainPen24WithRina": 0.0472,
+      "gainShred20": 0.216,
+      "gainShred20AtPen24": 0.1642,
+      "breakEvenDmg": "增伤>574%"
+    },
+    {
+      "bossTag": "标准首领(953防)",
+      "shredLabel": "100% 满额无视 (命破天生 / 减防叠满)",
+      "defM0": 1,
+      "defM24": 1,
+      "defM30": 1,
+      "defM54": 1,
+      "gainPen24": 0,
+      "gainPen24WithRina": 0,
+      "gainShred20": 0,
+      "gainShred20AtPen24": 0,
+      "breakEvenDmg": "永不反超"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "0% 减防 (无减防常规队)",
+      "defM0": 0.3333,
+      "defM24": 0.3968,
+      "defM30": 0.4167,
+      "defM54": 0.5208,
+      "gainPen24": 0.1905,
+      "gainPen24WithRina": 0.25,
+      "gainShred20": 0.1538,
+      "gainShred20AtPen24": 0.1372,
+      "breakEvenDmg": "增伤>57%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "20% 减防 (式舆三期 / 叶瞬光1影)",
+      "defM0": 0.3846,
+      "defM24": 0.4513,
+      "defM30": 0.4717,
+      "defM54": 0.576,
+      "gainPen24": 0.1733,
+      "gainPen24WithRina": 0.2212,
+      "gainShred20": 0.1818,
+      "gainShred20AtPen24": 0.159,
+      "breakEvenDmg": "增伤>73%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "25% 减防 (扳机专武R1)",
+      "defM0": 0.4,
+      "defM24": 0.4673,
+      "defM30": 0.4878,
+      "defM54": 0.5917,
+      "gainPen24": 0.1682,
+      "gainPen24WithRina": 0.213,
+      "gainShred20": 0.1905,
+      "gainShred20AtPen24": 0.1656,
+      "breakEvenDmg": "增伤>78%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "40% 减防 (满星妮可核心)",
+      "defM0": 0.4545,
+      "defM24": 0.523,
+      "defM30": 0.5435,
+      "defM54": 0.6443,
+      "gainPen24": 0.1506,
+      "gainPen24WithRina": 0.1856,
+      "gainShred20": 0.2222,
+      "gainShred20AtPen24": 0.1891,
+      "breakEvenDmg": "增伤>99%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "60% 减防 (妮可40% + 式舆三期20%)",
+      "defM0": 0.5556,
+      "defM24": 0.6219,
+      "defM30": 0.641,
+      "defM54": 0.731,
+      "gainPen24": 0.1194,
+      "gainPen24WithRina": 0.1404,
+      "gainShred20": 0.2857,
+      "gainShred20AtPen24": 0.2331,
+      "breakEvenDmg": "增伤>151%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "65% 减防 (妮可40% + 扳机专武25%)",
+      "defM0": 0.5882,
+      "defM24": 0.6527,
+      "defM30": 0.6711,
+      "defM54": 0.7564,
+      "gainPen24": 0.1097,
+      "gainPen24WithRina": 0.1271,
+      "gainShred20": 0.3077,
+      "gainShred20AtPen24": 0.2476,
+      "breakEvenDmg": "增伤>174%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "82% 减防 (妮可40% + 叶瞬光2影42%)",
+      "defM0": 0.7353,
+      "defM24": 0.7852,
+      "defM30": 0.7987,
+      "defM54": 0.8579,
+      "gainPen24": 0.0678,
+      "gainPen24WithRina": 0.0741,
+      "gainShred20": 0.36,
+      "gainShred20AtPen24": 0.2736,
+      "breakEvenDmg": "增伤>342%"
+    },
+    {
+      "bossTag": "重甲首领(1588防)",
+      "shredLabel": "100% 满额无视 (命破天生 / 减防叠满)",
+      "defM0": 1,
+      "defM24": 1,
+      "defM30": 1,
+      "defM54": 1,
+      "gainPen24": 0,
+      "gainPen24WithRina": 0,
+      "gainShred20": 0,
+      "gainShred20AtPen24": 0,
+      "breakEvenDmg": "永不反超"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "0% 减防 (无减防常规队)",
+      "defM0": 0.5696,
+      "defM24": 0.6352,
+      "defM30": 0.654,
+      "defM54": 0.7421,
+      "gainPen24": 0.1152,
+      "gainPen24WithRina": 0.1346,
+      "gainShred20": 0.0942,
+      "gainShred20AtPen24": 0.0787,
+      "breakEvenDmg": "增伤>160%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "20% 减防 (式舆三期 / 叶瞬光1影)",
+      "defM0": 0.6232,
+      "defM24": 0.6852,
+      "defM30": 0.7027,
+      "defM54": 0.7824,
+      "gainPen24": 0.0994,
+      "gainPen24WithRina": 0.1135,
+      "gainShred20": 0.104,
+      "gainShred20AtPen24": 0.0854,
+      "breakEvenDmg": "增伤>202%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "25% 减防 (扳机专武R1)",
+      "defM0": 0.6383,
+      "defM24": 0.6989,
+      "defM30": 0.716,
+      "defM54": 0.7932,
+      "gainPen24": 0.0951,
+      "gainPen24WithRina": 0.1079,
+      "gainShred20": 0.1068,
+      "gainShred20AtPen24": 0.0873,
+      "breakEvenDmg": "增伤>216%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "40% 减防 (满星妮可核心)",
+      "defM0": 0.688,
+      "defM24": 0.7437,
+      "defM30": 0.7591,
+      "defM54": 0.8274,
+      "gainPen24": 0.0809,
+      "gainPen24WithRina": 0.09,
+      "gainShred20": 0.1161,
+      "gainShred20AtPen24": 0.0934,
+      "breakEvenDmg": "增伤>271%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "60% 减防 (妮可40% + 式舆三期20%)",
+      "defM0": 0.7679,
+      "defM24": 0.8132,
+      "defM30": 0.8254,
+      "defM54": 0.8779,
+      "gainPen24": 0.059,
+      "gainPen24WithRina": 0.0637,
+      "gainShred20": 0.1313,
+      "gainShred20AtPen24": 0.103,
+      "breakEvenDmg": "增伤>409%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "65% 减防 (妮可40% + 扳机专武25%)",
+      "defM0": 0.7908,
+      "defM24": 0.8326,
+      "defM30": 0.8438,
+      "defM54": 0.8915,
+      "gainPen24": 0.0529,
+      "gainPen24WithRina": 0.0566,
+      "gainShred20": 0.1357,
+      "gainShred20AtPen24": 0.1058,
+      "breakEvenDmg": "增伤>468%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "82% 减防 (妮可40% + 叶瞬光2影42%)",
+      "defM0": 0.8803,
+      "defM24": 0.9063,
+      "defM30": 0.9131,
+      "defM54": 0.9411,
+      "gainPen24": 0.0296,
+      "gainPen24WithRina": 0.0307,
+      "gainShred20": 0.136,
+      "gainShred20AtPen24": 0.1034,
+      "breakEvenDmg": "增伤>914%"
+    },
+    {
+      "bossTag": "脆皮首领(600防)",
+      "shredLabel": "100% 满额无视 (命破天生 / 减防叠满)",
+      "defM0": 1,
+      "defM24": 1,
+      "defM30": 1,
+      "defM54": 1,
+      "gainPen24": 0,
+      "gainPen24WithRina": 0,
+      "gainShred20": 0,
+      "gainShred20AtPen24": 0,
+      "breakEvenDmg": "永不反超"
+    }
+  ],
+  "anomDilutionRows": [
+    {
+      "group": "物理强击·简",
+      "desc": "异色标准紊乱 (0染色基准)",
+      "teamNames": "简 + 柏妮思 + 露西",
+      "barZh": "强击",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "灼烧",
+      "disorderMvPct": 1450,
+      "overwriteLoss": 0,
+      "teamDps": 51121
+    },
+    {
+      "group": "物理强击·简",
+      "desc": "柚叶后台甜吓 (机制免稀释)",
+      "teamNames": "简 + 南宫羽 + 柚叶",
+      "barZh": "强击",
+      "otherContribs": "柚叶(甜吓免稀释)",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "侵蚀",
+      "disorderMvPct": 1325,
+      "overwriteLoss": 0,
+      "teamDps": 89941
+    },
+    {
+      "group": "物理强击·简",
+      "desc": "凯撒低精通同条分摊",
+      "teamNames": "简 + 赛斯 + 凯撒",
+      "barZh": "强击",
+      "otherContribs": "凯撒(8%)",
+      "purity": 0.9161,
+      "dilutionMult": 0.9255,
+      "dilutionLoss": 0.0745,
+      "underlayZh": "感电",
+      "disorderMvPct": 1325,
+      "overwriteLoss": 0,
+      "teamDps": 54619
+    },
+    {
+      "group": "物理强击·简",
+      "desc": "双物理击破+支援共条",
+      "teamNames": "简 + 波可娜 + 千夏",
+      "barZh": "强击",
+      "otherContribs": "波可娜(10%) + 千夏(10%)",
+      "purity": 0.8055,
+      "dilutionMult": 0.8375,
+      "dilutionLoss": 0.1625,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 503,
+      "overwriteLoss": 0,
+      "teamDps": 44303
+    },
+    {
+      "group": "电感电·柳",
+      "desc": "异色冰电双核 (0染色基准)",
+      "teamNames": "柳 + 雅 + 耀嘉音",
+      "barZh": "感电",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "霜灼·破",
+      "disorderMvPct": 996,
+      "overwriteLoss": 0,
+      "teamDps": 98310
+    },
+    {
+      "group": "电感电·柳",
+      "desc": "同属性丽娜 (+3s感电 vs 染色)",
+      "teamNames": "柳 + 柏妮思 + 丽娜",
+      "barZh": "感电",
+      "otherContribs": "丽娜(9%)",
+      "purity": 0.9102,
+      "dilutionMult": 0.9226,
+      "dilutionLoss": 0.0774,
+      "underlayZh": "灼烧",
+      "disorderMvPct": 1575,
+      "overwriteLoss": 0,
+      "teamDps": 73452
+    },
+    {
+      "group": "电感电·柳",
+      "desc": "纯色三电 (染色+DoT覆写)",
+      "teamNames": "柳 + 青衣 + 丽娜",
+      "barZh": "感电",
+      "otherContribs": "青衣(8%) + 丽娜(8%)",
+      "purity": 0.8345,
+      "dilutionMult": 0.8586,
+      "dilutionLoss": 0.1414,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 1700,
+      "overwriteLoss": 0.6154,
+      "teamDps": 85579
+    },
+    {
+      "group": "火灼烧·菲欧妮/柏妮思",
+      "desc": "异色三异常 (流明高底色)",
+      "teamNames": "菲欧妮 + 蕾米埃尔 + 维琳娜",
+      "barZh": "灼烧",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "流明耀化",
+      "disorderMvPct": 1327,
+      "overwriteLoss": 0,
+      "teamDps": 155817
+    },
+    {
+      "group": "火灼烧·菲欧妮/柏妮思",
+      "desc": "菲欧妮+莱特+露西 (染色+覆写)",
+      "teamNames": "菲欧妮 + 莱特 + 露西",
+      "barZh": "灼烧",
+      "otherContribs": "莱特(10%) + 露西(10%)",
+      "purity": 0.8042,
+      "dilutionMult": 0.8407,
+      "dilutionLoss": 0.1593,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 1150,
+      "overwriteLoss": 0.45,
+      "teamDps": 52339
+    },
+    {
+      "group": "火灼烧·菲欧妮/柏妮思",
+      "desc": "柏妮思+莱特+露西 (染色+覆写)",
+      "teamNames": "柏妮思 + 莱特 + 露西",
+      "barZh": "灼烧",
+      "otherContribs": "莱特(13%) + 露西(13%)",
+      "purity": 0.739,
+      "dilutionMult": 0.7846,
+      "dilutionLoss": 0.2154,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 1150,
+      "overwriteLoss": 0.5,
+      "teamDps": 34885
+    },
+    {
+      "group": "以太侵蚀·爱芮/薇薇安",
+      "desc": "爱芮异色三异常 (0染色)",
+      "teamNames": "爱芮 + 蕾米埃尔 + 维琳娜",
+      "barZh": "侵蚀",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "流明耀化",
+      "disorderMvPct": 1327,
+      "overwriteLoss": 0,
+      "teamDps": 141515
+    },
+    {
+      "group": "以太侵蚀·爱芮/薇薇安",
+      "desc": "爱芮+南宫羽+千夏 (双以太共条)",
+      "teamNames": "爱芮 + 南宫羽 + 千夏",
+      "barZh": "侵蚀",
+      "otherContribs": "南宫羽(41%)",
+      "purity": 0.5944,
+      "dilutionMult": 0.9341,
+      "dilutionLoss": 0.0659,
+      "underlayZh": "强击",
+      "disorderMvPct": 503,
+      "overwriteLoss": 0,
+      "teamDps": 132993
+    },
+    {
+      "group": "以太侵蚀·爱芮/薇薇安",
+      "desc": "爱芮+耀嘉音+妮可 (三以太染色+覆写)",
+      "teamNames": "爱芮 + 耀嘉音 + 妮可",
+      "barZh": "侵蚀",
+      "otherContribs": "耀嘉音(9%) + 妮可(13%)",
+      "purity": 0.7771,
+      "dilutionMult": 0.8202,
+      "dilutionLoss": 0.1798,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 1325,
+      "overwriteLoss": 0.6154,
+      "teamDps": 102068
+    },
+    {
+      "group": "以太侵蚀·爱芮/薇薇安",
+      "desc": "薇薇安+耀嘉音+妮可 (三以太染色+覆写)",
+      "teamNames": "薇薇安 + 耀嘉音 + 妮可",
+      "barZh": "侵蚀",
+      "otherContribs": "耀嘉音(11%) + 妮可(16%)",
+      "purity": 0.7321,
+      "dilutionMult": 0.7721,
+      "dilutionLoss": 0.2279,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 1325,
+      "overwriteLoss": 0.5385,
+      "teamDps": 77972
+    },
+    {
+      "group": "冰碎冰·普罗米娅/雅",
+      "desc": "普罗米娅异色三异常 (0染色)",
+      "teamNames": "普罗米娅 + 蕾米埃尔 + 维琳娜",
+      "barZh": "碎冰",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "流明耀化",
+      "disorderMvPct": 1327,
+      "overwriteLoss": 0,
+      "teamDps": 136138
+    },
+    {
+      "group": "冰碎冰·普罗米娅/雅",
+      "desc": "普罗米娅+莱卡恩+苍角 (三冰染色)",
+      "teamNames": "普罗米娅 + 莱卡恩 + 苍角",
+      "barZh": "碎冰",
+      "otherContribs": "莱卡恩(8%) + 苍角(11%)",
+      "purity": 0.8135,
+      "dilutionMult": 0.864,
+      "dilutionLoss": 0.136,
+      "underlayZh": "单色无紊乱",
+      "disorderMvPct": 503,
+      "overwriteLoss": 0,
+      "teamDps": 99863
+    },
+    {
+      "group": "霜灼·雅(独立烈霜条)",
+      "desc": "雅+莱卡恩+苍角 (独立条免疫染色!)",
+      "teamNames": "雅 + 莱卡恩 + 苍角",
+      "barZh": "霜灼·破",
+      "otherContribs": "无同条队友",
+      "purity": 1,
+      "dilutionMult": 1,
+      "dilutionLoss": 0,
+      "underlayZh": "碎冰",
+      "disorderMvPct": 503,
+      "overwriteLoss": 0,
+      "teamDps": 122644
+    }
+  ],
+  "anomBarSpecRows": [
+    {
+      "bar": "Physical",
+      "zhName": "强击",
+      "kindZh": "瞬发直爆",
+      "baseGauge": 1200,
+      "baseTotalMvPct": 713,
+      "debuffZh": "畏缩(+7.5%失衡值)",
+      "mv3": 472,
+      "mv5": 488,
+      "mv7": 503,
+      "mv9": 518,
+      "mvExt10": 518
+    },
+    {
+      "bar": "Fire",
+      "zhName": "灼烧",
+      "kindZh": "持续DoT(0.5s/跳)",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1000,
+      "debuffZh": "灼烧持续跳伤",
+      "mv3": 750,
+      "mv5": 950,
+      "mv7": 1150,
+      "mv9": 1350,
+      "mvExt10": 1450
+    },
+    {
+      "bar": "Ice",
+      "zhName": "碎冰",
+      "kindZh": "瞬发直爆",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 500,
+      "debuffZh": "霜寒(+10%暴伤)",
+      "mv3": 472,
+      "mv5": 488,
+      "mv7": 503,
+      "mv9": 518,
+      "mvExt10": 525
+    },
+    {
+      "bar": "Frost",
+      "zhName": "霜灼·破",
+      "kindZh": "瞬发直爆",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1500,
+      "debuffZh": "霜寒(+10%暴伤)·冰焰(+20%积蓄)",
+      "mv3": 472,
+      "mv5": 488,
+      "mv7": 503,
+      "mv9": 518,
+      "mvExt10": 518
+    },
+    {
+      "bar": "Electric",
+      "zhName": "感电",
+      "kindZh": "持续DoT(1s/跳)",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1250,
+      "debuffZh": "感电间歇跳伤",
+      "mv3": 825,
+      "mv5": 1075,
+      "mv7": 1325,
+      "mv9": 1575,
+      "mvExt10": 1700
+    },
+    {
+      "bar": "Ether",
+      "zhName": "侵蚀",
+      "kindZh": "持续DoT(0.5s/跳)",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1250,
+      "debuffZh": "侵蚀受击跳伤",
+      "mv3": 825,
+      "mv5": 1075,
+      "mv7": 1325,
+      "mv9": 1575,
+      "mvExt10": 1700
+    },
+    {
+      "bar": "Wind",
+      "zhName": "风化涡流",
+      "kindZh": "持续DoT(0.5s/跳)",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1150,
+      "debuffZh": "污染·风蚀减抗",
+      "mv3": 795,
+      "mv5": 1025,
+      "mv7": 1255,
+      "mv9": 1485,
+      "mvExt10": 1543
+    },
+    {
+      "bar": "Lumiflux",
+      "zhName": "流明耀化",
+      "kindZh": "持续DoT(1s/跳)",
+      "baseGauge": 1000,
+      "baseTotalMvPct": 1350,
+      "debuffZh": "虚芒·折光易伤",
+      "mv3": 855,
+      "mv5": 1125,
+      "mv7": 1395,
+      "mv9": 1665,
+      "mvExt10": 1665
+    }
+  ]
+}

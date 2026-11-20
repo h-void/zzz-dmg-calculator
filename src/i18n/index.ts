@@ -278,7 +278,74 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "防御穿透": { en: "DEF/PEN", ja: "防御貫通" },
   "抗性削减": { en: "RES", ja: "耐性ダウン" },
   "失衡易伤": { en: "Stun", ja: "ブレイク" },
-  "大攻%": { en: "ATK%", ja: "攻撃%" }
+  "大攻%": { en: "ATK%", ja: "攻撃%" },
+
+  // Real-time Dilution, Disc [5] & Cross-Env/Boss Audit Panel
+  "标准外拐边际收益对比（个人增幅 / 队内净增幅）": {
+    en: "Standard Buff Marginal Gains (Personal / Team DPS)",
+    ja: "標準バフ限界上昇率（個人火力 / チームDPS）"
+  },
+  "5号盘三强精算裁定 & 减防×穿透临界点": {
+    en: "Disc [5] Main-Stat Showdown & DEF Shred × PEN Break-Even",
+    ja: "5番ディスク最適判定 ＆ 防御ダウン×貫通率の臨界点"
+  },
+  "跨深渊天气 & 8类首领 Boss 抗压实测矩阵": {
+    en: "Cross-Stage Weather & 8-Boss Archetype Stress Matrix",
+    ja: "6大ステージ環境 ＆ 8種ボス耐性・耐久テストマトリクス"
+  },
+  "基于当前三人阵容实时重算各环境下的伤害保持率与 5 号盘变阵，点击右侧按钮可直接套用测试": {
+    en: "Re-simulates this squad across all stages and boss archetypes with live Disc [5] shifts — click right to apply",
+    ja: "現在の3人編成で全環境・全ボスの火力維持率と5番ディスク変化を即時再計算（右ボタンで即適用）"
+  },
+  "6大深渊天气": { en: "6 Stage Weathers", ja: "6大ステージ環境" },
+  "8类首领Boss": { en: "8 Boss Archetypes", ja: "8種ボス類型" },
+  "深渊 / 危局 / 高塔天气": { en: "Shiyu / Deadly Assault / Tower", ja: "式輿 / 危局 / 激戦試練" },
+  "实测全队 DPS": { en: "Squad DPS", ja: "チームDPS" },
+  "相对无Buff增幅": { en: "vs No-Buff", ja: "無バフ比" },
+  "推荐5号盘": { en: "Best Disc [5]", ja: "推奨5番" },
+  "快捷切换": { en: "Quick Switch", ja: "切替" },
+  "首领 Boss 类型": { en: "Boss Archetype", ja: "ボス類型" },
+  "相对标准Boss保持率": { en: "Retention vs Std", ja: "標準ボス維持率" },
+  "失衡覆盖率": { en: "Stun Share", ja: "ブレイク率" },
+  "快捷模拟": { en: "Simulate", ja: "適用" },
+  "套用天气": { en: "Apply Stage", ja: "環境適用" },
+  "已启用": { en: "Active", ja: "適用中" },
+  "模拟首领": { en: "Test Boss", ja: "ボス適用" },
+  "最优解": { en: "BiS", ja: "最適" },
+  "当前方案": { en: "Current", ja: "現在" },
+  "基准最优": { en: "BiS Baseline", ja: "最適基準" },
+  "反稀释红利": { en: "Anti-Dilution", ja: "逆希釈ボーナス" },
+  "穿透反稀释": { en: "PEN Scaling", ja: "貫通加速" },
+  "逆抗放大": { en: "RES Amplified", ja: "耐性逆転増" },
+  "高收益": { en: "High Value", ja: "高効率" },
+  "中度稀释": { en: "Mod. Diluted", ja: "中度希釈" },
+  "严重稀释": { en: "Saturated", ja: "高希釈" },
+  "减防互稀释": { en: "Shred Conflict", ja: "防御低下と競合" },
+  "穿透互稀释": { en: "PEN Conflict", ja: "貫通と競合" },
+  "常规收益": { en: "Standard", ja: "標準効率" },
+  "温和收益": { en: "Moderate", ja: "中効率" },
+  "温和稀释": { en: "Mildly Diluted", ja: "軽度希釈" },
+  "爆发放大": { en: "Burst Boost", ja: "爆発強化" },
+  "窗口压缩": { en: "Short Window", ja: "ブレイク圧縮" },
+  "精通高饱和": { en: "AP Saturated", ja: "精通飽和" },
+  "攻击池膨胀": { en: "ATK Saturated", ja: "攻撃過多" },
+  "贯穿池稀释": { en: "Sheer Diluted", ja: "貫通力希釈" },
+  "稳健收益": { en: "Steady", ja: "安定効率" },
+  "0收益机制": { en: "0% Benefit", ja: "効果なし" },
+  "无天气基准": { en: "No-Buff Base", ja: "無バフ基準" },
+  "式舆一期": { en: "Shiyu Phase 1", ja: "式輿1期" },
+  "式舆二期": { en: "Shiyu Phase 2", ja: "式輿2期" },
+  "式舆三期": { en: "Shiyu Phase 3", ja: "式輿3期" },
+  "危局帷幕": { en: "Deadly Assault", ja: "危局強襲" },
+  "鏖战高塔": { en: "Battle Tower", ja: "激戦試練" },
+  "B1 标准首领": { en: "B1 Standard Boss", ja: "B1 標準ボス" },
+  "B2 顺弱点首领": { en: "B2 Elemental Weak", ja: "B2 弱点ボス" },
+  "B3 逆属性高压": { en: "B3 Resistant Boss", ja: "B3 耐性ボス" },
+  "B4 重甲超高防": { en: "B4 Heavy Armor", ja: "B4 高防御重装" },
+  "B5 脆皮高易伤": { en: "B5 Fragile/High Stun", ja: "B5 低防御・高脆弱" },
+  "B6 疯狗短失衡": { en: "B6 High-Aggro Short Stun", ja: "B6 高靭性・短ブレイク" },
+  "B7 秽盾减伤首领": { en: "B7 Miasma Shield", ja: "B7 穢盾ダメージ軽減" },
+  "B8 防异常首领": { en: "B8 Anomaly-Resistant", ja: "B8 異常耐性ボス" }
 };
 
 // Ordered phrase/entity replacements (sorted longest-first at module init)
@@ -597,7 +664,33 @@ const RAW_TOKENS: Array<[string, string, string]> = [
   ["染色", "Diluted", "希釈"],
   ["赠大", "Free Ult", "無料終結"],
   ["断档", "Deficit ", "枯渇"],
-  ["缺口", "Short ", "不足"]
+  ["缺口", "Short ", "不足"],
+  ["实时乘区稀释与反稀释配装体检", "Live Multiplier Dilution & Anti-Dilution Audit", "リアルタイム乗算区希釈・逆希釈ビルド診断"],
+  ["防御区临界精算：在当前", "DEF Break-Even: At ", "防御区臨界精算：現在"],
+  ["队内减防", "Team DEF Shred", "チーム防御低下"],
+  ["条件下，局内总增伤需超过", "total combat DMG% must exceed", "の条件で、戦闘中総ダメバフが"],
+  ["（当前总增伤", "(current total DMG%", "（現在の総ダメバフ"],
+  ["才会反超", "for PEN to beat ", "を超えると貫通が上回る："],
+  ["5号盘 ·", "Disc [5] ·", "5番ディスク ·"],
+  ["(变阵)", "(Shift)", "(切替)"],
+  ["基准 0.0%", "Base 0.0%", "基準 0.0%"],
+  ["+30% 全/属伤", "+30% DMG%", "+30% ダメバフ"],
+  ["+40% 暴击伤害", "+40% CRIT DMG", "+40% 会心ダメ"],
+  ["+24% 穿透率", "+24% PEN Ratio", "+24% 貫通率"],
+  ["+20% 无视/减防", "+20% DEF Shred", "+20% 防御無視/低下"],
+  ["+15% 减抗", "+15% RES Shred", "+15% 耐性ダウン"],
+  ["+30% 失衡易伤", "+30% Stun Vuln", "+30% ブレイク弱体"],
+  ["+300 固定攻击", "+300 Flat ATK", "+300 固定攻撃"],
+  ["+200 贯穿力", "+200 Sheer", "+200 貫通力"],
+  ["+15% 局内防御", "+15% Combat DEF", "+15% 戦闘防御"],
+  ["+80 异常精通", "+80 AP", "+80 異常精通"],
+  ["暴伤区", "CRIT DMG", "会心ダメ区"],
+  ["穿透区", "PEN Ratio", "貫通率区"],
+  ["减防区", "DEF Shred", "防御低下区"],
+  ["抗性区", "RES Shred", "耐性低下区"],
+  ["攻击基础", "Base ATK", "基礎攻撃"],
+  ["贯穿基础", "Base Sheer", "基礎貫通力"],
+  ["防御基础", "Base DEF", "基礎防御"]
 ];
 
 const SORTED_TOKENS = [...RAW_TOKENS].sort((a, b) => b[0].length - a[0].length);

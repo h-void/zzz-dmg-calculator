@@ -61,6 +61,11 @@ import {
   getMovePoolForChar,
   makeDefaultSwapConfig
 } from "../engine/swapTimeline";
+import {
+  BOSS_ARCHETYPES,
+  type TeamDilutionAnalysis,
+  analyzeTeamDilution
+} from "../engine/dilutionEngine";
 import { enkaVault, saveEnkaVaultToStorage } from "../enka/client";
 import {
   getEffectiveSubWeightsForAgent,
@@ -118,6 +123,8 @@ let finderCachedTeams: any[] = [];
 let physicsDrawerOpen = false;
 const EVAL_WEP_TOP_N = 8;
 let evalWepShowAll = false;
+let dilutionTargetSlotIdx = 0;
+let dilutionEnvTab: "stage" | "boss" = "stage";
 
 export function refreshAllUI() {
   applyThemeToDOM();
@@ -1166,7 +1173,274 @@ function renderSection02KPIsAndDiag(sim) {
         </div>
       </div>
     </div>
+    ${renderDilutionAuditHtml(sim)}
   `;
+
+  bindDilutionAuditEvents(diagWrap, sim);
+}
+
+function renderDilutionAuditHtml(sim: any): string {
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "diag" && curView !== "all") return "";
+  if (!sim || !sim.slotResults || sim.slotResults.length === 0) return "";
+
+  const validSlotIdxs: number[] = sim.slotResults.map((r: any) => r.slotIdx);
+  if (!validSlotIdxs.includes(dilutionTargetSlotIdx)) {
+    dilutionTargetSlotIdx = validSlotIdxs[0];
+  }
+
+  const dil: TeamDilutionAnalysis | null = analyzeTeamDilution(
+    appStore.state.slots,
+    appStore.state.env,
+    sim,
+    dilutionTargetSlotIdx,
+    CHAR_MAP,
+    SC_WEPS
+  );
+  if (!dil) return "";
+
+  const maxMarg = Math.max(0.18, ...dil.marginals.map((m) => m.selfGain));
+  const statusClassMap: Record<string, string> = {
+    anti: "dil-tag-anti",
+    high: "dil-tag-high",
+    normal: "dil-tag-normal",
+    heavy: "dil-tag-heavy",
+    zero: "dil-tag-zero"
+  };
+
+  const slotBtnsHtml = sim.slotResults
+    .map(
+      (r: any) => `
+      <button type="button" class="dil-pill-btn ${r.slotIdx === dil.slotIdx ? "active" : ""}" data-dil-slot="${r.slotIdx}">
+        ${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}
+      </button>
+    `
+    )
+    .join("");
+
+  const marginalsHtml = dil.marginals
+    .map((m) => {
+      const pctW = Math.min(100, Math.max(0, (m.selfGain / maxMarg) * 100));
+      return `
+        <div class="dil-bar-row">
+          <div class="dil-bar-meta">
+            <span class="dil-bar-name"><strong>${escHtml(m.label)}</strong> <span class="muted">(${escHtml(m.unitLabel)})</span></span>
+            <span class="dil-bar-nums mono">
+              <span class="dil-tag ${statusClassMap[m.status] || ""}">${escHtml(m.statusLabel)}</span>
+              <strong>+${(m.selfGain * 100).toFixed(1)}%</strong>
+              <span class="muted" title="全队实时DPS净增幅">(队+${(m.teamGain * 100).toFixed(1)}%)</span>
+            </span>
+          </div>
+          <div class="dil-track">
+            <div class="dil-fill ${statusClassMap[m.status] || ""}" style="width:${pctW.toFixed(1)}%"></div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  const disc5Html = dil.disc5.items
+    .map((it) => {
+      const scoreRatio = Math.max(0.75, 1 + it.relPct);
+      const barW = Math.min(100, Math.max(12, ((scoreRatio - 0.72) / 0.28) * 100));
+      return `
+        <div class="dil-d5-row ${it.isBest ? "is-best" : ""}">
+          <div class="dil-bar-meta">
+            <span class="dil-bar-name">
+              <strong>5号盘 · ${escHtml(it.label)}</strong>
+              ${it.isBest ? `<span class="badge b-ok">最优解</span>` : ""}
+              ${it.isCurrent ? `<span class="badge">当前方案</span>` : ""}
+            </span>
+            <span class="mono">
+              <strong>${it.isBest ? "基准最优" : `${(it.relPct * 100).toFixed(1)}%`}</strong>
+              <span class="muted">(${fmtNum(it.teamDps)} DPS)</span>
+            </span>
+          </div>
+          <div class="dil-track">
+            <div class="dil-fill ${it.isBest ? "dil-tag-high" : "dil-tag-normal"}" style="width:${barW.toFixed(1)}%"></div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  const breakEvenHtml =
+    dil.wt === "Rupture"
+      ? `命破贯穿天生 100% 无视防御与秽盾，穿透率恒为 0% 收益；5号盘仅在【属伤%】与【生命%】之间择优。`
+      : dil.pen24BreakEvenDmgBonus === null
+      ? `当前减防/无视防御已达 100% 满额，穿透率已被完全稀释至 0% 收益，请勿装备穿透 5 号盘。`
+      : `防御区临界精算：在当前 <strong>${Math.round(dil.enemyDef)}防</strong>、队内减防 <strong>${(
+          dil.defShred * 100
+        ).toFixed(0)}%</strong> 条件下，局内总增伤需超过 <strong>+${Math.round(
+          dil.pen24BreakEvenDmgBonus * 100
+        )}%</strong>（当前总增伤 <strong>+${Math.round(
+          (dil.currentDmgM - 1) * 100
+        )}%</strong>），【24%穿透】才会反超【30%属伤】。`;
+
+  const stageRowsHtml = dil.stages
+    .map((s) => {
+      const gainStr = s.stageId === "none" ? "基准 0.0%" : `${s.gainVsNone >= 0 ? "+" : ""}${(s.gainVsNone * 100).toFixed(1)}%`;
+      const cls = s.gainVsNone >= 0.25 ? "txt-ok" : s.gainVsNone < -0.02 ? "txt-warn" : "";
+      return `
+        <tr class="${s.isCurrent ? "dil-row-active" : ""}">
+          <td>
+            <strong>${escHtml(s.shortName)}</strong>
+            ${s.isCurrent ? `<span class="badge b-ok">当前</span>` : ""}
+            <div class="muted" style="font-size:11px;">${escHtml(s.tag)}</div>
+          </td>
+          <td class="mono"><strong>${fmtNum(s.teamDps)}</strong></td>
+          <td class="mono ${cls}"><strong>${gainStr}</strong></td>
+          <td>
+            <span class="mpill">5号 ${escHtml(s.bestD5Zh)}${s.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
+          </td>
+          <td style="text-align:right;">
+            <button type="button" class="btn btn-sm ${s.isCurrent ? "" : "btn-tonal"}" data-apply-stage="${escHtml(s.stageId)}" ${
+              s.isCurrent ? "disabled" : ""
+            }>${s.isCurrent ? "已启用" : "套用天气"}</button>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const bossRowsHtml = dil.bosses
+    .map((b) => {
+      const retPct = b.retention * 100;
+      const cls = retPct >= 95 ? "txt-ok" : retPct < 78 ? "txt-warn" : "";
+      return `
+        <tr>
+          <td>
+            <strong>${escHtml(b.shortName)}</strong>
+            <div class="muted" style="font-size:11px;">${escHtml(b.specText)}</div>
+          </td>
+          <td class="mono"><strong>${fmtNum(b.teamDps)}</strong></td>
+          <td class="mono ${cls}"><strong>${retPct.toFixed(1)}%</strong></td>
+          <td class="mono">${(b.sShare * 100).toFixed(0)}%</td>
+          <td>
+            <span class="mpill">5号 ${escHtml(b.bestD5Zh)}${b.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
+          </td>
+          <td style="text-align:right;">
+            <button type="button" class="btn btn-sm btn-tonal" data-apply-boss="${escHtml(b.bossId)}">模拟首领</button>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="dil-section" id="dilutionAuditPanel">
+      <div class="dil-headline-bar">
+        <div class="dil-headline-copy">
+          <div class="sec-mini-title" style="margin:0;">实时乘区稀释与反稀释配装体检 · ${escHtml(dil.agentName)}</div>
+          <div class="dil-headline-text">${escHtml(dil.headlineDiag)}</div>
+        </div>
+        <div class="dil-slot-switch" role="group" aria-label="切换体检角色">
+          ${slotBtnsHtml}
+        </div>
+      </div>
+
+      <div class="ws-grid-2">
+        <div class="card">
+          <div class="sec-mini-title">标准外拐边际收益对比（个人增幅 / 队内净增幅）</div>
+          <div class="dil-bars-list">${marginalsHtml}</div>
+        </div>
+
+        <div class="card">
+          <div class="sec-mini-title">5号盘三强精算裁定 &amp; 减防×穿透临界点</div>
+          <div class="dil-bars-list">${disc5Html}</div>
+          <div class="dil-breakeven-box">${breakEvenHtml}</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="dil-matrix-head">
+          <div>
+            <div class="sec-mini-title" style="margin:0;">跨深渊天气 &amp; 8类首领 Boss 抗压实测矩阵</div>
+            <div class="muted" style="font-size:11.5px;margin-top:2px;">基于当前三人阵容实时重算各环境下的伤害保持率与 5 号盘变阵，点击右侧按钮可直接套用测试</div>
+          </div>
+          <div class="dil-slot-switch" role="group" aria-label="切换环境或首领矩阵">
+            <button type="button" class="dil-pill-btn ${dilutionEnvTab === "stage" ? "active" : ""}" data-dil-env-tab="stage">6大深渊天气</button>
+            <button type="button" class="dil-pill-btn ${dilutionEnvTab === "boss" ? "active" : ""}" data-dil-env-tab="boss">8类首领Boss</button>
+          </div>
+        </div>
+
+        <div class="dil-table-wrap">
+          ${
+            dilutionEnvTab === "stage"
+              ? `
+                <table class="dil-table">
+                  <thead>
+                    <tr>
+                      <th>深渊 / 危局 / 高塔天气</th>
+                      <th>实测全队 DPS</th>
+                      <th>相对无Buff增幅</th>
+                      <th>推荐5号盘</th>
+                      <th style="text-align:right;">快捷切换</th>
+                    </tr>
+                  </thead>
+                  <tbody>${stageRowsHtml}</tbody>
+                </table>
+              `
+              : `
+                <table class="dil-table">
+                  <thead>
+                    <tr>
+                      <th>首领 Boss 类型</th>
+                      <th>实测全队 DPS</th>
+                      <th>相对标准Boss保持率</th>
+                      <th>失衡覆盖率</th>
+                      <th>推荐5号盘</th>
+                      <th style="text-align:right;">快捷模拟</th>
+                    </tr>
+                  </thead>
+                  <tbody>${bossRowsHtml}</tbody>
+                </table>
+              `
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function bindDilutionAuditEvents(diagWrap: HTMLElement, sim: any) {
+  diagWrap.querySelectorAll<HTMLButtonElement>("[data-dil-slot]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      dilutionTargetSlotIdx = Number(btn.dataset.dilSlot) || 0;
+      renderSection02KPIsAndDiag(sim);
+      localizeDOM(diagWrap, appStore.state.lang || "zh");
+    });
+  });
+
+  diagWrap.querySelectorAll<HTMLButtonElement>("[data-dil-env-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      dilutionEnvTab = btn.dataset.dilEnvTab === "boss" ? "boss" : "stage";
+      renderSection02KPIsAndDiag(sim);
+      localizeDOM(diagWrap, appStore.state.lang || "zh");
+    });
+  });
+
+  diagWrap.querySelectorAll<HTMLButtonElement>("[data-apply-stage]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const stageId = btn.dataset.applyStage || "none";
+      appStore.state.env.stageId = stageId;
+      appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[stageId] || STAGE_BUFFS.none);
+      appStore.state.env.highAggro = Boolean(appStore.state.env.stageBuffs?.highAggro);
+      refreshAllUI();
+    });
+  });
+
+  diagWrap.querySelectorAll<HTMLButtonElement>("[data-apply-boss]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const bossId = btn.dataset.applyBoss;
+      const boss = BOSS_ARCHETYPES.find((x) => x.id === bossId);
+      const carryElem = sim?.slotResults?.[0]?.ch?.eb || "Physical";
+      if (!boss) return;
+      const ov = boss.buildOverrides(carryElem);
+      Object.assign(appStore.state.env, deepClone(ov));
+      refreshAllUI();
+    });
+  });
 }
 
 function renderMultiplierRadarSvg(bd0: any, ch0: any): string {
