@@ -101,6 +101,7 @@ export interface WorkbenchAppState {
   lang: "zh" | "en" | "ja";
   theme: "dark" | "light";
   studioView: StudioViewTab;
+  outputRailPinned: boolean;
   pickerCollapsed: boolean;
   enkaPanelOpen: boolean;
   pickerTab: "presets" | "manual" | "finder" | "guide";
@@ -141,6 +142,7 @@ export function makeInitialState(): WorkbenchAppState {
     lang: "zh",
     theme: "light",
     studioView: "build",
+    outputRailPinned: false,
     pickerCollapsed: true,
     enkaPanelOpen: false,
     pickerTab: "presets",
@@ -235,6 +237,7 @@ export function loadWorkspaceFromStorage(): void {
     appStore.state = {
       ...base,
       ...parsed,
+      outputRailPinned: Boolean(parsed.outputRailPinned),
       env: {
         ...base.env,
         ...(parsed.env || {}),

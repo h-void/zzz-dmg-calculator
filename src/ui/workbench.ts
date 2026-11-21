@@ -145,6 +145,78 @@ let diagInspectorSlotIdx = 0;
 let diagLedgerOpen = true;
 let endgameFilterTab: "all" | "da" | "shiyu" = "all";
 let lastRenderedStudioView: StudioViewTab | null = null;
+let outputDrawerOpen = false;
+
+function isDesktopWideForPin(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia("(min-width: 1280px)").matches
+    : false;
+}
+
+function syncOutputRailUI(localizePin = true): void {
+  const frame = document.getElementById("appFrame");
+  const rail = document.getElementById("outputRail");
+  const backdrop = document.getElementById("railBackdrop");
+  const pinBtn = document.getElementById("railPinBtn");
+  const pinText = document.getElementById("railPinBtnText");
+  const expandBtn = document.getElementById("compactExpandBtn");
+  const mobilePill = document.getElementById("mobileDpsPill");
+
+  const wide = isDesktopWideForPin();
+  const pinned = Boolean(appStore.state.outputRailPinned);
+  const activePinned = pinned && wide;
+  const activeDrawer = outputDrawerOpen && !activePinned;
+  const isRailVisible = activePinned || activeDrawer;
+
+  if (frame) {
+    frame.classList.toggle("rail-pinned", pinned);
+    frame.classList.toggle("rail-open", activeDrawer);
+  }
+  if (rail) {
+    rail.setAttribute("aria-hidden", isRailVisible ? "false" : "true");
+  }
+  if (backdrop) {
+    backdrop.setAttribute("aria-hidden", activeDrawer ? "false" : "true");
+  }
+  if (expandBtn) {
+    expandBtn.setAttribute("aria-expanded", activeDrawer ? "true" : "false");
+  }
+  if (mobilePill) {
+    mobilePill.setAttribute("aria-expanded", activeDrawer ? "true" : "false");
+  }
+  if (pinBtn && pinText) {
+    pinBtn.classList.toggle("active", activePinned);
+    pinBtn.setAttribute("aria-pressed", activePinned ? "true" : "false");
+    pinText.textContent = activePinned ? "取消固定" : "固定";
+    pinBtn.setAttribute(
+      "title",
+      activePinned ? "取消右侧固定，收起为顶部精简栏" : "固定到右侧常驻显示"
+    );
+    if (localizePin) {
+      localizeDOM(pinBtn, appStore.state.lang || "zh");
+    }
+  }
+}
+
+function openOutputDrawer(): void {
+  if (appStore.state.outputRailPinned && isDesktopWideForPin()) return;
+  outputDrawerOpen = true;
+  syncOutputRailUI();
+}
+
+function closeOutputDrawer(): void {
+  if (!outputDrawerOpen) return;
+  outputDrawerOpen = false;
+  syncOutputRailUI();
+}
+
+function toggleOutputPin(): void {
+  if (!isDesktopWideForPin()) return;
+  appStore.state.outputRailPinned = !appStore.state.outputRailPinned;
+  outputDrawerOpen = false;
+  saveWorkspaceToStorage();
+  syncOutputRailUI();
+}
 
 export function refreshAllUI() {
   applyThemeToDOM();
@@ -166,6 +238,7 @@ export function refreshAllUI() {
   const renderDom = () => {
     applyStudioVisibility();
     renderTopBarState();
+    renderCompactTelemetryBar(appStore.lastSimResult);
     renderLiveTelemetryBar(appStore.lastSimResult);
     renderSnapshotBar(appStore.lastSimResult);
     renderStudioNavBar(appStore.lastSimResult);
@@ -178,6 +251,7 @@ export function refreshAllUI() {
     renderSection05EvalCenter(appStore.lastSimResult);
     renderSection06Environment();
     renderMechanicsWikiSection();
+    syncOutputRailUI(false);
     localizeDOM(document.body, appStore.state.lang || "zh");
   };
 
@@ -228,6 +302,127 @@ function renderTopBarState() {
   if (wsBtn) {
     wsBtn.textContent = modTotal > 0 ? `自定义工坊 (已改${modTotal}项)` : "自定义工坊";
   }
+}
+
+function renderCompactTelemetryBar(sim: any) {
+  const bar = document.getElementById("outputCompactBar");
+  const mobilePill = document.getElementById("mobileDpsPill");
+  const isDps = appStore.state.env.metricMode !== "dpr";
+  const aaAllOk = sim.activeCount > 0 && sim.aaLitCount === sim.activeCount;
+  const limGold = calcLimitedGold(appStore.state.slots, CHAR_MAP, SC_WEPS);
+  const active = getActiveMembersForUI();
+  const eg = estimateEndgamePerformance(sim.teamActualDps || 0, sim.da3MinTotal || 0, appStore.state.env);
+
+  const heroVal = isDps ? fmtNum(sim.teamActualDps) : fmtWan(sim.teamDpr);
+  const heroUnit = isDps ? "/ 秒" : "/ 轮";
+  const secLabel = isDps ? "DPR" : "DPS";
+  const secVal = isDps ? fmtWan(sim.teamDpr) : `${fmtNum(sim.teamActualDps)}/s`;
+
+  const snapLabels = ["A", "B", "C", "D"];
+  const firstSnapIdx = (appStore.state.snapshots || []).findIndex(Boolean);
+  let snapBadgeHtml = "";
+  if (firstSnapIdx >= 0) {
+    const sn = appStore.state.snapshots[firstSnapIdx];
+    const refVal = isDps ? sn.teamActualDps || sn.teamDps : sn.baseWeightedSum || sn.teamDps;
+    const curVal = isDps ? sim.teamActualDps || sim.teamDps : sim.baseWeightedSum || sim.teamDps;
+    const diff = refVal > 0 ? curVal / refVal - 1 : 0;
+    const diffCls = diff >= 0.002 ? "pos" : diff <= -0.002 ? "neg" : "";
+    const diffTxt = `${diff >= 0 ? "+" : ""}${(diff * 100).toFixed(1)}%`;
+    snapBadgeHtml = `<span class="compact-snap-badge mono ${diffCls}" data-no-i18n title="对比方案 ${snapLabels[firstSnapIdx]}">${snapLabels[firstSnapIdx]} ${diffTxt}</span>`;
+  }
+
+  if (mobilePill) {
+    mobilePill.innerHTML = `
+      <span class="mobile-dps-val mono" data-no-i18n>${heroVal}</span>
+      <span class="mobile-dps-unit">${isDps ? "/秒" : "/轮"}</span>
+      <span class="mobile-dps-caret" aria-hidden="true">▾</span>
+    `;
+  }
+
+  if (!bar) return;
+
+  const avatarsHtml = active
+    .map((m) => renderAgentAvatar(m.ch.id, m.ch.n, m.ch.eb, "av-2xs"))
+    .join("");
+
+  bar.innerHTML = `
+    <div class="compact-bar-inner">
+      <button type="button" class="compact-hero-trigger" data-open-drawer title="展开完整队伍总输出面板">
+        <span class="compact-stamp" data-no-i18n>TEAM OUTPUT</span>
+        <span class="compact-hero-num">
+          <span class="compact-hero-val" data-no-i18n>${heroVal}</span>
+          <span class="compact-hero-unit">${heroUnit}</span>
+        </span>
+      </button>
+
+      <div class="compact-metric-switch" role="group" aria-label="主口径切换">
+        <button type="button" class="compact-ms-btn ${isDps ? "active" : ""}" data-compact-metric="dps" data-no-i18n>DPS</button>
+        <button type="button" class="compact-ms-btn ${!isDps ? "active" : ""}" data-compact-metric="dpr" data-no-i18n>DPR</button>
+      </div>
+
+      <button type="button" class="compact-stats-strip" data-open-drawer title="展开完整队伍总输出面板">
+        <span class="compact-stat-chip compact-stat-sec">
+          <span class="compact-stat-k" data-no-i18n>${secLabel}</span>
+          <span class="compact-stat-v mono">${secVal}</span>
+        </span>
+        <span class="compact-stat-chip compact-stat-cyc">
+          <span class="compact-stat-v mono" data-no-i18n>${(sim.cycleSec || 0).toFixed(2)}s</span>
+        </span>
+        ${
+          sim.activeCount > 0
+            ? `<span class="compact-stat-chip compact-stat-da">
+                <span class="compact-stat-k">危局</span>
+                <span class="compact-stat-v mono">${fmtNum(eg.daTotalScore)} 分</span>
+              </span>`
+            : ""
+        }
+        ${avatarsHtml ? `<span class="compact-squad-avs" data-no-i18n>${avatarsHtml}</span>` : ""}
+        <span class="compact-meta-badge mono">${limGold} 限定金</span>
+        ${
+          sim.activeCount > 0
+            ? `<span class="compact-aa-dot ${aaAllOk ? "ok" : "warn"}" title="${aaAllOk ? `额外能力 ${sim.aaLitCount}/${sim.activeCount} 激活` : `额外能力 ${sim.aaLitCount}/${sim.activeCount} 未满`}"></span>`
+            : ""
+        }
+        ${snapBadgeHtml}
+      </button>
+
+      <div class="compact-actions">
+        <button type="button" class="compact-act-btn compact-auto-btn has-icon ico-spark" id="compactAutoDiscBtn" title="自动为当前三人匹配不撞车的最优四件套">
+          <span class="compact-auto-txt">一键优盘</span>
+        </button>
+        <button type="button" class="compact-act-btn compact-expand-btn" id="compactExpandBtn" data-open-drawer aria-controls="outputRail" aria-expanded="${outputDrawerOpen ? "true" : "false"}" title="展开完整队伍总输出面板">
+          <span class="compact-expand-txt">展开总览</span>
+          <span class="compact-expand-arrow" aria-hidden="true">▸</span>
+        </button>
+        <button type="button" class="compact-act-btn compact-pin-btn has-icon ico-pin" id="compactPinBtn" title="固定到右侧常驻显示" aria-label="固定到右侧常驻显示"></button>
+      </div>
+    </div>
+  `;
+
+  bar.querySelectorAll<HTMLButtonElement>("[data-open-drawer]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      openOutputDrawer();
+    });
+  });
+
+  bar.querySelectorAll<HTMLButtonElement>("[data-compact-metric]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.dataset.compactMetric === "dpr" ? "dpr" : "dps";
+      if (appStore.state.env.metricMode !== next) {
+        appStore.state.env.metricMode = next;
+        refreshAllUI();
+      }
+    });
+  });
+
+  bar.querySelector("#compactAutoDiscBtn")?.addEventListener("click", () => {
+    appStore.state.slots = autoOptimizeTeamDiscs(appStore.state.slots, appStore.state.env, CHAR_MAP, SC_WEPS);
+    refreshAllUI();
+  });
+
+  bar.querySelector("#compactPinBtn")?.addEventListener("click", () => {
+    toggleOutputPin();
+  });
 }
 
 function renderLiveTelemetryBar(sim: any) {
@@ -367,6 +562,7 @@ function renderLiveTelemetryBar(sim: any) {
 
   el.querySelectorAll<HTMLButtonElement>("[data-rail-jump]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      closeOutputDrawer();
       appStore.state.studioView = (btn.dataset.railJump as StudioViewTab) || "env";
       refreshAllUI();
     });
@@ -413,6 +609,7 @@ function renderStudioNavBar(sim: any) {
 
   nav.querySelectorAll<HTMLButtonElement>("[data-studio-tab]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      closeOutputDrawer();
       const next = (btn.dataset.studioTab as StudioViewTab) || "build";
       appStore.state.studioView = next;
       if (next === "enka") {
@@ -532,6 +729,7 @@ function renderSnapshotBar(sim: any) {
   `;
 
   el.querySelector("#hudOpenRosterBtn")?.addEventListener("click", () => {
+    closeOutputDrawer();
     appStore.state.studioView = "build";
     appStore.state.pickerCollapsed = false;
     refreshAllUI();
@@ -541,6 +739,7 @@ function renderSnapshotBar(sim: any) {
 
   el.querySelectorAll<HTMLElement>("[data-hud-jump]").forEach((pill) => {
     pill.addEventListener("click", () => {
+      closeOutputDrawer();
       appStore.state.studioView = "build";
       refreshAllUI();
       cancelPendingScrollGuard();
@@ -572,7 +771,10 @@ function renderSnapshotBar(sim: any) {
       runWithPreservedScroll(
         () => {
           renderSnapshotBar(sim);
+          renderCompactTelemetryBar(sim);
           localizeDOM(el, appStore.state.lang || "zh");
+          const bar = document.getElementById("outputCompactBar");
+          if (bar) localizeDOM(bar, appStore.state.lang || "zh");
         },
         { anchorEl: btn, lockEls: [el] }
       );
@@ -598,7 +800,10 @@ function renderSnapshotBar(sim: any) {
       runWithPreservedScroll(
         () => {
           renderSnapshotBar(sim);
+          renderCompactTelemetryBar(sim);
           localizeDOM(el, appStore.state.lang || "zh");
+          const bar = document.getElementById("outputCompactBar");
+          if (bar) localizeDOM(bar, appStore.state.lang || "zh");
         },
         { anchorEl: btn, lockEls: [el] }
       );
@@ -4805,6 +5010,7 @@ export function initApp() {
     appStore.state = makeInitialState();
     appStore.state.theme = curTheme;
     appStore.state.lang = curLang;
+    outputDrawerOpen = false;
     ensureTimelineInitialized(true);
     refreshAllUI();
   });
@@ -4814,7 +5020,57 @@ export function initApp() {
     refreshAllUI();
   });
 
+  document.getElementById("railBackdrop")?.addEventListener("click", () => {
+    closeOutputDrawer();
+  });
+  document.getElementById("railCloseBtn")?.addEventListener("click", () => {
+    if (appStore.state.outputRailPinned && isDesktopWideForPin()) {
+      appStore.state.outputRailPinned = false;
+      saveWorkspaceToStorage();
+    }
+    outputDrawerOpen = false;
+    syncOutputRailUI();
+  });
+  document.getElementById("railPinBtn")?.addEventListener("click", () => {
+    toggleOutputPin();
+  });
+  document.getElementById("mobileDpsPill")?.addEventListener("click", () => {
+    openOutputDrawer();
+  });
+
   if (typeof window !== "undefined") {
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !outputDrawerOpen) return;
+      const wsModal = document.getElementById("workshopModal");
+      const metaModal = document.getElementById("metaModal");
+      if ((wsModal && !wsModal.hidden) || (metaModal && !metaModal.hidden)) return;
+      closeOutputDrawer();
+    });
+
+    if (typeof window.matchMedia === "function") {
+      const mql = window.matchMedia("(min-width: 1280px)");
+      const onMediaChange = () => syncOutputRailUI();
+      if (typeof mql.addEventListener === "function") {
+        mql.addEventListener("change", onMediaChange);
+      } else if (typeof (mql as any).addListener === "function") {
+        (mql as any).addListener(onMediaChange);
+      }
+    }
+
+    const compactBarEl = document.getElementById("outputCompactBar");
+    const appFrameEl = document.getElementById("appFrame");
+    if (compactBarEl && appFrameEl && typeof IntersectionObserver !== "undefined") {
+      const obs = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+          appFrameEl.classList.toggle("mobile-bar-offscreen", !entry.isIntersecting);
+        },
+        { threshold: 0.05 }
+      );
+      obs.observe(compactBarEl);
+    }
+
     if ((window as any).__AGY_ARTIFACT__ && document.documentElement) {
       appStore.state.theme = document.documentElement.classList.contains("light") ? "light" : "dark";
     }

@@ -68,9 +68,19 @@ export function runWithPreservedScroll(fn: () => void, options: PreserveScrollOp
   }
   const appShell = document.querySelector<HTMLElement>(".app-shell");
   const outputRail = document.querySelector<HTMLElement>(".output-rail");
+  const compactBar = document.querySelector<HTMLElement>(".output-compact-bar");
   lock(appShell);
-  if (outputRail && getComputedStyle(outputRail).position !== "sticky") {
-    lock(outputRail);
+  if (outputRail) {
+    const railPos = getComputedStyle(outputRail).position;
+    if (railPos !== "sticky" && railPos !== "fixed") {
+      lock(outputRail);
+    }
+  }
+  if (compactBar) {
+    const barPos = getComputedStyle(compactBar).position;
+    if (barPos !== "sticky" && barPos !== "fixed") {
+      lock(compactBar);
+    }
   }
 
   const docEl = document.documentElement;

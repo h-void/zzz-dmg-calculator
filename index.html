@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="/src/styles/zzz-frame.css">
 </head>
 <body>
-  <div class="app-frame">
+  <div class="app-frame" id="appFrame">
     <!-- ================= LEFT: in-game style side navigation ================= -->
     <aside class="side-nav" aria-label="主导航">
       <div class="brand-block">
@@ -29,6 +29,8 @@
           <h1>绝区零战术配队与合轴精算台</h1>
         </div>
       </div>
+
+      <button type="button" class="mobile-dps-pill" id="mobileDpsPill" aria-label="展开队伍总输出面板" aria-controls="outputRail" aria-expanded="false"></button>
 
       <nav class="studio-nav" id="studioNavBar" aria-label="工作台视图切换"></nav>
 
@@ -65,6 +67,9 @@
         <button type="button" class="engine-chip mono" id="workerPerfBadge" title="点击查看版本更新日志与计算口径说明">TS 引擎就绪</button>
       </div>
     </aside>
+
+    <!-- ================= TOP: compact live DPS telemetry strip ================= -->
+    <div class="output-compact-bar" id="outputCompactBar" role="region" aria-label="队伍实时总输出精简栏"></div>
 
     <!-- ================= CENTER: paper workspace ================= -->
     <main class="app-shell">
@@ -186,12 +191,23 @@
       </footer>
     </main>
 
-    <!-- ================= RIGHT: sticky yellow team-output rail ================= -->
-    <aside class="output-rail" aria-label="队伍总输出与方案对比">
+    <!-- ================= BACKDROP: dim scrim when output drawer is open ================= -->
+    <div class="rail-backdrop" id="railBackdrop" aria-hidden="true"></div>
+
+    <!-- ================= RIGHT: collapsible / pinnable yellow team-output panel ================= -->
+    <aside class="output-rail" id="outputRail" aria-label="队伍总输出与方案对比" aria-hidden="true">
       <div class="rail-inner">
-        <div class="rail-stamp" aria-hidden="true">
-          <span class="rail-stamp-txt" data-no-i18n>TEAM OUTPUT</span>
-          <span class="rail-stamp-flag"></span>
+        <div class="rail-head-bar">
+          <div class="rail-stamp" aria-hidden="true">
+            <span class="rail-stamp-txt" data-no-i18n>TEAM OUTPUT</span>
+            <span class="rail-stamp-flag"></span>
+          </div>
+          <div class="rail-head-actions">
+            <button type="button" class="rail-head-btn rail-pin-btn has-icon ico-pin" id="railPinBtn" title="固定到右侧常驻显示" aria-pressed="false">
+              <span id="railPinBtnText">固定</span>
+            </button>
+            <button type="button" class="rail-head-btn rail-close-btn" id="railCloseBtn" title="收起为顶部精简栏" aria-label="收起队伍总输出面板">×</button>
+          </div>
         </div>
         <div class="telemetry-primary" id="liveTelemetryBar"></div>
         <div class="telemetry-memory" id="snapshotBar"></div>

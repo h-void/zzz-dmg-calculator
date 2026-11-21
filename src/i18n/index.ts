@@ -176,6 +176,25 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "+ 存档": { en: "+ Save", ja: "+ 保存" },
   "/ 秒": { en: "/ sec", ja: "/ 秒" },
   "/ 轮": { en: "/ rot", ja: "/ ローテ" },
+  "/秒": { en: "/s", ja: "/秒" },
+  "/轮": { en: "/rot", ja: "/周" },
+  "危局": { en: "DA", ja: "危局" },
+  "展开总览": { en: "Expand Output", ja: "詳細を展開" },
+  "固定": { en: "Pin", ja: "固定" },
+  "取消固定": { en: "Unpin", ja: "固定解除" },
+  "固定到右侧常驻显示": { en: "Pin to right side", ja: "右側に常時固定表示" },
+  "取消右侧固定，收起为顶部精简栏": {
+    en: "Unpin and collapse to compact top bar",
+    ja: "右側固定を解除し上部コンパクトバーへ収納"
+  },
+  "收起为顶部精简栏": { en: "Collapse to compact top bar", ja: "上部コンパクトバーへ収納" },
+  "收起队伍总输出面板": { en: "Close team output panel", ja: "チーム総火力パネルを閉じる" },
+  "展开完整队伍总输出面板": {
+    en: "Expand full team output panel",
+    ja: "チーム総火力パネルをすべて展開"
+  },
+  "展开队伍总输出面板": { en: "Open team output panel", ja: "チーム総火力パネルを開く" },
+  "队伍实时总输出精简栏": { en: "Compact live team output bar", ja: "チーム総火力コンパクトバー" },
   "收起，仅看前 8 名 ▲": { en: "Collapse to Top 8 ▲", ja: "上位8件のみ表示 ▲" },
   "当前编队为空，请先在「1 配队配装」中选择一支队伍或上阵代理人。": {
     en: "Your squad is empty — pick a squad or deploy agents in “1 Squad & Builds” first.",

@@ -2580,12 +2580,6 @@ html.light .sub-gain-track {
   border-style: dashed;
 }
 
-@media (max-width: 760px) {
-  /* Keep the primary CTA reachable without horizontal scrolling */
-  #autoDiscBtn {
-    order: -1;
-  }
-}
 
 /* ==========================================================================
    9. Real-time Multiplier Dilution, Disc [5] & Cross-Env/Boss Audit Panel
