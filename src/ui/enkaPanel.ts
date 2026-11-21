@@ -23,6 +23,7 @@ import { parseExternalScannerDiscs, syncedRecordToSlotConfig } from "../enka/par
 import { localizeDOM } from "../i18n";
 import type { SlotConfig } from "../types";
 import { runWorkerOptimizeSlotFromPool } from "../worker/workerClient";
+import { cancelPendingScrollGuard } from "./scrollGuard";
 import {
   appStore,
   ensureTimelineInitialized,
@@ -82,6 +83,7 @@ export async function optimizeSlotFromVaultPool(slotIdx: number): Promise<void> 
     setEnkaStatus("当前本地驱动盘库为空！请先输入 UID 同步展柜、载入真实展柜示例，或导入扫描器驱动盘 JSON。", "warn");
     appStore.state.enkaPanelOpen = true;
     renderEnkaPanel();
+    cancelPendingScrollGuard();
     document.getElementById("sec00Enka")?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
@@ -549,6 +551,7 @@ function bindEnkaPanelEvents(root: HTMLElement): void {
     appStore.state.finderUseVault = true;
     setEnkaStatus(`已将练度柜 ${cids.length} 名角色同步至「1.2 我的Box智能搜队器」并启用真实面板搜队！`, "ok");
     triggerRefreshUI();
+    cancelPendingScrollGuard();
     document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 

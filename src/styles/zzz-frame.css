@@ -1383,6 +1383,11 @@ html.dark .rank-row.cur {
   padding-left: 14px;
   padding-right: 14px;
 }
+.pill.pill-with-av,
+.pill.pill-with-av.active {
+  padding-left: 10px;
+  padding-right: 12px;
+}
 
 /* Badges */
 .badge {

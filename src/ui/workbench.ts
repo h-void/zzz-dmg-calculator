@@ -109,6 +109,7 @@ import {
   openMetaModal,
   showStudioToast
 } from "./shareAndMeta";
+import { cancelPendingScrollGuard, runWithPreservedScroll } from "./scrollGuard";
 
 function applyThemeToDOM() {
   const html = document.documentElement;
@@ -143,6 +144,7 @@ let dilutionEnvTab: "stage" | "boss" = "stage";
 let diagInspectorSlotIdx = 0;
 let diagLedgerOpen = true;
 let endgameFilterTab: "all" | "da" | "shiyu" = "all";
+let lastRenderedStudioView: StudioViewTab | null = null;
 
 export function refreshAllUI() {
   applyThemeToDOM();
@@ -157,21 +159,34 @@ export function refreshAllUI() {
   updatePerfBadge(`TS精算: ${dt.toFixed(1)} ms`);
   saveWorkspaceToStorage();
 
-  applyStudioVisibility();
-  renderTopBarState();
-  renderLiveTelemetryBar(appStore.lastSimResult);
-  renderSnapshotBar(appStore.lastSimResult);
-  renderStudioNavBar(appStore.lastSimResult);
-  renderEnkaPanel();
-  renderSection03SlotCards(appStore.lastSimResult);
-  renderQuickPresetRibbon();
-  renderSection01Picker();
-  renderSection02KPIsAndDiag(appStore.lastSimResult);
-  renderSection04SwapAndTimeline(appStore.lastSimResult);
-  renderSection05EvalCenter(appStore.lastSimResult);
-  renderSection06Environment();
-  renderMechanicsWikiSection();
-  localizeDOM(document.body, appStore.state.lang || "zh");
+  const curView: StudioViewTab = appStore.state.studioView || "build";
+  const sameView = lastRenderedStudioView === curView;
+  lastRenderedStudioView = curView;
+
+  const renderDom = () => {
+    applyStudioVisibility();
+    renderTopBarState();
+    renderLiveTelemetryBar(appStore.lastSimResult);
+    renderSnapshotBar(appStore.lastSimResult);
+    renderStudioNavBar(appStore.lastSimResult);
+    renderEnkaPanel();
+    renderSection03SlotCards(appStore.lastSimResult);
+    renderQuickPresetRibbon();
+    renderSection01Picker();
+    renderSection02KPIsAndDiag(appStore.lastSimResult);
+    renderSection04SwapAndTimeline(appStore.lastSimResult);
+    renderSection05EvalCenter(appStore.lastSimResult);
+    renderSection06Environment();
+    renderMechanicsWikiSection();
+    localizeDOM(document.body, appStore.state.lang || "zh");
+  };
+
+  if (sameView) {
+    runWithPreservedScroll(renderDom);
+  } else {
+    cancelPendingScrollGuard();
+    renderDom();
+  }
 }
 
 function applyStudioVisibility() {
@@ -520,6 +535,7 @@ function renderSnapshotBar(sim: any) {
     appStore.state.studioView = "build";
     appStore.state.pickerCollapsed = false;
     refreshAllUI();
+    cancelPendingScrollGuard();
     document.getElementById("sec01")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
@@ -527,6 +543,7 @@ function renderSnapshotBar(sim: any) {
     pill.addEventListener("click", () => {
       appStore.state.studioView = "build";
       refreshAllUI();
+      cancelPendingScrollGuard();
       document.getElementById("sec03")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
@@ -912,17 +929,27 @@ function renderSection01Picker() {
     ${inner}
   `;
 
+  const rerenderPickerStable = (anchorEl?: HTMLElement | null, anchorSelector?: string) => {
+    runWithPreservedScroll(
+      () => {
+        renderSection01Picker();
+        localizeDOM(wrap, appStore.state.lang || "zh");
+      },
+      { anchorEl, anchorSelector, lockEls: [wrap] }
+    );
+  };
+
   wrap.querySelectorAll<any>("[data-ptab]").forEach(btn => {
     btn.addEventListener("click", () => {
       appStore.state.pickerTab = btn.dataset.ptab;
-      renderSection01Picker();
+      rerenderPickerStable(btn, `[data-ptab="${btn.dataset.ptab}"]`);
     });
   });
 
   wrap.querySelectorAll<any>("[data-pcat]").forEach(btn => {
     btn.addEventListener("click", () => {
       appStore.state.presetCat = btn.dataset.pcat;
-      renderSection01Picker();
+      rerenderPickerStable(btn, "#sec01Body");
     });
   });
 
@@ -940,7 +967,7 @@ function renderSection01Picker() {
   wrap.querySelectorAll<any>("[data-target-slot]").forEach(btn => {
     btn.addEventListener("click", () => {
       appStore.state.manualTargetSlot = Number(btn.dataset.targetSlot);
-      renderSection01Picker();
+      rerenderPickerStable(btn, `[data-target-slot="${btn.dataset.targetSlot}"]`);
     });
   });
 
@@ -990,50 +1017,55 @@ function renderSection01Picker() {
   if (mSearch) {
     mSearch.addEventListener("input", (e: any) => {
       appStore.state.manualSearch = e.target.value;
-      renderSection01Picker();
+      rerenderPickerStable(mSearch, "#manualSearchInput");
       const ni = document.getElementById("manualSearchInput") as HTMLInputElement | null;
-      if (ni) { ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+      if (ni) {
+        ni.focus({ preventScroll: true });
+        ni.setSelectionRange(ni.value.length, ni.value.length);
+      }
     });
   }
 
-  wrap.querySelectorAll<any>("[data-mrf]").forEach(b => b.addEventListener("click", () => { appStore.state.manualRoleFilter = b.dataset.mrf; renderSection01Picker(); }));
-  wrap.querySelectorAll<any>("[data-mef]").forEach(b => b.addEventListener("click", () => { appStore.state.manualElemFilter = b.dataset.mef; renderSection01Picker(); }));
+  wrap.querySelectorAll<any>("[data-mrf]").forEach(b => b.addEventListener("click", () => { appStore.state.manualRoleFilter = b.dataset.mrf; rerenderPickerStable(b, `[data-mrf="${b.dataset.mrf}"]`); }));
+  wrap.querySelectorAll<any>("[data-mef]").forEach(b => b.addEventListener("click", () => { appStore.state.manualElemFilter = b.dataset.mef; rerenderPickerStable(b, `[data-mef="${b.dataset.mef}"]`); }));
 
   wrap.querySelectorAll<any>("[data-pick-roster]").forEach(btn => {
     btn.addEventListener("click", () => {
       const cid = btn.dataset.pickRoster;
       const tSlot = appStore.state.manualTargetSlot;
-      assignCharacterToSlot(tSlot, cid);
       if (tSlot < 2 && !appStore.state.slots[tSlot + 1]) appStore.state.manualTargetSlot = tSlot + 1;
-      renderSection01Picker();
+      runWithPreservedScroll(
+        () => assignCharacterToSlot(tSlot, cid),
+        { anchorEl: btn, anchorSelector: `[data-pick-roster="${cid}"]`, lockEls: [wrap] }
+      );
     });
   });
 
-  const rerunFinder = () => {
+  const rerunFinder = (anchorEl?: HTMLElement | null) => {
     finderLoading = false;
-    renderSection01Picker();
+    rerenderPickerStable(anchorEl, "#sec01Body");
   };
 
-  document.getElementById("finderAnchorSel")?.addEventListener("change", (e: any) => { appStore.state.finderAnchor = e.target.value; rerunFinder(); });
-  document.getElementById("finderGoldSel")?.addEventListener("change", (e: any) => { appStore.state.finderMaxGold = Number(e.target.value); rerunFinder(); });
-  document.getElementById("finderReqAAChk")?.addEventListener("change", (e: any) => { appStore.state.finderReqAA = e.target.checked; rerunFinder(); });
-  document.getElementById("finderF2PWepChk")?.addEventListener("change", (e: any) => { appStore.state.finderF2PWep = e.target.checked; rerunFinder(); });
-  document.getElementById("finderUseVaultChk")?.addEventListener("change", (e: any) => { appStore.state.finderUseVault = e.target.checked; rerunFinder(); });
+  document.getElementById("finderAnchorSel")?.addEventListener("change", (e: any) => { appStore.state.finderAnchor = e.target.value; rerunFinder(e.target); });
+  document.getElementById("finderGoldSel")?.addEventListener("change", (e: any) => { appStore.state.finderMaxGold = Number(e.target.value); rerunFinder(e.target); });
+  document.getElementById("finderReqAAChk")?.addEventListener("change", (e: any) => { appStore.state.finderReqAA = e.target.checked; rerunFinder(e.target); });
+  document.getElementById("finderF2PWepChk")?.addEventListener("change", (e: any) => { appStore.state.finderF2PWep = e.target.checked; rerunFinder(e.target); });
+  document.getElementById("finderUseVaultChk")?.addEventListener("change", (e: any) => { appStore.state.finderUseVault = e.target.checked; rerunFinder(e.target); });
 
-  document.getElementById("boxVaultOnlyBtn")?.addEventListener("click", () => {
+  document.getElementById("boxVaultOnlyBtn")?.addEventListener("click", (e: any) => {
     const cids = Object.keys(enkaVault.agents);
     if (cids.length > 0) {
       appStore.state.ownedChars = cids;
-      rerunFinder();
+      rerunFinder(e.currentTarget);
     }
   });
-  document.getElementById("boxAllBtn")?.addEventListener("click", () => {
+  document.getElementById("boxAllBtn")?.addEventListener("click", (e: any) => {
     appStore.state.ownedChars = SC_CHARS.map(c => c.id);
-    rerunFinder();
+    rerunFinder(e.currentTarget);
   });
-  document.getElementById("boxF2PBtn")?.addEventListener("click", () => {
+  document.getElementById("boxF2PBtn")?.addEventListener("click", (e: any) => {
     appStore.state.ownedChars = SC_CHARS.filter(c => c.r === "A" || c.isFreeS).map(c => c.id);
-    rerunFinder();
+    rerunFinder(e.currentTarget);
   });
   wrap.querySelectorAll<any>("[data-toggle-owned]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1041,7 +1073,7 @@ function renderSection01Picker() {
       const set = new Set(appStore.state.ownedChars);
       if (set.has(cid)) set.delete(cid); else set.add(cid);
       appStore.state.ownedChars = [...set];
-      rerunFinder();
+      rerunFinder(btn);
     });
   });
   wrap.querySelectorAll<any>("[data-load-found]").forEach(card => {
@@ -1065,6 +1097,105 @@ function renderSection01Picker() {
 // ============================================================================
 // Section 02: Core KPIs, Diagnostics & Threshold / Multiplier Inspector
 // ============================================================================
+function renderDiagRadarPillsHtml(bdCur: any, sim: any): string {
+  const anomHtml = (() => {
+    const at = bdCur.anomTelemetry;
+    const actx = sim.ctx?.anomCtx;
+    if (!at && !(actx && (actx.frostbiteUptime > 0.02 || actx.flinchUptime > 0.02 || actx.icefireUptime > 0.02))) {
+      return "";
+    }
+    const pills: string[] = [];
+    if (at) {
+      pills.push(
+        `<span class="mpill">异常底倍率(${escHtml(at.barZh)}): <strong>${at.realizedAnomMvPct}%</strong>${
+          at.overwriteLossPct > 1.5 ? ` <span class="txt-warn">(覆盖折损-${at.overwriteLossPct.toFixed(0)}%)</span>` : ""
+        }</span>`
+      );
+      if (sim.ctx?.canDisorder) {
+        pills.push(
+          `<span class="mpill">紊乱底色(${escHtml(at.underlayBarZh)} 剩${at.effRemSec}s): <strong>${at.disorderMvPct}%</strong>${
+            at.icdClampMult < 0.99 ? ` <span class="txt-warn">(3sCD×${at.icdClampMult.toFixed(2)})</span>` : ""
+          }</span>`
+        );
+      }
+      pills.push(
+        `<span class="mpill">积蓄快照纯度: <strong class="${at.dilutionMult < 0.96 ? "txt-warn" : ""}">${(at.snapshotPurity * 100).toFixed(0)}%</strong>${
+          at.dilutionMult < 0.985 ? ` (染色×${at.dilutionMult.toFixed(3)})` : ""
+        }</span>`
+      );
+    }
+    if (actx?.frostbiteUptime > 0.02) {
+      pills.push(`<span class="mpill">霜寒(+10%暴伤): <strong>${(actx.frostbiteUptime * 100).toFixed(0)}%</strong></span>`);
+    }
+    if (actx?.flinchUptime > 0.02) {
+      pills.push(`<span class="mpill">畏缩(+7.5%失衡): <strong>${(actx.flinchUptime * 100).toFixed(0)}%</strong></span>`);
+    }
+    if (actx?.icefireUptime > 0.02) {
+      pills.push(`<span class="mpill">冰焰(+20%积蓄): <strong>${(actx.icefireUptime * 100).toFixed(0)}%</strong></span>`);
+    }
+    return `<div class="mult-pills" style="margin-top:6px;">${pills.join("")}</div>`;
+  })();
+
+  return `
+    <div class="mult-pills">
+      <span class="mpill">基础${escHtml(bdCur.baseLabel)}: <strong>${fmtNum(bdCur.baseVal)}</strong></span>
+      <span class="mpill">双暴/撕裂区: <strong>×${(bdCur.critM || 1).toFixed(3)}</strong> (${(bdCur.c_cr * 100).toFixed(1)}%/${(bdCur.c_cd * 100).toFixed(1)}%)</span>
+      <span class="mpill">增伤区: <strong>×${(bdCur.dmgM || 1).toFixed(3)}</strong></span>
+      <span class="mpill">防御区: <strong>×${(bdCur.defM || 1).toFixed(3)}</strong> (无视${(bdCur.shred * 100).toFixed(0)}%/穿${(bdCur.totalPen * 100).toFixed(0)}%)</span>
+      <span class="mpill">抗性区: <strong>×${(bdCur.resM || 1).toFixed(3)}</strong></span>
+      <span class="mpill">失衡易伤区: <strong>×${(bdCur.stunMult || 1).toFixed(3)}</strong></span>
+    </div>
+    ${anomHtml}
+  `;
+}
+
+function updateDiagInspectorInPlace(diagWrap: HTMLElement, sim: any, anchorEl?: HTMLElement | null) {
+  const srCur = sim.slotResults.find((r: any) => r.slotIdx === diagInspectorSlotIdx) || sim.slotResults[0];
+  if (!srCur) return;
+  const bdCur = srCur.bd;
+  const lang = appStore.state.lang || "zh";
+
+  const titleEl = diagWrap.querySelector<HTMLElement>("#diagRadarTitle");
+  const svgWrap = diagWrap.querySelector<HTMLElement>("#diagRadarSvgWrap");
+  const pillsEl = diagWrap.querySelector<HTMLElement>("#diagRadarPills");
+  const ledgerTitleEl = diagWrap.querySelector<HTMLElement>("#diagLedgerTitle");
+  const ledgerBadgeEl = diagWrap.querySelector<HTMLElement>("#diagLedgerBadge");
+  const ledgerBodyEl = diagWrap.querySelector<HTMLElement>("#diagLedgerBody");
+
+  runWithPreservedScroll(
+    () => {
+      diagWrap.querySelectorAll<HTMLButtonElement>("[data-diag-slot]").forEach((b) => {
+        b.classList.toggle("active", Number(b.dataset.diagSlot) === srCur.slotIdx);
+      });
+
+      if (titleEl) {
+        titleEl.textContent = `${srCur.slotIdx + 1}号位【${srCur.ch.n}】六维乘区雷达透视 & 队友转模达标表`;
+        localizeDOM(titleEl, lang);
+      }
+      if (svgWrap) {
+        svgWrap.innerHTML = renderMultiplierRadarSvg(bdCur, srCur.ch);
+      }
+      if (pillsEl) {
+        pillsEl.innerHTML = renderDiagRadarPillsHtml(bdCur, sim);
+        localizeDOM(pillsEl, lang);
+      }
+      if (ledgerTitleEl) {
+        ledgerTitleEl.textContent = `${srCur.slotIdx + 1}号位【${srCur.ch.n}】乘区来源明细账本 & 招式分类占比`;
+        localizeDOM(ledgerTitleEl, lang);
+      }
+      if (ledgerBadgeEl) {
+        ledgerBadgeEl.textContent = bdCur.formulaType || "";
+        localizeDOM(ledgerBadgeEl, lang);
+      }
+      if (ledgerBodyEl) {
+        ledgerBodyEl.innerHTML = renderMultiplierLedgerBodyHtml(srCur);
+        localizeDOM(ledgerBodyEl, lang);
+      }
+    },
+    { anchorEl, lockEls: [pillsEl, ledgerBodyEl] }
+  );
+}
+
 function renderSection02KPIsAndDiag(sim) {
   const kpiWrap = document.getElementById("sec02KPIs");
   const diagWrap = document.getElementById("sec02Diag");
@@ -1136,6 +1267,8 @@ function renderSection02KPIsAndDiag(sim) {
     }
   });
 
+  const dilResult = computeCurrentDilutionAnalysis(sim);
+
   diagWrap.innerHTML = `
     ${sim.notes.length === 0 ? `
       <div class="diag-pass">
@@ -1167,9 +1300,9 @@ function renderSection02KPIsAndDiag(sim) {
       </div>
       ` : ""}
 
-      <div class="card">
+      <div class="card" id="diagRadarCard">
         <div class="row" style="justify-content:space-between;gap:8px;margin-bottom:8px;">
-          <div class="sec-mini-title" style="margin:0;">${srCur.slotIdx + 1}号位【${escHtml(srCur.ch.n)}】六维乘区雷达透视 &amp; 队友转模达标表</div>
+          <div class="sec-mini-title" id="diagRadarTitle" style="margin:0;">${srCur.slotIdx + 1}号位【${escHtml(srCur.ch.n)}】六维乘区雷达透视 &amp; 队友转模达标表</div>
           <div class="dil-slot-switch" role="group" aria-label="切换乘区透视角色">
             ${sim.slotResults
               .map(
@@ -1183,55 +1316,13 @@ function renderSection02KPIsAndDiag(sim) {
           </div>
         </div>
         <div class="diag-radar-layout">
-          <div class="diag-radar-svg-wrap">
+          <div class="diag-radar-svg-wrap" id="diagRadarSvgWrap">
             ${renderMultiplierRadarSvg(bdCur, srCur.ch)}
           </div>
           <div style="flex:1;min-width:0;">
-            <div class="mult-pills">
-              <span class="mpill">基础${escHtml(bdCur.baseLabel)}: <strong>${fmtNum(bdCur.baseVal)}</strong></span>
-              <span class="mpill">双暴/撕裂区: <strong>×${(bdCur.critM || 1).toFixed(3)}</strong> (${(bdCur.c_cr * 100).toFixed(1)}%/${(bdCur.c_cd * 100).toFixed(1)}%)</span>
-              <span class="mpill">增伤区: <strong>×${(bdCur.dmgM || 1).toFixed(3)}</strong></span>
-              <span class="mpill">防御区: <strong>×${(bdCur.defM || 1).toFixed(3)}</strong> (无视${(bdCur.shred * 100).toFixed(0)}%/穿${(bdCur.totalPen * 100).toFixed(0)}%)</span>
-              <span class="mpill">抗性区: <strong>×${(bdCur.resM || 1).toFixed(3)}</strong></span>
-              <span class="mpill">失衡易伤区: <strong>×${(bdCur.stunMult || 1).toFixed(3)}</strong></span>
+            <div id="diagRadarPills">
+              ${renderDiagRadarPillsHtml(bdCur, sim)}
             </div>
-            ${(() => {
-              const at = bdCur.anomTelemetry;
-              const actx = sim.ctx?.anomCtx;
-              if (!at && !(actx && (actx.frostbiteUptime > 0.02 || actx.flinchUptime > 0.02 || actx.icefireUptime > 0.02))) {
-                return "";
-              }
-              const pills: string[] = [];
-              if (at) {
-                pills.push(
-                  `<span class="mpill">异常底倍率(${escHtml(at.barZh)}): <strong>${at.realizedAnomMvPct}%</strong>${
-                    at.overwriteLossPct > 1.5 ? ` <span class="txt-warn">(覆盖折损-${at.overwriteLossPct.toFixed(0)}%)</span>` : ""
-                  }</span>`
-                );
-                if (sim.ctx?.canDisorder) {
-                  pills.push(
-                    `<span class="mpill">紊乱底色(${escHtml(at.underlayBarZh)} 剩${at.effRemSec}s): <strong>${at.disorderMvPct}%</strong>${
-                      at.icdClampMult < 0.99 ? ` <span class="txt-warn">(3sCD×${at.icdClampMult.toFixed(2)})</span>` : ""
-                    }</span>`
-                  );
-                }
-                pills.push(
-                  `<span class="mpill">积蓄快照纯度: <strong class="${at.dilutionMult < 0.96 ? "txt-warn" : ""}">${(at.snapshotPurity * 100).toFixed(0)}%</strong>${
-                    at.dilutionMult < 0.985 ? ` (染色×${at.dilutionMult.toFixed(3)})` : ""
-                  }</span>`
-                );
-              }
-              if (actx?.frostbiteUptime > 0.02) {
-                pills.push(`<span class="mpill">霜寒(+10%暴伤): <strong>${(actx.frostbiteUptime * 100).toFixed(0)}%</strong></span>`);
-              }
-              if (actx?.flinchUptime > 0.02) {
-                pills.push(`<span class="mpill">畏缩(+7.5%失衡): <strong>${(actx.flinchUptime * 100).toFixed(0)}%</strong></span>`);
-              }
-              if (actx?.icefireUptime > 0.02) {
-                pills.push(`<span class="mpill">冰焰(+20%积蓄): <strong>${(actx.icefireUptime * 100).toFixed(0)}%</strong></span>`);
-              }
-              return `<div class="mult-pills" style="margin-top:6px;">${pills.join("")}</div>`;
-            })()}
             ${threshItems.length > 0 ? `
               <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:12px;">
                 ${threshItems.map(t => `
@@ -1247,14 +1338,15 @@ function renderSection02KPIsAndDiag(sim) {
       </div>
     </div>
     ${renderMultiplierLedgerHtml(srCur)}
-    ${renderDilutionAuditHtml(sim)}
+    ${dilResult ? renderDilutionAuditHtml(sim, dilResult) : ""}
   `;
 
   diagWrap.querySelectorAll<HTMLButtonElement>("[data-diag-slot]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      diagInspectorSlotIdx = Number(btn.dataset.diagSlot) || 0;
-      renderSection02KPIsAndDiag(sim);
-      localizeDOM(diagWrap, appStore.state.lang || "zh");
+      const nextIdx = Number(btn.dataset.diagSlot) || 0;
+      if (nextIdx === diagInspectorSlotIdx) return;
+      diagInspectorSlotIdx = nextIdx;
+      updateDiagInspectorInPlace(diagWrap, sim, btn);
     });
   });
   const ledgerDet = document.getElementById("diagLedgerDetails") as HTMLDetailsElement | null;
@@ -1262,7 +1354,9 @@ function renderSection02KPIsAndDiag(sim) {
     diagLedgerOpen = !!ledgerDet.open;
   });
 
-  bindDilutionAuditEvents(diagWrap, sim);
+  if (dilResult) {
+    bindDilutionAuditEvents(diagWrap, sim, dilResult);
+  }
 }
 
 function fmtSignedPctItem(v: number, digits = 1): string {
@@ -1281,9 +1375,7 @@ function renderLedgerSourceRows(items: Array<[string, string, number]>): string 
     .join("");
 }
 
-function renderMultiplierLedgerHtml(sr: any): string {
-  const curView = appStore.state.studioView || "build";
-  if (curView !== "diag" && curView !== "all") return "";
+function renderMultiplierLedgerBodyHtml(sr: any): string {
   const lg = sr?.bd?.ledger;
   if (!lg) return "";
 
@@ -1297,15 +1389,6 @@ function renderMultiplierLedgerHtml(sr: any): string {
   const maxCatPct = Math.max(0.1, ...cats.map((x) => x.dmgShare || 0));
 
   return `
-    <details class="card ledger-card" id="diagLedgerDetails" style="margin-top:14px;" ${diagLedgerOpen ? "open" : ""}>
-      <summary class="ledger-summary">
-        <div>
-          <span class="sec-mini-title" style="margin:0;">${sr.slotIdx + 1}号位【${escHtml(sr.ch.n)}】乘区来源明细账本 &amp; 招式分类占比</span>
-          <span class="muted" style="font-size:11.5px;margin-left:8px;">逐项核对每个乘区的面板、音擎、套装、队友拐与场地来源</span>
-        </div>
-        <span class="badge b-info mono">${escHtml(sr.bd.formulaType)}</span>
-      </summary>
-
       <div class="ledger-grid">
         <div class="ledger-box">
           <div class="ledger-box-head">
@@ -1431,21 +1514,41 @@ function renderMultiplierLedgerHtml(sr: any): string {
       `
           : ""
       }
+  `;
+}
+
+function renderMultiplierLedgerHtml(sr: any): string {
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "diag" && curView !== "all") return "";
+  if (!sr?.bd?.ledger) return "";
+
+  return `
+    <details class="card ledger-card" id="diagLedgerDetails" style="margin-top:14px;" ${diagLedgerOpen ? "open" : ""}>
+      <summary class="ledger-summary">
+        <div>
+          <span class="sec-mini-title" id="diagLedgerTitle" style="margin:0;">${sr.slotIdx + 1}号位【${escHtml(sr.ch.n)}】乘区来源明细账本 &amp; 招式分类占比</span>
+          <span class="muted" style="font-size:11.5px;margin-left:8px;">逐项核对每个乘区的面板、音擎、套装、队友拐与场地来源</span>
+        </div>
+        <span class="badge b-info mono" id="diagLedgerBadge">${escHtml(sr.bd.formulaType)}</span>
+      </summary>
+      <div id="diagLedgerBody">
+        ${renderMultiplierLedgerBodyHtml(sr)}
+      </div>
     </details>
   `;
 }
 
-function renderDilutionAuditHtml(sim: any): string {
+function computeCurrentDilutionAnalysis(sim: any): TeamDilutionAnalysis | null {
   const curView = appStore.state.studioView || "build";
-  if (curView !== "diag" && curView !== "all") return "";
-  if (!sim || !sim.slotResults || sim.slotResults.length === 0) return "";
+  if (curView !== "diag" && curView !== "all") return null;
+  if (!sim || !sim.slotResults || sim.slotResults.length === 0) return null;
 
   const validSlotIdxs: number[] = sim.slotResults.map((r: any) => r.slotIdx);
   if (!validSlotIdxs.includes(dilutionTargetSlotIdx)) {
     dilutionTargetSlotIdx = validSlotIdxs[0];
   }
 
-  const dil: TeamDilutionAnalysis | null = analyzeTeamDilution(
+  return analyzeTeamDilution(
     appStore.state.slots,
     appStore.state.env,
     sim,
@@ -1453,8 +1556,94 @@ function renderDilutionAuditHtml(sim: any): string {
     CHAR_MAP,
     SC_WEPS
   );
-  if (!dil) return "";
+}
 
+function renderDilutionEnvTableHtml(dil: TeamDilutionAnalysis): string {
+  if (dilutionEnvTab === "stage") {
+    const stageRowsHtml = dil.stages
+      .map((s) => {
+        const gainStr = s.stageId === "none" ? "基准 0.0%" : `${s.gainVsNone >= 0 ? "+" : ""}${(s.gainVsNone * 100).toFixed(1)}%`;
+        const cls = s.gainVsNone >= 0.25 ? "txt-ok" : s.gainVsNone < -0.02 ? "txt-warn" : "";
+        return `
+          <tr class="${s.isCurrent ? "dil-row-active" : ""}">
+            <td>
+              <strong>${escHtml(s.shortName)}</strong>
+              ${s.isCurrent ? `<span class="badge b-ok">当前</span>` : ""}
+              <div class="muted" style="font-size:11px;">${escHtml(s.tag)}</div>
+            </td>
+            <td class="mono"><strong>${fmtNum(s.teamDps)}</strong></td>
+            <td class="mono ${cls}"><strong>${gainStr}</strong></td>
+            <td>
+              <span class="mpill">5号 ${escHtml(s.bestD5Zh)}${s.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
+            </td>
+            <td style="text-align:right;">
+              <button type="button" class="btn btn-sm ${s.isCurrent ? "" : "btn-tonal"}" data-apply-stage="${escHtml(s.stageId)}" ${
+                s.isCurrent ? "disabled" : ""
+              }>${s.isCurrent ? "已启用" : "套用天气"}</button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    return `
+      <table class="dil-table">
+        <thead>
+          <tr>
+            <th>深渊 / 危局 / 高塔天气</th>
+            <th>实测全队 DPS</th>
+            <th>相对无Buff增幅</th>
+            <th>推荐5号盘</th>
+            <th style="text-align:right;">快捷切换</th>
+          </tr>
+        </thead>
+        <tbody>${stageRowsHtml}</tbody>
+      </table>
+    `;
+  }
+
+  const bossRowsHtml = dil.bosses
+    .map((b) => {
+      const retPct = b.retention * 100;
+      const cls = retPct >= 95 ? "txt-ok" : retPct < 78 ? "txt-warn" : "";
+      return `
+        <tr>
+          <td>
+            <strong>${escHtml(b.shortName)}</strong>
+            <div class="muted" style="font-size:11px;">${escHtml(b.specText)}</div>
+          </td>
+          <td class="mono"><strong>${fmtNum(b.teamDps)}</strong></td>
+          <td class="mono ${cls}"><strong>${retPct.toFixed(1)}%</strong></td>
+          <td class="mono">${(b.sShare * 100).toFixed(0)}%</td>
+          <td>
+            <span class="mpill">5号 ${escHtml(b.bestD5Zh)}${b.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
+          </td>
+          <td style="text-align:right;">
+            <button type="button" class="btn btn-sm btn-tonal" data-apply-boss="${escHtml(b.bossId)}">模拟首领</button>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  return `
+    <table class="dil-table">
+      <thead>
+        <tr>
+          <th>首领 Boss 类型</th>
+          <th>实测全队 DPS</th>
+          <th>相对标准Boss保持率</th>
+          <th>失衡覆盖率</th>
+          <th>推荐5号盘</th>
+          <th style="text-align:right;">快捷模拟</th>
+        </tr>
+      </thead>
+      <tbody>${bossRowsHtml}</tbody>
+    </table>
+  `;
+}
+
+function renderDilutionBodyHtml(dil: TeamDilutionAnalysis): string {
   const maxMarg = Math.max(0.18, ...dil.marginals.map((m) => m.selfGain));
   const statusClassMap: Record<string, string> = {
     anti: "dil-tag-anti",
@@ -1463,16 +1652,6 @@ function renderDilutionAuditHtml(sim: any): string {
     heavy: "dil-tag-heavy",
     zero: "dil-tag-zero"
   };
-
-  const slotBtnsHtml = sim.slotResults
-    .map(
-      (r: any) => `
-      <button type="button" class="dil-pill-btn ${r.slotIdx === dil.slotIdx ? "active" : ""}" data-dil-slot="${r.slotIdx}">
-        ${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}
-      </button>
-    `
-    )
-    .join("");
 
   const marginalsHtml = dil.marginals
     .map((m) => {
@@ -1533,68 +1712,7 @@ function renderDilutionAuditHtml(sim: any): string {
           (dil.currentDmgM - 1) * 100
         )}%</strong>），【24%穿透】才会反超【30%属伤】。`;
 
-  const stageRowsHtml = dil.stages
-    .map((s) => {
-      const gainStr = s.stageId === "none" ? "基准 0.0%" : `${s.gainVsNone >= 0 ? "+" : ""}${(s.gainVsNone * 100).toFixed(1)}%`;
-      const cls = s.gainVsNone >= 0.25 ? "txt-ok" : s.gainVsNone < -0.02 ? "txt-warn" : "";
-      return `
-        <tr class="${s.isCurrent ? "dil-row-active" : ""}">
-          <td>
-            <strong>${escHtml(s.shortName)}</strong>
-            ${s.isCurrent ? `<span class="badge b-ok">当前</span>` : ""}
-            <div class="muted" style="font-size:11px;">${escHtml(s.tag)}</div>
-          </td>
-          <td class="mono"><strong>${fmtNum(s.teamDps)}</strong></td>
-          <td class="mono ${cls}"><strong>${gainStr}</strong></td>
-          <td>
-            <span class="mpill">5号 ${escHtml(s.bestD5Zh)}${s.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
-          </td>
-          <td style="text-align:right;">
-            <button type="button" class="btn btn-sm ${s.isCurrent ? "" : "btn-tonal"}" data-apply-stage="${escHtml(s.stageId)}" ${
-              s.isCurrent ? "disabled" : ""
-            }>${s.isCurrent ? "已启用" : "套用天气"}</button>
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  const bossRowsHtml = dil.bosses
-    .map((b) => {
-      const retPct = b.retention * 100;
-      const cls = retPct >= 95 ? "txt-ok" : retPct < 78 ? "txt-warn" : "";
-      return `
-        <tr>
-          <td>
-            <strong>${escHtml(b.shortName)}</strong>
-            <div class="muted" style="font-size:11px;">${escHtml(b.specText)}</div>
-          </td>
-          <td class="mono"><strong>${fmtNum(b.teamDps)}</strong></td>
-          <td class="mono ${cls}"><strong>${retPct.toFixed(1)}%</strong></td>
-          <td class="mono">${(b.sShare * 100).toFixed(0)}%</td>
-          <td>
-            <span class="mpill">5号 ${escHtml(b.bestD5Zh)}${b.d5Shifted ? ` <strong class="txt-warn">(变阵)</strong>` : ""}</span>
-          </td>
-          <td style="text-align:right;">
-            <button type="button" class="btn btn-sm btn-tonal" data-apply-boss="${escHtml(b.bossId)}">模拟首领</button>
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
-
   return `
-    <div class="dil-section" id="dilutionAuditPanel">
-      <div class="dil-headline-bar">
-        <div class="dil-headline-copy">
-          <div class="sec-mini-title" style="margin:0;">实时乘区稀释与反稀释配装体检 · ${escHtml(dil.agentName)}</div>
-          <div class="dil-headline-text">${escHtml(dil.headlineDiag)}</div>
-        </div>
-        <div class="dil-slot-switch" role="group" aria-label="切换体检角色">
-          ${slotBtnsHtml}
-        </div>
-      </div>
-
       <div class="ws-grid-2">
         <div class="card">
           <div class="sec-mini-title">标准外拐边际收益对比（个人增幅 / 队内净增幅）</div>
@@ -1620,63 +1738,44 @@ function renderDilutionAuditHtml(sim: any): string {
           </div>
         </div>
 
-        <div class="dil-table-wrap">
-          ${
-            dilutionEnvTab === "stage"
-              ? `
-                <table class="dil-table">
-                  <thead>
-                    <tr>
-                      <th>深渊 / 危局 / 高塔天气</th>
-                      <th>实测全队 DPS</th>
-                      <th>相对无Buff增幅</th>
-                      <th>推荐5号盘</th>
-                      <th style="text-align:right;">快捷切换</th>
-                    </tr>
-                  </thead>
-                  <tbody>${stageRowsHtml}</tbody>
-                </table>
-              `
-              : `
-                <table class="dil-table">
-                  <thead>
-                    <tr>
-                      <th>首领 Boss 类型</th>
-                      <th>实测全队 DPS</th>
-                      <th>相对标准Boss保持率</th>
-                      <th>失衡覆盖率</th>
-                      <th>推荐5号盘</th>
-                      <th style="text-align:right;">快捷模拟</th>
-                    </tr>
-                  </thead>
-                  <tbody>${bossRowsHtml}</tbody>
-                </table>
-              `
-          }
+        <div class="dil-table-wrap" id="dilEnvTableWrap">
+          ${renderDilutionEnvTableHtml(dil)}
         </div>
+      </div>
+  `;
+}
+
+function renderDilutionAuditHtml(sim: any, dil: TeamDilutionAnalysis): string {
+  const slotBtnsHtml = sim.slotResults
+    .map(
+      (r: any) => `
+      <button type="button" class="dil-pill-btn ${r.slotIdx === dil.slotIdx ? "active" : ""}" data-dil-slot="${r.slotIdx}">
+        ${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}
+      </button>
+    `
+    )
+    .join("");
+
+  return `
+    <div class="dil-section" id="dilutionAuditPanel">
+      <div class="dil-headline-bar">
+        <div class="dil-headline-copy">
+          <div class="sec-mini-title" id="dilHeadlineTitle" style="margin:0;">实时乘区稀释与反稀释配装体检 · ${escHtml(dil.agentName)}</div>
+          <div class="dil-headline-text" id="dilHeadlineText">${escHtml(dil.headlineDiag)}</div>
+        </div>
+        <div class="dil-slot-switch" role="group" aria-label="切换体检角色">
+          ${slotBtnsHtml}
+        </div>
+      </div>
+      <div id="dilAuditBody">
+        ${renderDilutionBodyHtml(dil)}
       </div>
     </div>
   `;
 }
 
-function bindDilutionAuditEvents(diagWrap: HTMLElement, sim: any) {
-  diagWrap.querySelectorAll<HTMLButtonElement>("[data-dil-slot]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      dilutionTargetSlotIdx = Number(btn.dataset.dilSlot) || 0;
-      renderSection02KPIsAndDiag(sim);
-      localizeDOM(diagWrap, appStore.state.lang || "zh");
-    });
-  });
-
-  diagWrap.querySelectorAll<HTMLButtonElement>("[data-dil-env-tab]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      dilutionEnvTab = btn.dataset.dilEnvTab === "boss" ? "boss" : "stage";
-      renderSection02KPIsAndDiag(sim);
-      localizeDOM(diagWrap, appStore.state.lang || "zh");
-    });
-  });
-
-  diagWrap.querySelectorAll<HTMLButtonElement>("[data-apply-stage]").forEach((btn) => {
+function bindDilutionTableButtons(container: HTMLElement, sim: any) {
+  container.querySelectorAll<HTMLButtonElement>("[data-apply-stage]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const stageId = btn.dataset.applyStage || "none";
       appStore.state.env.stageId = stageId;
@@ -1686,7 +1785,7 @@ function bindDilutionAuditEvents(diagWrap: HTMLElement, sim: any) {
     });
   });
 
-  diagWrap.querySelectorAll<HTMLButtonElement>("[data-apply-boss]").forEach((btn) => {
+  container.querySelectorAll<HTMLButtonElement>("[data-apply-boss]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const bossId = btn.dataset.applyBoss;
       const boss = BOSS_ARCHETYPES.find((x) => x.id === bossId);
@@ -1697,6 +1796,76 @@ function bindDilutionAuditEvents(diagWrap: HTMLElement, sim: any) {
       refreshAllUI();
     });
   });
+}
+
+function bindDilutionBodyEvents(panel: HTMLElement, sim: any, dil: TeamDilutionAnalysis) {
+  panel.querySelectorAll<HTMLButtonElement>("[data-dil-env-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const nextTab = btn.dataset.dilEnvTab === "boss" ? "boss" : "stage";
+      if (nextTab === dilutionEnvTab) return;
+      dilutionEnvTab = nextTab;
+      const tableWrap = panel.querySelector<HTMLElement>("#dilEnvTableWrap");
+      runWithPreservedScroll(
+        () => {
+          panel.querySelectorAll<HTMLButtonElement>("[data-dil-env-tab]").forEach((b) => {
+            b.classList.toggle("active", b.dataset.dilEnvTab === dilutionEnvTab);
+          });
+          if (tableWrap) {
+            tableWrap.innerHTML = renderDilutionEnvTableHtml(dil);
+            bindDilutionTableButtons(tableWrap, sim);
+            localizeDOM(tableWrap, appStore.state.lang || "zh");
+          }
+        },
+        { anchorEl: btn, lockEls: [tableWrap] }
+      );
+    });
+  });
+
+  const tableWrap = panel.querySelector<HTMLElement>("#dilEnvTableWrap");
+  if (tableWrap) bindDilutionTableButtons(tableWrap, sim);
+}
+
+function bindDilutionAuditEvents(diagWrap: HTMLElement, sim: any, initialDil: TeamDilutionAnalysis) {
+  const panel = diagWrap.querySelector<HTMLElement>("#dilutionAuditPanel");
+  if (!panel) return;
+
+  panel.querySelectorAll<HTMLButtonElement>("[data-dil-slot]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const nextIdx = Number(btn.dataset.dilSlot) || 0;
+      if (nextIdx === dilutionTargetSlotIdx) return;
+      dilutionTargetSlotIdx = nextIdx;
+      const nextDil = computeCurrentDilutionAnalysis(sim);
+      if (!nextDil) return;
+      const lang = appStore.state.lang || "zh";
+      const titleEl = panel.querySelector<HTMLElement>("#dilHeadlineTitle");
+      const textEl = panel.querySelector<HTMLElement>("#dilHeadlineText");
+      const bodyEl = panel.querySelector<HTMLElement>("#dilAuditBody");
+
+      runWithPreservedScroll(
+        () => {
+          panel.querySelectorAll<HTMLButtonElement>("[data-dil-slot]").forEach((b) => {
+            b.classList.toggle("active", Number(b.dataset.dilSlot) === nextDil.slotIdx);
+          });
+          if (titleEl) {
+            titleEl.textContent = `实时乘区稀释与反稀释配装体检 · ${nextDil.agentName}`;
+            localizeDOM(titleEl, lang);
+          }
+          if (textEl) {
+            textEl.textContent = nextDil.headlineDiag;
+            localizeDOM(textEl, lang);
+          }
+          if (bodyEl) {
+            bodyEl.innerHTML = renderDilutionBodyHtml(nextDil);
+            bindDilutionBodyEvents(panel, sim, nextDil);
+            localizeDOM(bodyEl, lang);
+          }
+        },
+        { anchorEl: btn, lockEls: [bodyEl] }
+      );
+    });
+  });
+
+  bindDilutionBodyEvents(panel, sim, initialDil);
 }
 
 function renderMultiplierRadarSvg(bd0: any, ch0: any): string {
@@ -2433,10 +2602,22 @@ function bindSlotCardEvents(grid: HTMLElement, sim: any) {
     });
   });
   grid.querySelectorAll<any>("[data-slot-char]").forEach(sel => {
-    sel.addEventListener("change", (e: any) => assignCharacterToSlot(Number(sel.dataset.slotChar), e.target.value));
+    sel.addEventListener("change", (e: any) => {
+      const idx = Number(sel.dataset.slotChar);
+      runWithPreservedScroll(
+        () => assignCharacterToSlot(idx, e.target.value),
+        { anchorEl: sel.closest(".slot-card"), anchorSelector: `#sec03SlotGrid > .slot-card:nth-child(${idx + 1})`, lockEls: [grid] }
+      );
+    });
   });
   grid.querySelectorAll<any>("[data-slot-remove]").forEach(btn => {
-    btn.addEventListener("click", () => assignCharacterToSlot(Number(btn.dataset.slotRemove), null));
+    btn.addEventListener("click", () => {
+      const idx = Number(btn.dataset.slotRemove);
+      runWithPreservedScroll(
+        () => assignCharacterToSlot(idx, null),
+        { anchorEl: btn.closest(".slot-card"), anchorSelector: `#sec03SlotGrid > .slot-card:nth-child(${idx + 1})`, lockEls: [grid] }
+      );
+    });
   });
   grid.querySelectorAll<any>("[data-ws-edit-char]").forEach(btn => {
     btn.addEventListener("click", () => openCustomWorkshop("chars", btn.dataset.wsEditChar));
@@ -3673,29 +3854,15 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
 // ============================================================================
 // Section 05: 4-in-1 Evaluation Center (Weapons, Mindscapes, +1 Gold ROI, Discs)
 // ============================================================================
-function renderSection05EvalCenter(sim) {
-  const wrap = document.getElementById("sec05Body");
-  if (!wrap) return;
-  const curView = appStore.state.studioView || "build";
-  if (curView !== "eval" && curView !== "all") return;
-  if (sim.activeCount === 0) {
-    wrap.innerHTML = `<div class="muted">请先上阵角色后查看音擎/影画/金数ROI/金数矩阵/套装排行。</div>`;
-    return;
-  }
+function renderEvalTabContent(wrap: HTMLElement, sim: any) {
+  const contentEl = wrap.querySelector<HTMLElement>("#evalTabContent");
+  if (!contentEl) return;
 
   if (!appStore.state.slots[appStore.state.evalSlotIdx]?.cid) {
     appStore.state.evalSlotIdx = sim.slotResults[0].slotIdx;
   }
   const tSlot = appStore.state.evalSlotIdx;
   const ch = CHAR_MAP[appStore.state.slots[tSlot].cid];
-
-  const evalTabs = [
-    { id: "weapons", label: "音擎天梯" },
-    { id: "mindscapes", label: "影画 M0~M6" },
-    { id: "roi", label: "下一金 ROI" },
-    { id: "matrix", label: "金数矩阵 DPS" },
-    { id: "discs", label: "4件套横评" }
-  ];
 
   let tableHtml = "";
   if (appStore.state.evalTab === "weapons") {
@@ -3935,28 +4102,30 @@ function renderSection05EvalCenter(sim) {
     `;
   }
 
-  wrap.innerHTML = `
-    <div class="row" style="justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
-      <div class="pill-bar">
-        <span style="font-size:12px;font-weight:700;margin-right:4px;">评测目标槽位:</span>
-        ${sim.slotResults.map(r => `<button type="button" class="pill pill-with-av ${tSlot === r.slotIdx ? "active" : ""}" data-eval-slot="${r.slotIdx}">${renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-2xs")}<span>${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}</span></button>`).join("")}
-      </div>
-      <div class="ws-tabs" style="margin:0;">
-        ${evalTabs.map(t => `<button type="button" class="tab-btn ${appStore.state.evalTab === t.id ? "active" : ""}" data-eval-tab="${t.id}">${escHtml(t.label)}</button>`).join("")}
-      </div>
-    </div>
-    ${tableHtml}
-  `;
+  contentEl.innerHTML = tableHtml;
 
-  wrap.querySelectorAll<any>("[data-eval-slot]").forEach(b => b.addEventListener("click", () => { appStore.state.evalSlotIdx = Number(b.dataset.evalSlot); renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); }));
-  wrap.querySelectorAll<any>("[data-eval-tab]").forEach(b => b.addEventListener("click", () => { appStore.state.evalTab = b.dataset.evalTab; renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); }));
-  document.getElementById("evalARefSel")?.addEventListener("change", (e: any) => { appStore.state.evalARef = Number(e.target.value); renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); });
-  document.getElementById("evalNewWepBtn")?.addEventListener("click", () => openCustomWorkshop("weps"));
-  document.getElementById("evalIncRefChk")?.addEventListener("change", (e: any) => { appStore.state.evalIncludeRef = e.target.checked; renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); });
-  wrap.querySelector("#evalWepMoreBtn")?.addEventListener("click", () => {
+  const rerenderContentStable = (anchorEl?: HTMLElement | null) => {
+    runWithPreservedScroll(
+      () => {
+        renderEvalTabContent(wrap, sim);
+        localizeDOM(contentEl, appStore.state.lang || "zh");
+      },
+      { anchorEl, lockEls: [contentEl] }
+    );
+  };
+
+  contentEl.querySelector("#evalARefSel")?.addEventListener("change", (e: any) => {
+    appStore.state.evalARef = Number(e.target.value);
+    rerenderContentStable(e.target);
+  });
+  contentEl.querySelector("#evalNewWepBtn")?.addEventListener("click", () => openCustomWorkshop("weps"));
+  contentEl.querySelector("#evalIncRefChk")?.addEventListener("change", (e: any) => {
+    appStore.state.evalIncludeRef = e.target.checked;
+    rerenderContentStable(e.target);
+  });
+  contentEl.querySelector("#evalWepMoreBtn")?.addEventListener("click", (e: any) => {
     evalWepShowAll = !evalWepShowAll;
-    renderSection05EvalCenter(sim);
-    localizeDOM(wrap, appStore.state.lang || "zh");
+    rerenderContentStable(e.currentTarget);
   });
 
   const applyMatrixPatches = (patches: Array<{ idx: number; m: number; wid: string; ref: number }>, label?: string) => {
@@ -3971,7 +4140,7 @@ function renderSection05EvalCenter(sim) {
     if (label) showStudioToast(`✓ 已套用金数配置：${label}`);
   };
 
-  wrap.querySelectorAll<HTMLButtonElement>("[data-gm-cell]").forEach((btn) => {
+  contentEl.querySelectorAll<HTMLButtonElement>("[data-gm-cell]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const gm = (wrap as any)._goldMatrix;
       if (!gm) return;
@@ -3981,7 +4150,7 @@ function renderSection05EvalCenter(sim) {
     });
   });
 
-  wrap.querySelectorAll<HTMLButtonElement>("[data-gm-path]").forEach((btn) => {
+  contentEl.querySelectorAll<HTMLButtonElement>("[data-gm-path]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const gm = (wrap as any)._goldMatrix;
       const node = gm?.goldPath?.[Number(btn.dataset.gmPath)];
@@ -3989,7 +4158,7 @@ function renderSection05EvalCenter(sim) {
     });
   });
 
-  wrap.querySelectorAll<any>("[data-equip-wep]").forEach(btn => {
+  contentEl.querySelectorAll<any>("[data-equip-wep]").forEach(btn => {
     btn.addEventListener("click", () => {
       const [wid, rStr] = btn.dataset.equipWep.split(":");
       appStore.state.slots[tSlot].wid = wid;
@@ -3997,10 +4166,10 @@ function renderSection05EvalCenter(sim) {
       refreshAllUI();
     });
   });
-  wrap.querySelectorAll<any>("[data-apply-m]").forEach(btn => {
+  contentEl.querySelectorAll<any>("[data-apply-m]").forEach(btn => {
     btn.addEventListener("click", () => { appStore.state.slots[tSlot].m = Number(btn.dataset.applyM); refreshAllUI(); });
   });
-  wrap.querySelectorAll<any>("[data-apply-roi]").forEach(btn => {
+  contentEl.querySelectorAll<any>("[data-apply-roi]").forEach(btn => {
     btn.addEventListener("click", () => {
       const cand = (wrap as any)._roiCands?.[Number(btn.dataset.applyRoi)];
       if (!cand) return;
@@ -4008,7 +4177,7 @@ function renderSection05EvalCenter(sim) {
       refreshAllUI();
     });
   });
-  wrap.querySelectorAll<any>("[data-equip-fourpc]").forEach(btn => {
+  contentEl.querySelectorAll<any>("[data-equip-fourpc]").forEach(btn => {
     btn.addEventListener("click", () => {
       appStore.state.slots[tSlot].fourPc = btn.dataset.equipFourpc;
       if (appStore.state.slots[tSlot].buildMode === "pieces") appStore.state.slots[tSlot].buildMode = "auto";
@@ -4017,18 +4186,89 @@ function renderSection05EvalCenter(sim) {
   });
 }
 
+function renderSection05EvalCenter(sim) {
+  const wrap = document.getElementById("sec05Body");
+  if (!wrap) return;
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "eval" && curView !== "all") return;
+  if (sim.activeCount === 0) {
+    wrap.innerHTML = `<div class="muted">请先上阵角色后查看音擎/影画/金数ROI/金数矩阵/套装排行。</div>`;
+    return;
+  }
+
+  if (!appStore.state.slots[appStore.state.evalSlotIdx]?.cid) {
+    appStore.state.evalSlotIdx = sim.slotResults[0].slotIdx;
+  }
+  const tSlot = appStore.state.evalSlotIdx;
+
+  const evalTabs = [
+    { id: "weapons", label: "音擎天梯" },
+    { id: "mindscapes", label: "影画 M0~M6" },
+    { id: "roi", label: "下一金 ROI" },
+    { id: "matrix", label: "金数矩阵 DPS" },
+    { id: "discs", label: "4件套横评" }
+  ];
+
+  wrap.innerHTML = `
+    <div class="row" id="evalControlsBar" style="justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+      <div class="pill-bar">
+        <span style="font-size:12px;font-weight:700;margin-right:4px;">评测目标槽位:</span>
+        ${sim.slotResults.map(r => `<button type="button" class="pill pill-with-av ${tSlot === r.slotIdx ? "active" : ""}" data-eval-slot="${r.slotIdx}">${renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-2xs")}<span>${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}</span></button>`).join("")}
+      </div>
+      <div class="ws-tabs" style="margin:0;">
+        ${evalTabs.map(t => `<button type="button" class="tab-btn ${appStore.state.evalTab === t.id ? "active" : ""}" data-eval-tab="${t.id}">${escHtml(t.label)}</button>`).join("")}
+      </div>
+    </div>
+    <div id="evalTabContent"></div>
+  `;
+
+  renderEvalTabContent(wrap, sim);
+
+  const contentEl = wrap.querySelector<HTMLElement>("#evalTabContent");
+
+  wrap.querySelectorAll<HTMLButtonElement>("[data-eval-slot]").forEach((b) => {
+    b.addEventListener("click", () => {
+      const nextSlot = Number(b.dataset.evalSlot);
+      if (nextSlot === appStore.state.evalSlotIdx) return;
+      appStore.state.evalSlotIdx = nextSlot;
+      runWithPreservedScroll(
+        () => {
+          wrap.querySelectorAll<HTMLButtonElement>("[data-eval-slot]").forEach((btn) => {
+            btn.classList.toggle("active", Number(btn.dataset.evalSlot) === nextSlot);
+          });
+          renderEvalTabContent(wrap, sim);
+          if (contentEl) localizeDOM(contentEl, appStore.state.lang || "zh");
+        },
+        { anchorEl: b, lockEls: [contentEl] }
+      );
+    });
+  });
+
+  wrap.querySelectorAll<HTMLButtonElement>("[data-eval-tab]").forEach((b) => {
+    b.addEventListener("click", () => {
+      const nextTab = (b.dataset.evalTab || "weapons") as typeof appStore.state.evalTab;
+      if (nextTab === appStore.state.evalTab) return;
+      appStore.state.evalTab = nextTab;
+      runWithPreservedScroll(
+        () => {
+          wrap.querySelectorAll<HTMLButtonElement>("[data-eval-tab]").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.evalTab === nextTab);
+          });
+          renderEvalTabContent(wrap, sim);
+          if (contentEl) localizeDOM(contentEl, appStore.state.lang || "zh");
+        },
+        { anchorEl: b, lockEls: [contentEl] }
+      );
+    });
+  });
+}
+
 // ============================================================================
 // Section 06: Endgame Boss Cycle Archives, Stage Buffs & 7-Element Enemy Matrix
 // ============================================================================
-function renderSection06Environment() {
-  const wrap = document.getElementById("sec06Body");
-  if (!wrap) return;
-  const curView = appStore.state.studioView || "build";
-  if (curView !== "env" && curView !== "all") return;
+function renderEndgameBossCardsHtml(): string {
   const env = appStore.state.env;
-  const resMap = env.elemResMap || makeDefaultElemResMap();
   const elemZhMap = Object.fromEntries(ALL_ELEMENTS.map((x) => [x.eb, x.zh]));
-
   const filteredBosses = ENDGAME_BOSS_PRESETS.filter(
     (b) => endgameFilterTab === "all" || b.mode === endgameFilterTab
   );
@@ -4039,7 +4279,7 @@ function renderSection06Environment() {
     archive: { label: "往期档案", cls: "" }
   };
 
-  const bossCardsHtml = filteredBosses
+  return filteredBosses
     .map((bp) => {
       const isActive = env.activeEndgameId === bp.id;
       const st = statusMeta[bp.status] || statusMeta.archive;
@@ -4108,6 +4348,30 @@ function renderSection06Environment() {
       `;
     })
     .join("");
+}
+
+function bindEndgameApplyButtons(container: HTMLElement) {
+  container.querySelectorAll<HTMLButtonElement>("[data-apply-endgame]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const bp = ENDGAME_BOSS_PRESETS.find((x) => x.id === btn.dataset.applyEndgame);
+      if (!bp) return;
+      const patch = buildEnvPatchForEndgamePreset(bp);
+      Object.assign(appStore.state.env, deepClone(patch));
+      appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[bp.stageId] || STAGE_BUFFS.none);
+      refreshAllUI();
+      showStudioToast(`✓ 已套用首领环境：${bp.name}`);
+    });
+  });
+}
+
+function renderSection06Environment() {
+  const wrap = document.getElementById("sec06Body");
+  if (!wrap) return;
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "env" && curView !== "all") return;
+  const env = appStore.state.env;
+  const resMap = env.elemResMap || makeDefaultElemResMap();
+  const bossCardsHtml = renderEndgameBossCardsHtml();
 
   wrap.innerHTML = `
     <div class="card" style="margin-bottom:14px;">
@@ -4128,7 +4392,7 @@ function renderSection06Environment() {
           </label>
         </div>
       </div>
-      <div class="eg-grid">${bossCardsHtml}</div>
+      <div class="eg-grid" id="egBossGrid">${bossCardsHtml}</div>
     </div>
 
     <div class="row" style="justify-content:space-between;gap:10px;margin-bottom:10px;">
@@ -4197,29 +4461,33 @@ function renderSection06Environment() {
     </div>
   `;
 
+  const bossGrid = wrap.querySelector<HTMLElement>("#egBossGrid");
+  if (bossGrid) bindEndgameApplyButtons(bossGrid);
+
   wrap.querySelectorAll<HTMLButtonElement>("[data-eg-tab]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      endgameFilterTab = (btn.dataset.egTab as any) || "all";
-      renderSection06Environment();
-      localizeDOM(wrap, appStore.state.lang || "zh");
+      const nextTab = (btn.dataset.egTab as "all" | "da" | "shiyu") || "all";
+      if (nextTab === endgameFilterTab) return;
+      endgameFilterTab = nextTab;
+      runWithPreservedScroll(
+        () => {
+          wrap.querySelectorAll<HTMLButtonElement>("[data-eg-tab]").forEach((b) => {
+            b.classList.toggle("active", b.dataset.egTab === nextTab);
+          });
+          if (bossGrid) {
+            bossGrid.innerHTML = renderEndgameBossCardsHtml();
+            bindEndgameApplyButtons(bossGrid);
+            localizeDOM(bossGrid, appStore.state.lang || "zh");
+          }
+        },
+        { anchorEl: btn, lockEls: [bossGrid] }
+      );
     });
   });
 
   document.getElementById("env_da_ops")?.addEventListener("change", (e: any) => {
     appStore.state.env.daOpsScore = Math.max(0, Math.min(5000, Math.round(Number(e.target.value) || 0)));
     refreshAllUI();
-  });
-
-  wrap.querySelectorAll<HTMLButtonElement>("[data-apply-endgame]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const bp = ENDGAME_BOSS_PRESETS.find((x) => x.id === btn.dataset.applyEndgame);
-      if (!bp) return;
-      const patch = buildEnvPatchForEndgamePreset(bp);
-      Object.assign(appStore.state.env, deepClone(patch));
-      appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[bp.stageId] || STAGE_BUFFS.none);
-      refreshAllUI();
-      showStudioToast(`✓ 已套用首领环境：${bp.name}`);
-    });
   });
 
   document.getElementById("envStageSelect")?.addEventListener("change", (e: any) => {

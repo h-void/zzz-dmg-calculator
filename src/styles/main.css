@@ -2508,11 +2508,13 @@ html.light .sub-gain-track {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-height: 184px;
 }
 @media (max-width: 680px) {
   .diag-radar-layout {
     flex-direction: column;
     align-items: stretch;
+    min-height: 0;
   }
 }
 .diag-radar-svg-wrap {

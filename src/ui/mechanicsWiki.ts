@@ -18,6 +18,7 @@ import { getWeaponEffects } from "../engine/simulator";
 import { ARCHETYPE_LABELS, SAFETY_LABELS, getCharSwapProfile } from "../engine/swapTimeline";
 import { localizeDOM } from "../i18n";
 import { appStore, assignCharacterToSlot, triggerRefreshUI } from "./appState";
+import { runWithPreservedScroll } from "./scrollGuard";
 
 type WikiTab = "formulas" | "agents" | "energy" | "gear";
 
@@ -652,50 +653,81 @@ export function renderMechanicsWikiSection(): void {
         )
         .join("")}
     </div>
-    ${bodyHtml}
+    <div id="wikiTabBody">${bodyHtml}</div>
   `;
 
   bindWikiEvents(wrap);
   localizeDOM(wrap, appStore.state.lang || "zh");
 }
 
+function rerenderWikiBody(wrap: HTMLElement, anchorEl?: HTMLElement | null, anchorSelector?: string): void {
+  const bodyEl = wrap.querySelector<HTMLElement>("#wikiTabBody");
+  if (!bodyEl) {
+    renderMechanicsWikiSection();
+    return;
+  }
+  runWithPreservedScroll(
+    () => {
+      wrap.querySelectorAll<HTMLButtonElement>("[data-wiki-tab]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.wikiTab === wikiState.tab);
+      });
+      let bodyHtml = "";
+      if (wikiState.tab === "formulas") bodyHtml = renderFormulasTab();
+      else if (wikiState.tab === "agents") bodyHtml = renderAgentsTab();
+      else if (wikiState.tab === "energy") bodyHtml = renderEnergyCalcTab();
+      else bodyHtml = renderGearCodexTab();
+      bodyEl.innerHTML = bodyHtml;
+      bindWikiBodyEvents(wrap, bodyEl);
+      localizeDOM(bodyEl, appStore.state.lang || "zh");
+    },
+    { anchorEl, anchorSelector, lockEls: [bodyEl] }
+  );
+}
+
 function bindWikiEvents(wrap: HTMLElement): void {
   wrap.querySelectorAll<HTMLButtonElement>("[data-wiki-tab]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      wikiState.tab = (btn.dataset.wikiTab as WikiTab) || "formulas";
-      renderMechanicsWikiSection();
+      const nextTab = (btn.dataset.wikiTab as WikiTab) || "formulas";
+      if (nextTab === wikiState.tab) return;
+      wikiState.tab = nextTab;
+      rerenderWikiBody(wrap, btn);
     });
   });
 
-  const lvDet = document.getElementById("wikiLvDetails") as HTMLDetailsElement | null;
+  const bodyEl = wrap.querySelector<HTMLElement>("#wikiTabBody");
+  if (bodyEl) bindWikiBodyEvents(wrap, bodyEl);
+}
+
+function bindWikiBodyEvents(wrap: HTMLElement, bodyEl: HTMLElement): void {
+  const lvDet = bodyEl.querySelector<HTMLDetailsElement>("#wikiLvDetails");
   lvDet?.addEventListener("toggle", () => {
     wikiState.lvTableOpen = !!lvDet.open;
   });
 
   // Agents filter bindings
-  const aSearch = document.getElementById("wikiAgentSearch") as HTMLInputElement | null;
+  const aSearch = bodyEl.querySelector<HTMLInputElement>("#wikiAgentSearch");
   aSearch?.addEventListener("input", () => {
     wikiState.agentSearch = aSearch.value;
-    renderMechanicsWikiSection();
+    rerenderWikiBody(wrap, aSearch, "#wikiAgentSearch");
     const nextInp = document.getElementById("wikiAgentSearch") as HTMLInputElement | null;
     if (nextInp) {
-      nextInp.focus();
+      nextInp.focus({ preventScroll: true });
       nextInp.setSelectionRange(nextInp.value.length, nextInp.value.length);
     }
   });
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wa-elem]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wa-elem]").forEach((b) => {
     b.addEventListener("click", () => {
       wikiState.agentElem = b.dataset.waElem || "ALL";
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, b, `[data-wa-elem="${wikiState.agentElem}"]`);
     });
   });
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wa-role]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wa-role]").forEach((b) => {
     b.addEventListener("click", () => {
       wikiState.agentRole = b.dataset.waRole || "ALL";
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, b, `[data-wa-role="${wikiState.agentRole}"]`);
     });
   });
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wiki-deploy]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wiki-deploy]").forEach((b) => {
     b.addEventListener("click", () => {
       const cid = b.dataset.wikiDeploy;
       if (!cid) return;
@@ -705,19 +737,22 @@ function bindWikiEvents(wrap: HTMLElement): void {
   });
 
   // Energy calculator bindings
-  wrap.querySelectorAll<HTMLButtonElement>("[data-er-sync-slot]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-er-sync-slot]").forEach((b) => {
     b.addEventListener("click", () => {
-      syncEnergyFromSlot(Number(b.dataset.erSyncSlot));
-      renderMechanicsWikiSection();
+      const slotIdx = Number(b.dataset.erSyncSlot);
+      syncEnergyFromSlot(slotIdx);
+      rerenderWikiBody(wrap, b, `[data-er-sync-slot="${slotIdx}"]`);
     });
   });
   const bindErNum = (id: string, key: keyof EnergyCalcState) => {
-    document.getElementById(id)?.addEventListener("change", (ev: any) => {
+    const el = bodyEl.querySelector<HTMLInputElement>(`#${id}`);
+    el?.addEventListener("change", (ev: any) => {
       (wikiState.energy as any)[key] = parseFloat(ev.target.value) || 0;
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, el, `#${id}`);
     });
   };
-  document.getElementById("er_cid")?.addEventListener("change", (ev: any) => {
+  const erCidSel = bodyEl.querySelector<HTMLSelectElement>("#er_cid");
+  erCidSel?.addEventListener("change", (ev: any) => {
     const cid = ev.target.value;
     const ch = CHAR_MAP[cid];
     if (ch) {
@@ -728,7 +763,7 @@ function bindWikiEvents(wrap: HTMLElement): void {
       wikiState.energy.wepErPct = Math.round((weff?.init_er_pct || 0) * 100);
       wikiState.energy.wepErFlat = Number((weff?.c_er_flat || 0).toFixed(2));
       wikiState.energy.wepErRate = Math.round((weff?.c_er_rate || 0) * 100);
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, erCidSel, "#er_cid");
     }
   });
   bindErNum("er_base", "baseEr");
@@ -742,41 +777,43 @@ function bindWikiEvents(wrap: HTMLElement): void {
   bindErNum("er_team", "teamEnergyRestore");
   bindErNum("er_dec_cap", "decibelCap");
   bindErNum("er_dec_gen", "decibelPerCycle");
-  document.getElementById("er_2pc")?.addEventListener("change", (ev: any) => {
+  const er2pc = bodyEl.querySelector<HTMLInputElement>("#er_2pc");
+  er2pc?.addEventListener("change", (ev: any) => {
     wikiState.energy.has2pcEr = !!ev.target.checked;
-    renderMechanicsWikiSection();
+    rerenderWikiBody(wrap, er2pc, "#er_2pc");
   });
-  document.getElementById("er_d6")?.addEventListener("change", (ev: any) => {
+  const erD6 = bodyEl.querySelector<HTMLInputElement>("#er_d6");
+  erD6?.addEventListener("change", (ev: any) => {
     wikiState.energy.hasD6Er = !!ev.target.checked;
-    renderMechanicsWikiSection();
+    rerenderWikiBody(wrap, erD6, "#er_d6");
   });
 
   // Gear codex bindings
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wg-kind]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wg-kind]").forEach((b) => {
     b.addEventListener("click", () => {
       wikiState.gearKind = b.dataset.wgKind === "discs" ? "discs" : "weps";
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, b, `[data-wg-kind="${wikiState.gearKind}"]`);
     });
   });
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wg-rank]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wg-rank]").forEach((b) => {
     b.addEventListener("click", () => {
       wikiState.gearRank = b.dataset.wgRank || "ALL";
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, b, `[data-wg-rank="${wikiState.gearRank}"]`);
     });
   });
-  wrap.querySelectorAll<HTMLButtonElement>("[data-wg-role]").forEach((b) => {
+  bodyEl.querySelectorAll<HTMLButtonElement>("[data-wg-role]").forEach((b) => {
     b.addEventListener("click", () => {
       wikiState.gearRole = b.dataset.wgRole || "ALL";
-      renderMechanicsWikiSection();
+      rerenderWikiBody(wrap, b, `[data-wg-role="${wikiState.gearRole}"]`);
     });
   });
-  const gSearch = document.getElementById("wikiGearSearch") as HTMLInputElement | null;
+  const gSearch = bodyEl.querySelector<HTMLInputElement>("#wikiGearSearch");
   gSearch?.addEventListener("input", () => {
     wikiState.gearSearch = gSearch.value;
-    renderMechanicsWikiSection();
+    rerenderWikiBody(wrap, gSearch, "#wikiGearSearch");
     const nextInp = document.getElementById("wikiGearSearch") as HTMLInputElement | null;
     if (nextInp) {
-      nextInp.focus();
+      nextInp.focus({ preventScroll: true });
       nextInp.setSelectionRange(nextInp.value.length, nextInp.value.length);
     }
   });
