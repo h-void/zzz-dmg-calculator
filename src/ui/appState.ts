@@ -38,6 +38,7 @@ export function makeDefaultSlot(
     d5: "ELEM",
     d6: "ATK%",
     subAuto: true,
+    subAllocMode: "optimal",
     rolls: 28,
     subRollCap: 18,
     sub: { CR: 10, CD: 10, "ATK%": 8 },
@@ -94,7 +95,7 @@ export function makeDefaultElemResMap(): Record<string, number> {
   };
 }
 
-export type StudioViewTab = "build" | "enka" | "timeline" | "diag" | "eval" | "env" | "all";
+export type StudioViewTab = "build" | "enka" | "timeline" | "diag" | "eval" | "env" | "wiki" | "all";
 
 export interface WorkbenchAppState {
   lang: "zh" | "en" | "ja";
@@ -115,7 +116,7 @@ export interface WorkbenchAppState {
   finderMaxGold: number;
   ownedChars: string[];
   evalSlotIdx: number;
-  evalTab: "weapons" | "mindscapes" | "roi" | "discs";
+  evalTab: "weapons" | "mindscapes" | "roi" | "discs" | "matrix";
   evalARef: number;
   evalIncludeRef: boolean;
   autoSnapTimeline: boolean;
@@ -189,7 +190,9 @@ export function makeInitialState(): WorkbenchAppState {
       rollBudget: 28,
       subRollCap: 18,
       potAwakening: true,
-      er2pcCountsInit: true
+      er2pcCountsInit: true,
+      daOpsScore: 4000,
+      activeEndgameId: "da_v33_cur_1"
     }
   };
 }
@@ -246,9 +249,13 @@ export function loadWorkspaceFromStorage(): void {
       const s = parsed.slots[i];
       if (!s || !s.cid || !CHAR_MAP[s.cid]) return null;
       const def = makeDefaultSlot(s.cid)!;
+      const resolvedSubMode =
+        s.subAllocMode || (s.subAuto === false ? "custom" : "optimal");
       return {
         ...def,
         ...s,
+        subAllocMode: resolvedSubMode,
+        subAuto: resolvedSubMode !== "custom",
         slotExtra: { ...def.slotExtra, ...(s.slotExtra || {}) }
       };
     });

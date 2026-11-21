@@ -1080,13 +1080,17 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
   const totalResIgn = (prof.self_res_ign || 0) * coreBuffScale + aa_res_ign + eff.res_ign + tb.res_shred + (stage.res_shred || 0);
   const calcResMult = (extraResIgn = 0) => Math.max(0.2, 1.0 - enemyElemRes + totalResIgn + extraResIgn);
 
+  const inStunVal = prof.veil_vuln
+    ? (mods.stun_mult_override || 2.05) + tb.stun_mult_alltime + tb.stun_mult + (stage.stun_mult || 0)
+    : (env.stunMultBase ?? 1.50) + (prof.self_stun_mult_add || 0) + tb.stun_mult + tb.stun_mult_alltime + (stage.stun_mult || 0);
+  const outStunVal = prof.veil_vuln
+    ? (mods.stun_mult_override || 2.05) + tb.stun_mult_alltime
+    : 1.0 + tb.stun_mult_alltime;
   let stunMult;
   if (prof.veil_vuln) {
     const baseV = mods.stun_mult_override || 2.05;
     stunMult = baseV + tb.stun_mult_alltime + sShare * (tb.stun_mult + (stage.stun_mult || 0));
   } else {
-    const inStunVal = (env.stunMultBase ?? 1.50) + (prof.self_stun_mult_add || 0) + tb.stun_mult + tb.stun_mult_alltime + (stage.stun_mult || 0);
-    const outStunVal = 1.0 + tb.stun_mult_alltime;
     stunMult = sShare * inStunVal + (1 - sShare) * outStunVal;
   }
 
@@ -1095,28 +1099,44 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
   const subParts: Record<string, number> = {};
   const anomSplit = getEffectiveAnomSplit(ch, slotCfg);
 
+  const catSpecBonus = {
+    basic: eff.dmg_basic + d2a.dmg_basic + d2b.dmg_basic + f4.dmg_basic,
+    dash: eff.dmg_dash + d2a.dmg_dash + d2b.dmg_dash + f4.dmg_dash,
+    ex: eff.dmg_ex + f4.dmg_ex + aa_ex,
+    chain: tb.dmg_chain + (mods.dmg_chain || 0),
+    ult: eff.dmg_ult + f4.dmg_ult + aa_ult,
+    aftershock: prof.has_aftershock ? tb.dmg_aftershock : 0
+  };
+  const skillCatWeighted =
+    (sh.basic || 0) * catSpecBonus.basic +
+    (sh.dash || 0) * catSpecBonus.dash +
+    (sh.ex || 0) * catSpecBonus.ex +
+    (sh.ult || 0) * catSpecBonus.ult;
+
   if (wt === "Rupture") {
     const sheer = Math.floor(0.1 * combat_hp) + Math.floor(0.3 * combat_atk) + (prof.self_sheer_flat || 0) * coreBuffScale + eff.c_sheer + tb.sheer;
     const critM = 1.0 + Math.min(1.0, Math.max(0, c_cr)) * c_cd;
     const resM = calcResMult(0);
-    const dmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * (eff.dmg_basic + d2a.dmg_basic + d2b.dmg_basic + f4.dmg_basic) + (sh.ex || 0) * (eff.dmg_ex + f4.dmg_ex + aa_ex) + (sh.ult || 0) * (eff.dmg_ult + f4.dmg_ult + aa_ult)) * (1.0 + f4.dmg_sheer + (stage.sheer_dmg || 0));
+    const sheerIndepM = 1.0 + f4.dmg_sheer + (stage.sheer_dmg || 0);
+    const dmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * catSpecBonus.basic + (sh.ex || 0) * catSpecBonus.ex + (sh.ult || 0) * catSpecBonus.ult) * sheerIndepM;
     rawDmg = sheer * critM * dmgM * resM * stunMult * mods.skill_lv_mult * mods.proc_mult * aa_proc;
     subParts.sheer = rawDmg;
-    breakdown = { formulaType: "命破·贯穿直伤", baseLabel: "贯穿力", baseVal: sheer, combat_atk, combat_hp, critM, dmgM, defM: 1.0, resM, stunMult, sShare, c_cr, c_cd, totalPen, shred: 1.0, enemyElemRes, subParts };
+    breakdown = { formulaType: "命破·贯穿直伤", baseLabel: "贯穿力", baseVal: sheer, combat_atk, combat_hp, critM, dmgM, defM: 1.0, resM, stunMult, sShare, c_cr, c_cd, totalPen, shred: 1.0, enemyElemRes, sheerIndepM, subParts };
   } else if (wt === "Armorer") {
     const lacDmg = ch.scd + (prof.self_lac_dmg || 0) * coreBuffScale + aa_lac + tb.lac_dmg + (stage.lac_dmg || 0);
     const cr1 = Math.min(1.0, Math.max(0, c_cr)), cr2 = Math.max(0, Math.min(1.0, c_cr - 1.0));
     const critM = (1 - cr1) + cr1 * (1 - cr2) * (1 + lacDmg) + cr1 * cr2 * Math.pow(1 + lacDmg, 2);
     const defM = calcDefMult(0), resM = calcResMult(0);
-    const dmgM = (1 + base_dmg_bonus + (sh.basic || 0) * (eff.dmg_basic + d2a.dmg_basic + d2b.dmg_basic + f4.dmg_basic)) * (1 + eff.dmg_sharp_mult) * miasmaMult;
+    const sharpIndepM = 1 + eff.dmg_sharp_mult;
+    const dmgM = (1 + base_dmg_bonus + (sh.basic || 0) * catSpecBonus.basic) * sharpIndepM * miasmaMult;
     rawDmg = combat_def * critM * dmgM * defM * resM * stunMult * mods.skill_lv_mult * mods.proc_mult * aa_proc;
     subParts.sharp = rawDmg;
-    breakdown = { formulaType: "锋御·锐利二次撕裂", baseLabel: "局内防御", baseVal: combat_def, combat_def, critM, dmgM, defM, resM, stunMult, sShare, c_cr, c_cd: lacDmg, cr2, totalPen, shred: Math.min(1, baseShred), enemyElemRes, subParts };
+    breakdown = { formulaType: "锋御·锐利二次撕裂", baseLabel: "局内防御", baseVal: combat_def, combat_def, critM, dmgM, defM, resM, stunMult, sShare, c_cr, c_cd: lacDmg, cr2, totalPen, shred: Math.min(1, baseShred), enemyElemRes, sharpIndepM, subParts };
   } else if (anomSplit) {
     const sp = anomSplit;
     const critM = 1.0 + Math.min(1.0, Math.max(0, c_cr)) * c_cd;
     const defM = calcDefMult(0), resM = calcResMult(0);
-    const directDmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * (eff.dmg_basic + d2a.dmg_basic + d2b.dmg_basic + f4.dmg_basic) + (sh.dash || 0) * (eff.dmg_dash + d2a.dmg_dash + d2b.dmg_dash + f4.dmg_dash) + (sh.ex || 0) * (eff.dmg_ex + f4.dmg_ex + aa_ex) + (sh.ult || 0) * (eff.dmg_ult + f4.dmg_ult + aa_ult)) * miasmaMult;
+    const directDmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * catSpecBonus.basic + (sh.dash || 0) * catSpecBonus.dash + (sh.ex || 0) * catSpecBonus.ex + (sh.ult || 0) * catSpecBonus.ult) * miasmaMult;
     const directVal = combat_atk * critM * directDmgM * defM * resM * stunMult;
     const freeBuildup = ctx.freedomBluesElems.has(ch.eb) ? 0.20 : 0;
     const bbBuildup = ctx.bangboo?.elemBuildup?.[ch.eb] || 0;
@@ -1205,7 +1225,7 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
     breakdown = {
       formulaType: cid === "1581" ? "异常·流明耀化" : (cid === "1561" ? "异常·风化涡流异放" : "异常·紊乱/异放混合"),
       baseLabel: "局内攻击", baseVal: combat_atk, combat_atk, c_ap, combat_am, init_er, eff_er,
-      critM, anomCrit, refringeM, dmgM: anomDmgM, defM, abDefM, resM, stunMult, sShare,
+      critM, anomCrit, refringeM, dmgM: anomDmgM, directDmgM, defM, abDefM, resM, stunMult, sShare,
       c_cr, c_cd, totalPen, shred: Math.min(1, baseShred), enemyElemRes, effDisSec, anomTelemetry, subParts
     };
   } else {
@@ -1213,7 +1233,7 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
     if (cid === "1481" && aaActive) critM = (1 - (sh.ex || 0)) * critM + (sh.ex || 0) * (1 + Math.min(1, Math.max(0, c_cr)) * (c_cd + 0.50));
     const defM = calcDefMult(((sh.basic || 0) + (sh.ult || 0)) * eff.def_ign_bu);
     const resM = calcResMult(((sh.chain || 0) + (sh.ult || 0)) * eff.res_ign_cu);
-    const dmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * (eff.dmg_basic + d2a.dmg_basic + d2b.dmg_basic + f4.dmg_basic) + (sh.dash || 0) * (eff.dmg_dash + d2a.dmg_dash + d2b.dmg_dash + f4.dmg_dash) + (sh.ex || 0) * (eff.dmg_ex + f4.dmg_ex + aa_ex) + (sh.ult || 0) * (eff.dmg_ult + f4.dmg_ult + aa_ult)) * miasmaMult;
+    const dmgM = (1.0 + base_dmg_bonus + (sh.basic || 0) * catSpecBonus.basic + (sh.dash || 0) * catSpecBonus.dash + (sh.ex || 0) * catSpecBonus.ex + (sh.ult || 0) * catSpecBonus.ult) * miasmaMult;
     rawDmg = combat_atk * critM * dmgM * defM * resM * stunMult * mods.skill_lv_mult * mods.proc_mult * aa_proc;
     if (cid === "1301" || cid === "1521") rawDmg *= Math.pow(Math.min(4.0, Math.max(1.8, eff_er)) / 2.6, 0.14);
     if (cid === "1031") rawDmg *= Math.pow(Math.min(4.8, Math.max(1.4, eff_er)) / 2.80, 0.28);
@@ -1249,6 +1269,127 @@ export function evalSlotDamage(ch, m, w, refLevel, fourPc, twoPc, d4, d5, d6, su
   for (const k of Object.keys(subParts)) subParts[k] *= mvMult;
   breakdown.mvScale = mvMult;
   breakdown.shares = sh;
+  breakdown.baseDmgBonus = base_dmg_bonus;
+  breakdown.baseShred = baseShred;
+  breakdown.totalResIgn = totalResIgn;
+  breakdown.defLvFactor = defLvFactor;
+  breakdown.miasmaMult = miasmaMult;
+  breakdown.inStunVal = inStunVal;
+  breakdown.outStunVal = outStunVal;
+  breakdown.s_pen_flat = s_pen_flat;
+  breakdown.catSpecBonus = catSpecBonus;
+
+  // Structured Multiplier Source Ledger for transparent per-multiplier inspection
+  breakdown.ledger = {
+    base: {
+      label: breakdown.baseLabel,
+      outCombatVal: wt === "Armorer" ? init_def : (wt === "Rupture" ? Math.floor(0.1 * init_hp + 0.3 * init_atk) : init_atk),
+      initHp: init_hp,
+      initAtk: init_atk,
+      initDef: init_def,
+      selfPct: wt === "Armorer" ? 0 : (prof.self_catk || 0) * coreBuffScale + aa_catk,
+      setPct: wt === "Armorer" ? 0 : f4.c_atk,
+      wepPct: wt === "Armorer" ? eff.c_def : eff.c_atk,
+      teamPct: wt === "Armorer" ? tb.def_pct : (wt === "Rupture" ? tb.hp_pct : tb.atk_pct),
+      stagePct: wt === "Armorer" ? (stage.def_pct || 0) : (stage.atk_pct || 0),
+      selfFlat: wt === "Armorer" ? 250.0 * coreBuffScale : (wt === "Rupture" ? (prof.self_sheer_flat || 0) * coreBuffScale + eff.c_sheer : (c_atk_flat - tb.atk_flat)),
+      teamFlat: wt === "Armorer" ? tb.def_flat : (wt === "Rupture" ? tb.sheer : tb.atk_flat),
+      finalVal: breakdown.baseVal
+    },
+    crit: {
+      isArmorer: wt === "Armorer",
+      initCr: init_cr,
+      selfCr: (prof.self_cr || 0) * coreBuffScale + aa_cr,
+      setCr: f4.c_cr,
+      wepCr: eff.c_cr,
+      teamCr: tb.cr,
+      stageCr: stage.cr || 0,
+      totalCr: c_cr,
+      initCd: wt === "Armorer" ? (ch.scd || 0) : init_cd,
+      selfCd: wt === "Armorer" ? (prof.self_lac_dmg || 0) * coreBuffScale + aa_lac : (prof.self_cd || 0) * coreBuffScale + aa_cd,
+      setCd: wt === "Armorer" ? 0 : f4.c_cd,
+      wepCd: wt === "Armorer" ? 0 : eff.c_cd,
+      teamCd: wt === "Armorer" ? tb.lac_dmg : tb.cd,
+      stageCd: wt === "Armorer" ? (stage.lac_dmg || 0) : (stage.cd || 0),
+      totalCd: breakdown.c_cd,
+      mult: breakdown.critM
+    },
+    dmg: {
+      disc5Elem: m_elem,
+      set2pc: d2a.dmg_elem + d2b.dmg_elem,
+      set4pc: f4.dmg_elem + f4.dmg_all + (anomSplit ? f4.dmg_anom : 0),
+      selfAndAA: (prof.self_dmg || 0) * coreBuffScale + (prof.self_elem || 0) * coreBuffScale + aa_dmg + burn_pot_dmg + vel_pot_dmg + (anomSplit ? (prof.self_anom || 0) + aa_anom : 0),
+      wep: eff.dmg_all + (anomSplit ? eff.dmg_anom : 0),
+      team: tb.dmg + asDmgAdd + chainDmgAdd + (anomSplit ? tb.anom_dmg : 0),
+      stage: (stage.dmg || 0) + (anomSplit ? (stage.anom_dmg || 0) : 0),
+      skillCatWeighted,
+      indepMult: wt === "Rupture" ? (breakdown.sheerIndepM || 1) : (wt === "Armorer" ? (breakdown.sharpIndepM || 1) : 1.0),
+      miasmaMult: wt === "Rupture" ? 1.0 : miasmaMult,
+      totalMult: breakdown.dmgM
+    },
+    def: {
+      isRupture: wt === "Rupture",
+      enemyDef: env.enemyDef ?? 953,
+      defLvFactor,
+      selfAndWepIgn: (prof.self_def_ign || 0) * coreBuffScale + cissia_def_ign + eff.def_ign,
+      teamShred: tb.def_shred + asDefIgn,
+      stageShred: stage.def_shred || 0,
+      totalShred: wt === "Rupture" ? 1.0 : Math.min(1.0, baseShred),
+      initPen: init_pen,
+      teamPen: tb.pen,
+      totalPen,
+      penFlat: s_pen_flat,
+      mult: breakdown.defM
+    },
+    res: {
+      enemyElemRes,
+      selfAndAAIgn: (prof.self_res_ign || 0) * coreBuffScale + aa_res_ign,
+      wepIgn: eff.res_ign,
+      teamShred: tb.res_shred,
+      stageShred: stage.res_shred || 0,
+      totalIgn: totalResIgn,
+      mult: breakdown.resM
+    },
+    stun: {
+      baseStunMult: env.stunMultBase ?? 1.50,
+      selfAdd: prof.self_stun_mult_add || 0,
+      teamAdd: tb.stun_mult,
+      stageAdd: stage.stun_mult || 0,
+      allTimeVuln: tb.stun_mult_alltime,
+      sShare,
+      inStunVal,
+      outStunVal,
+      mult: stunMult
+    },
+    extra: {
+      skillLvMult: mods.skill_lv_mult,
+      procMult: mods.proc_mult,
+      aaProc: aa_proc,
+      swapActionMult: ctx.qaSwap?.slotActionMult?.[memberIdx] ?? 1.0,
+      mvScale: mvMult
+    }
+  };
+
+  // Weighted per-skill-category contribution breakdown
+  const catKeys = ["basic", "dash", "ex", "chain", "ult", "aftershock"];
+  const catWeightsRaw = catKeys.map((ck) => {
+    const baseSh = Math.max(0, Number(sh[ck]) || 0);
+    if (baseSh <= 0) return { key: ck, share: 0, effBonus: 0, w: 0 };
+    const spec = Number((catSpecBonus as any)[ck] || 0);
+    const dmgRatio = (1.0 + base_dmg_bonus + spec) / Math.max(0.5, 1.0 + base_dmg_bonus + skillCatWeighted);
+    return { key: ck, share: baseSh, effBonus: spec, w: baseSh * dmgRatio };
+  });
+  const catWSum = catWeightsRaw.reduce((s, x) => s + x.w, 0) || 1;
+  breakdown.catDmgShares = catWeightsRaw
+    .filter((x) => x.share > 0.005)
+    .map((x) => ({
+      key: x.key,
+      mvShare: x.share,
+      dmgShare: x.w / catWSum,
+      estDmg: rawDmg * (x.w / catWSum),
+      specDmgBonus: x.effBonus
+    }));
+
   return { rawDmg, breakdown, st };
 }
 
@@ -1338,6 +1479,187 @@ export function getSubAllocs(ch, rollBudget = 28, maxSingleCap = 18) {
   }
   if (out.length === 0) out.push({ CR: Math.floor(b / 3), CD: Math.floor(b / 3), "ATK%": b - 2 * Math.floor(b / 3) });
   return out;
+}
+
+export function resolveSubAllocMode(slotCfg: any): "optimal" | "fast" | "custom" {
+  if (!slotCfg) return "optimal";
+  if (slotCfg.subAllocMode === "custom" || slotCfg.subAuto === false) return "custom";
+  if (slotCfg.subAllocMode === "fast") return "fast";
+  return "optimal";
+}
+
+export function getCandidateSubKeys(ch: any): string[] {
+  const wt = ch.wt, cid = ch.id;
+  if (wt === "Armorer") return ["CR", "CD", "DEF%", "PEN", "DEF_FLAT"];
+  if (wt === "Rupture") return ["CR", "CD", "HP%", "ATK%", "HP_FLAT"];
+  if (cid === "1451" || cid === "1341") return ["HP%", "CR", "CD", "ATK%"];
+  if (wt === "Support" && ["1311", "1491", "1131", "1411", "1421"].includes(cid)) {
+    return cid === "1411" ? ["ATK%", "AP", "CR", "CD"] : ["ATK%", "CR", "CD", "PEN"];
+  }
+  if (cid === "1091") return ["CR", "CD", "ATK%", "AP", "PEN"];
+  if (ch.prof?.anom_split && wt !== "Support" && wt !== "Defense" && wt !== "Stun") {
+    return ["AP", "ATK%", "CR", "CD", "PEN", "ATK_FLAT"];
+  }
+  if (cid === "1511" || cid === "1031") return ["CR", "CD", "AP", "ATK%", "PEN"];
+  return ["CR", "CD", "ATK%", "PEN", "ATK_FLAT"];
+}
+
+function cleanZeroSubs(alloc: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(alloc)) {
+    if (v > 0) out[k] = v;
+  }
+  return out;
+}
+
+/**
+ * Pass-1 exact sheet optimizer (1-roll greedy) for out-of-combat buff conversion caps
+ * (e.g. Astra 3429 ATK, Lucia 24000 HP, King of the Summit 50% CR, Ju Fufu 3400 ATK).
+ */
+function optimizeSheetSubstatAlloc(m: any, d4: string, d5: string, d6: string, mods: any, activeMembers: any[], ctx: any) {
+  const b = Math.max(0, Math.min(45, Math.round(m.rolls ?? 28)));
+  const cap = Math.max(4, Math.min(36, Math.round(m.subCap || 18)));
+  const keys = getCandidateSubKeys(m.ch);
+  const alloc: Record<string, number> = {};
+  const evalFn = (sub: Record<string, number>) => {
+    const st = evalMemberSheet(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, sub, mods, ctx, m.cfg);
+    const util = calcMemberTeamBuffUtil(m, st, activeMembers, ctx);
+    // Tiny tie-breaker so surplus rolls beyond buff cap favor Crit/Main scaling
+    const tie = (st.init_cr * 0.0002 + st.init_cd * 0.0001 + st.init_atk * 1e-8);
+    return { st, score: util + tie };
+  };
+
+  let cur = evalFn(alloc);
+  for (let step = 0; step < b; step++) {
+    let bestKey = keys[0];
+    let bestEval = cur;
+    let bestSc = -1e18;
+    for (const k of keys) {
+      if ((alloc[k] || 0) >= cap) continue;
+      alloc[k] = (alloc[k] || 0) + 1;
+      const cand = evalFn(alloc);
+      if (cand.score > bestSc) {
+        bestSc = cand.score;
+        bestKey = k;
+        bestEval = cand;
+      }
+      alloc[k] -= 1;
+    }
+    alloc[bestKey] = (alloc[bestKey] || 0) + 1;
+    cur = bestEval;
+  }
+  const finalSub = cleanZeroSubs(alloc);
+  const st = evalMemberSheet(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, finalSub, mods, ctx, m.cfg);
+  return { st, util: calcMemberTeamBuffUtil(m, st, activeMembers, ctx) };
+}
+
+/**
+ * Pass-2 exact 1-roll marginal hill-climbing + pairwise local swap optimizer.
+ * Solves optimal substat distribution to 1-roll precision without crit overflow or wasted rolls.
+ */
+export function optimizeSubstatAllocForDisc(
+  m: any,
+  d4: string,
+  d5: string,
+  d6: string,
+  tb: any,
+  env: any,
+  ctx: any,
+  memberIdx: number,
+  rotWeight: number,
+  activeMembers: any[],
+  estTeamRef: number
+) {
+  const b = Math.max(0, Math.min(45, Math.round(m.rolls ?? 28)));
+  const cap = Math.max(4, Math.min(36, Math.round(m.subCap || 18)));
+  const keys = getCandidateSubKeys(m.ch);
+
+  const scoreAlloc = (sub: Record<string, number>) => {
+    const r = evalSlotDamage(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, sub, m.aa.active, tb, env, ctx, m.cfg, memberIdx);
+    const utilDelta = (calcMemberTeamBuffUtil(m, r.st, activeMembers, ctx) - m.baseBuffUtil) * estTeamRef;
+    return { r, comb: r.rawDmg * rotWeight + utilDelta };
+  };
+
+  const runFromSeed = (seed: Record<string, number>) => {
+    const alloc: Record<string, number> = {};
+    let used = 0;
+    for (const [k, v] of Object.entries(seed)) {
+      const clamped = Math.max(0, Math.min(cap, Math.min(b - used, Math.round(v || 0))));
+      if (clamped > 0) {
+        alloc[k] = clamped;
+        used += clamped;
+      }
+    }
+
+    let cur = scoreAlloc(alloc);
+    for (let step = used; step < b; step++) {
+      let bestK = keys[0];
+      let bestPair = cur;
+      let bestSc = -1e18;
+      for (const k of keys) {
+        if ((alloc[k] || 0) >= cap) continue;
+        alloc[k] = (alloc[k] || 0) + 1;
+        const cand = scoreAlloc(alloc);
+        if (cand.comb > bestSc) {
+          bestSc = cand.comb;
+          bestK = k;
+          bestPair = cand;
+        }
+        alloc[k] -= 1;
+      }
+      alloc[bestK] = (alloc[bestK] || 0) + 1;
+      cur = bestPair;
+    }
+
+    // Pairwise 1-roll local swap polish to eliminate any greedy path sub-optimality
+    for (let iter = 0; iter < 14; iter++) {
+      let improved = false;
+      let bestFrom = "";
+      let bestTo = "";
+      let bestPair = cur;
+      for (const a of keys) {
+        if ((alloc[a] || 0) <= 0) continue;
+        for (const to of keys) {
+          if (to === a || (alloc[to] || 0) >= cap) continue;
+          alloc[a] -= 1;
+          alloc[to] = (alloc[to] || 0) + 1;
+          const cand = scoreAlloc(alloc);
+          if (cand.comb > bestPair.comb + 1e-6) {
+            bestPair = cand;
+            bestFrom = a;
+            bestTo = to;
+            improved = true;
+          }
+          alloc[to] -= 1;
+          alloc[a] += 1;
+        }
+      }
+      if (!improved) break;
+      alloc[bestFrom] -= 1;
+      alloc[bestTo] = (alloc[bestTo] || 0) + 1;
+      cur = bestPair;
+    }
+
+    const cleaned = cleanZeroSubs(alloc);
+    return scoreAlloc(cleaned);
+  };
+
+  let best = runFromSeed({});
+
+  // Non-convex step-threshold guard: King of the Summit 4pc needs >= 50% CR on Stunners
+  if (m.fourPc === "山大王" && m.ch.wt === "Stun") {
+    const baseEval = evalSlotDamage(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, {}, m.aa.active, tb, env, ctx, m.cfg, memberIdx);
+    const crNow = baseEval.st.init_cr + (m.ch.prof?.self_cr || 0) + baseEval.st.eff.c_cr;
+    if (crNow < 0.50) {
+      const needCrRolls = Math.min(cap, Math.min(b, Math.ceil((0.50 - crNow) / 0.024)));
+      if (needCrRolls > 0) {
+        const seeded = runFromSeed({ CR: needCrRolls });
+        if (seeded.comb > best.comb) best = seeded;
+      }
+    }
+  }
+
+  return best;
 }
 
 export function getAutoRotationWeights(activeMembers) {
@@ -1654,18 +1976,27 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     }
     const isLockedDisc = m.cfg.discAuto === false && m.cfg.d4 && m.cfg.d5 && m.cfg.d6;
     const dOpts = isLockedDisc ? [[m.cfg.d4], [m.cfg.d5], [m.cfg.d6]] : getDiscCandidates(m.ch);
-    const allocs = (m.cfg.subAuto === false && m.cfg.sub) ? [m.cfg.sub]
+    const subMode = resolveSubAllocMode(m.cfg);
+    const useExactP1 = !fastMode && subMode === "optimal" && (m.ch.wt === "Support" || m.ch.wt === "Defense" || m.ch.wt === "Stun");
+    const allocs = subMode === "custom" && m.cfg.sub
+      ? [m.cfg.sub]
       : (fastMode ? getSubAllocs(m.ch, m.rolls, m.subCap).slice(0, 4) : getSubAllocs(m.ch, m.rolls, m.subCap));
     let bestSt = null, bestScore = -1e18;
     for (const d4 of dOpts[0]) {
       for (const d5 of dOpts[1]) {
         for (const d6 of dOpts[2]) {
-          for (const sub of allocs) {
-            const st = evalMemberSheet(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, sub, mods, ctx, m.cfg);
-            const util = calcMemberTeamBuffUtil(m, st, activeMembers, ctx);
-            const bdMatch = `${d4}/${d5}/${d6}` === m.ch.base_disc ? 0.0005 : 0;
-            const sc = util + bdMatch;
-            if (sc > bestScore) { bestScore = sc; bestSt = st; }
+          const bdMatch = `${d4}/${d5}/${d6}` === m.ch.base_disc ? 0.0005 : 0;
+          if (useExactP1) {
+            const solved = optimizeSheetSubstatAlloc(m, d4, d5, d6, mods, activeMembers, ctx);
+            const sc = solved.util + bdMatch;
+            if (sc > bestScore) { bestScore = sc; bestSt = solved.st; }
+          } else {
+            for (const sub of allocs) {
+              const st = evalMemberSheet(m.ch, m.m, m.w, m.ref, m.fourPc, m.twoPc, d4, d5, d6, sub, mods, ctx, m.cfg);
+              const util = calcMemberTeamBuffUtil(m, st, activeMembers, ctx);
+              const sc = util + bdMatch;
+              if (sc > bestScore) { bestScore = sc; bestSt = st; }
+            }
           }
         }
       }
@@ -1826,9 +2157,16 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     } else {
       const isLockedDisc = m.cfg.discAuto === false && m.cfg.d4 && m.cfg.d5 && m.cfg.d6;
       const [d4Opts, d5Opts, d6Opts] = isLockedDisc ? [[m.cfg.d4], [m.cfg.d5], [m.cfg.d6]] : getDiscCandidates(m.ch);
-      const allocs = (m.cfg.subAuto === false && m.cfg.sub) ? [m.cfg.sub]
-        : (fastMode ? getSubAllocs(m.ch, m.rolls, m.subCap).slice(0, 4) : getSubAllocs(m.ch, m.rolls, m.subCap));
+      const subMode = resolveSubAllocMode(m.cfg);
+      const useExactOpt = !fastMode && subMode === "optimal";
+      const allocs = subMode === "custom" && m.cfg.sub
+        ? [m.cfg.sub]
+        : (fastMode || useExactOpt
+            ? getSubAllocs(m.ch, m.rolls, m.subCap).slice(0, 4)
+            : getSubAllocs(m.ch, m.rolls, m.subCap));
+
       let bestCombined = -1e18;
+      const coarseDiscs: Array<{ d4: string; d5: string; d6: string; r: any; comb: number }> = [];
       for (const d4 of d4Opts) {
         for (const d5 of d5Opts) {
           for (const d6 of d6Opts) {
@@ -1838,10 +2176,38 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
               const utilDelta = (calcMemberTeamBuffUtil(m, r.st, activeMembers, ctx) - m.baseBuffUtil) * estTeamRef;
               const comb = r.rawDmg * rotWeight + utilDelta;
               if (comb > bestForDiscComb) { bestForDiscComb = comb; bestForDisc = r; }
-              if (comb > bestCombined) { bestCombined = comb; best = r; }
+              if (!useExactOpt && comb > bestCombined) { bestCombined = comb; best = r; }
             }
-            if (!fastMode) discTop.push({ disc: `${d4}/${d5}/${d6}`, rawDmg: bestForDisc.rawDmg, combScore: bestForDiscComb, sub: bestForDisc.st.sub, bd: bestForDisc.breakdown });
+            if (useExactOpt) {
+              coarseDiscs.push({ d4, d5, d6, r: bestForDisc, comb: bestForDiscComb });
+            } else if (!fastMode) {
+              discTop.push({ disc: `${d4}/${d5}/${d6}`, rawDmg: bestForDisc.rawDmg, combScore: bestForDiscComb, sub: bestForDisc.st.sub, bd: bestForDisc.breakdown });
+            }
           }
+        }
+      }
+
+      if (useExactOpt) {
+        coarseDiscs.sort((a, b) => b.comb - a.comb);
+        const topK = Math.min(4, coarseDiscs.length);
+        for (let ci = 0; ci < coarseDiscs.length; ci++) {
+          const item = coarseDiscs[ci];
+          let finalR = item.r;
+          let finalComb = item.comb;
+          if (ci < topK) {
+            const solved = optimizeSubstatAllocForDisc(
+              m, item.d4, item.d5, item.d6, tb, env, ctx, i, rotWeight, activeMembers, estTeamRef
+            );
+            if (solved.comb >= finalComb) {
+              finalR = solved.r;
+              finalComb = solved.comb;
+            }
+          }
+          if (finalComb > bestCombined) {
+            bestCombined = finalComb;
+            best = finalR;
+          }
+          discTop.push({ disc: `${item.d4}/${item.d5}/${item.d6}`, rawDmg: finalR.rawDmg, combScore: finalComb, sub: finalR.st.sub, bd: finalR.breakdown });
         }
       }
       if (!fastMode) discTop.sort((a, b) => b.combScore - a.combScore);
@@ -1867,6 +2233,7 @@ export function simulateTeamV2(slots, env, charMap = CHAR_MAP, wepMap = SC_WEPS,
     slotResults.push({
       slotIdx: m.slotIdx, ch: m.ch, w: m.w, m: m.m, ref: m.ref,
       fourPc: best.st.fourPc, twoPc: best.st.twoPc, buildMode: bm,
+      subAllocMode: resolveSubAllocMode(m.cfg),
       uptime: m.uptime, aa: m.aa,
       rotWeight, autoWeight: autoWeights[i] * qaSwap.weightMult[i],
       rawDmg: best.rawDmg, weightedDmg: best.rawDmg * rotWeight,

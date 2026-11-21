@@ -345,7 +345,81 @@ const EXACT_PHRASES: Record<string, LangPair> = {
   "B5 脆皮高易伤": { en: "B5 Fragile/High Stun", ja: "B5 低防御・高脆弱" },
   "B6 疯狗短失衡": { en: "B6 High-Aggro Short Stun", ja: "B6 高靭性・短ブレイク" },
   "B7 秽盾减伤首领": { en: "B7 Miasma Shield", ja: "B7 穢盾ダメージ軽減" },
-  "B8 防异常首领": { en: "B8 Anomaly-Resistant", ja: "B8 異常耐性ボス" }
+  "B8 防异常首领": { en: "B8 Anomaly-Resistant", ja: "B8 異常耐性ボス" },
+
+  // v3.3.2 New Modules: Gold Matrix, 1-Roll Optimizer, Block Inspector, Ledger, Endgame Benchmarks, Wiki & Share
+  "机制百科": { en: "Mechanics Wiki", ja: "仕様・百科" },
+  "机制百科与速查": { en: "Mechanics Wiki & Codex", ja: "メカニズム百科＆図鑑" },
+  "复制分享链接": { en: "Copy Share Link", ja: "共有リンクをコピー" },
+  "生成分享链接": { en: "Copy Share Link", ja: "共有リンク作成" },
+  "复制当前配置分享链接": { en: "Copy Current Build Share Link", ja: "現在の編成共有リンクをコピー" },
+  "更新日志 / 计划 / 勘误": { en: "Changelog / Roadmap / Feedback", ja: "更新履歴 / 計画 / フィードバック" },
+  "更新日志与开发计划": { en: "Changelog & Roadmap", ja: "更新履歴と開発計画" },
+  "强制清缓存刷新": { en: "Force Cache Reload", ja: "キャッシュ無視で再読込" },
+  "强制刷新缓存 ↻": { en: "Force Reload ↻", ja: "キャッシュ強制更新 ↻" },
+  "更新日志": { en: "Changelog", ja: "更新履歴" },
+  "开发计划": { en: "Roadmap", ja: "開発計画" },
+  "口径说明 & 缓存": { en: "Methodology & Cache", ja: "計算方針とキャッシュ" },
+  "已上线": { en: "Shipped", ja: "実装済" },
+  "开发中": { en: "In Progress", ja: "開発中" },
+  "规划中": { en: "Planned", ja: "予定" },
+  "提交 Bug / 数值勘误 (GitHub)": { en: "Report Bug / Formula Issue (GitHub)", ja: "不具合・数値修正を報告 (GitHub)" },
+  "关闭 ×": { en: "Close ×", ja: "閉じる ×" },
+  "为每位代理人选择音擎、影画与驱动盘；支持 1 词条精准寻优与逐盘精调": {
+    en: "Pick W-Engine, Mindscape & Drive Discs per agent — 1-roll precision optimizer or per-disc tuning",
+    ja: "各エージェントの音動機・心象映画・ディスクを設定（1スコア精密最適／個別調整対応）"
+  },
+  "选择切人手法、拖动出招顺序，实时查看每招伤害乘区、循环耗时与增益覆盖": {
+    en: "Arrange swaps and actions to inspect per-move damage multipliers, rotation length & buff uptime live",
+    ja: "交代手法と行動順を調整し、技別ダメージ乗算区・所要時間・バフ稼働率をリアルタイム確認"
+  },
+  "输出构成、全槽位乘区来源账本与配装稀释体检，精准定位伤害短板": {
+    en: "Output breakdown, full 3-slot multiplier source ledger & dilution audit to pinpoint weak zones",
+    ja: "火力構成・全枠の乗算区ソース台帳・希釈診断で弱点を特定"
+  },
+  "音擎天梯、影画曲线、下一金 ROI、驱动盘横评与二维金数矩阵 DPS 热力图": {
+    en: "W-Engine ladder, Mindscape curve, Next-Gold ROI, Drive Sets & 2D Gold-Cost Matrix DPS heatmap",
+    ja: "音動機比較・心象映画曲線・次1金ROI・ディスク比較＆2次元金数マトリクスDPS"
+  },
+  "一键套用当期危局强袭战 / 式舆剧变首领档案，或自由调整防御、抗性与失衡机制": {
+    en: "One-click Deadly Assault & Shiyu Node 7 boss archives, or fine-tune DEF, RES & daze mechanics",
+    ja: "今期の危局強襲戦・式輿防衛戦7ボスをワンクリック適用、または防御・耐性・ブレイクを個別設定"
+  },
+  "四大输出体系公式、全代理人脱手帧与异常条底层表、独立回能/喧响阈值计算器与全装备图鉴": {
+    en: "4 combat formulas, 62-agent frame & anomaly table, standalone Energy/Decibel calculator & full gear codex",
+    ja: "4大火力計算式・全キャラフレーム＆異常表・独立エネルギー/デシベル計算機・全装備図鑑"
+  },
+  "本页为数值与合轴物理推演模拟，结果仅供参考，一切请以游戏内实战为准。": {
+    en: "All numbers come from local numerical & swap-physics simulation for reference only — in-game combat takes precedence.",
+    ja: "本ページの数値はシミュレーションによる参考値です。最終的な挙動はゲーム内実戦を基準としてください。"
+  },
+  "极限最优": { en: "Exact Opt", ja: "極限最適" },
+  "快速均衡": { en: "Fast Grid", ja: "高速配分" },
+  "自定义": { en: "Custom", ja: "手動" },
+  "金数矩阵 DPS": { en: "Gold Matrix DPS", ja: "金数マトリクス DPS" },
+  "危局参考线": { en: "DA Benchmark", ja: "危局目安スコア" },
+  "式舆7单路": { en: "Shiyu 7 Side", ja: "式輿7片面" },
+  "进行中": { en: "Active Cycle", ja: "開催中" },
+  "下期预告": { en: "Upcoming", ja: "次回予告" },
+  "往期档案": { en: "Archive", ja: "過去記録" },
+  "套用首领": { en: "Apply Boss", ja: "ボス適用" },
+  "已套用": { en: "Applied", ja: "適用中" },
+  "伤害公式与异常系数": { en: "Formulas & Anomaly Specs", ja: "ダメージ公式＆異常係数" },
+  "回能与喧响阈值计算器": { en: "Energy & Decibel Calculator", ja: "エネルギー＆デシベル計算機" },
+  "音擎 & 驱动盘图鉴速查": { en: "W-Engine & Disc Codex", ja: "音動機＆ディスク図鑑" },
+  "全稀有度": { en: "All Ranks", ja: "全レア度" },
+  "全职业": { en: "All Specialties", ja: "全特性" },
+  "全属性": { en: "All Elements", ja: "全属性" },
+  "3★ 击杀满分": { en: "3★ Boss Kill", ja: "3★ ボス撃破満点" },
+  "3★ 高分强杀": { en: "3★ High Score", ja: "3★ 高スコア達成" },
+  "3★ 稳过满星": { en: "3★ Full Clear", ja: "3★ 安定クリア" },
+  "2★ 接近满星": { en: "2★ Near 3★", ja: "2★ 星3目前" },
+  "1★ 待提练度": { en: "1★ Needs Build", ja: "1★ 要育成" },
+  "练度不足": { en: "Undergeared", ja: "育成不足" },
+  "S 极速竞速": { en: "S Speedrun", ja: "S 爆速クリア" },
+  "S 级舒适": { en: "S Comfy", ja: "S 余裕クリア" },
+  "S 级及格": { en: "S Pass", ja: "S 合格圏" },
+  "超时风险": { en: "Overtime Risk", ja: "時間超過リスク" }
 };
 
 // Ordered phrase/entity replacements (sorted longest-first at module init)
@@ -690,7 +764,43 @@ const RAW_TOKENS: Array<[string, string, string]> = [
   ["抗性区", "RES Shred", "耐性低下区"],
   ["攻击基础", "Base ATK", "基礎攻撃"],
   ["贯穿基础", "Base Sheer", "基礎貫通力"],
-  ["防御基础", "Base DEF", "基礎防御"]
+  ["防御基础", "Base DEF", "基礎防御"],
+
+  // v3.3.2 Dynamic Tokens
+  ["二维金数矩阵 DPS", "2D Gold-Cost Matrix DPS", "2次元金数マトリクス DPS"],
+  ["同金最高效率前沿", "Pareto Efficiency Frontier", "同金数最高効率フロンティア"],
+  ["最优加金路径", "Optimal Upgrade Path", "最適凸・餅ルート"],
+  ["当前招式伤害与瞬时乘区拆解", "Selected Move Damage & Live Multiplier Breakdown", "選択技ダメージ＆リアルタイム乗算区内訳"],
+  ["招式理论直伤", "Move Direct DMG", "技理論直撃ダメージ"],
+  ["占本人轮伤", "of Agent DPR", "本人DPR比"],
+  ["占全队轮伤", "of Squad DPR", "チームDPR比"],
+  ["命中失衡窗口", "Inside Stun Window", "ブレイク中命中"],
+  ["失衡外阶段", "Out-of-Stun", "非ブレイク時"],
+  ["短轴拐覆盖状态", "Short-Buff Window Status", "短時間バフ窓ステータス"],
+  ["全乘区来源明细账本", "Full Multiplier Source Ledger", "全乗算区ソース明細台帳"],
+  ["基础面板区", "Base Stat Zone", "基礎ステータス区"],
+  ["双暴/撕裂区", "CRIT / Lacerate Zone", "会心/撕裂区"],
+  ["总增伤区", "Total DMG% Zone", "総ダメバフ区"],
+  ["防御/穿透区", "DEF / PEN Zone", "防御/貫通区"],
+  ["属性抗性区", "Elemental RES Zone", "属性耐性区"],
+  ["失衡与独立区", "Stun & Extra Mult", "ブレイク＆独立乗算"],
+  ["核心技能占比", "Core Skill Shares", "主要スキル比率"],
+  ["危局操作分", "DA Ops Score", "危局操作スコア"],
+  ["危局强袭战", "Deadly Assault", "危局強襲戦"],
+  ["式舆剧变7", "Shiyu Node 7", "式輿防衛戦7"],
+  ["约可击杀", "Est. Kill", "撃破見込"],
+  ["三星线", "3★ Clear", "星3達成"],
+  ["未满星", "Below 3★", "星3未満"],
+  ["全音擎图鉴", "All W-Engines", "全音動機図鑑"],
+  ["全驱动盘套装", "All Drive Sets", "全ディスクセット"],
+  ["代理人帧数与底层表", "Agent Frames & Core Table", "キャラフレーム＆基礎表"],
+  ["能量充裕", "Energy Surplus", "エネルギー充足"],
+  ["能量不足", "Energy Shortfall", "エネルギー不足"],
+  ["单轮大招可循环", "1-Cycle Ult Ready", "1ローテ終結可能"],
+  ["双轮一大", "2-Cycle Ult", "2ローテ1終結"],
+  ["1词精准最优", "1-Roll Exact Opt", "1スコア極限最適"],
+  ["快速网格配平", "Fast Coarse Grid", "高速グリッド配分"],
+  ["手动自定义", "Manual Custom", "手動カスタム"]
 ];
 
 const SORTED_TOKENS = [...RAW_TOKENS].sort((a, b) => b[0].length - a[0].length);

@@ -2822,3 +2822,642 @@ html.dark .dil-tag.dil-tag-anti {
   border-bottom: none;
 }
 
+/* ==========================================================================
+   v3.3.2 Studio Enhancements: Substat 3-Mode, Ledger, Block Breakdown,
+   Gold Matrix, Endgame Archives, Mechanics Wiki, Share & Meta Modal
+   ========================================================================== */
+
+/* Clickable version pill & engine chip */
+.brand-ver-btn {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 1px 6px;
+  background: var(--zzz-yellow);
+  color: #111;
+  font-weight: 900;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.brand-ver-btn:hover {
+  background: var(--zzz-lime);
+  transform: translateY(-1px);
+}
+button.engine-chip {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+button.engine-chip:hover {
+  border-color: var(--zzz-yellow);
+  color: var(--zzz-yellow);
+}
+
+/* 3-State Substat Allocation Mode Segmented Switcher */
+.sub-mode-seg {
+  display: inline-flex;
+  border: 1.5px solid var(--border-strong);
+  background: var(--well);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sub-mode-btn {
+  border: none;
+  border-right: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.sub-mode-btn:last-child { border-right: none; }
+.sub-mode-btn:hover {
+  color: var(--foreground);
+  background: var(--card-hover);
+}
+.sub-mode-btn.active {
+  background: #111;
+  color: var(--zzz-yellow);
+}
+html.dark .sub-mode-btn.active {
+  background: var(--zzz-yellow);
+  color: #111;
+}
+
+/* Right Rail: Endgame Reference Line & Mini Share Button */
+.tele-share-mini-btn {
+  margin-left: auto;
+  border: 1.5px solid #111;
+  background: #111;
+  color: var(--zzz-yellow);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.12s ease;
+}
+.tele-share-mini-btn:hover {
+  background: #fff;
+  color: #111;
+  transform: translateY(-1px);
+}
+.tele-benchmark-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tele-bm-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 9px;
+  border: 1.5px solid #111;
+  background: rgba(17, 17, 17, 0.92);
+  color: #f4f3ee;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.1s ease, border-color 0.12s ease;
+}
+.tele-bm-cell:hover {
+  transform: translateY(-1px);
+  background: #111;
+}
+.tele-bm-k {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b7b5ac;
+  letter-spacing: 0.03em;
+}
+.tele-bm-v {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--zzz-yellow);
+  line-height: 1.2;
+}
+.tele-bm-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  margin-top: 1px;
+}
+.tele-bm-tag.ok { background: var(--zzz-lime); color: #111; }
+.tele-bm-tag.info { background: var(--zzz-cyan); color: #111; }
+.tele-bm-tag.warn { background: var(--zzz-orange); color: #111; }
+
+/* Section 02: Per-Move Block Damage & Real-Time Multiplier Strip */
+.blk-dmg-strip {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--card-elev);
+}
+.blk-dmg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.blk-dmg-hero {
+  font-size: 13px;
+  color: var(--foreground);
+}
+.blk-dmg-hero strong {
+  font-size: 15px;
+  padding: 0 4px;
+  background: var(--primary-soft);
+  color: var(--foreground);
+}
+.blk-buff-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed var(--border);
+}
+.blk-buff-chip {
+  font-size: 11px;
+  padding: 2px 7px;
+  border: 1px solid var(--card-border);
+  background: var(--card);
+  color: var(--foreground);
+}
+.blk-buff-chip.on {
+  border-color: var(--success);
+  background: var(--success-soft);
+  font-weight: 600;
+}
+.blk-buff-chip.off {
+  opacity: 0.52;
+  color: var(--muted-foreground);
+}
+
+/* Section 03: Multiplier Source Ledger */
+.ledger-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+.ledger-summary::-webkit-details-marker { display: none; }
+.ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.ledger-box {
+  border: 1px solid var(--card-border);
+  background: var(--card-elev);
+  padding: 9px 11px;
+}
+.ledger-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+}
+.ledger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  padding: 2px 0;
+  color: var(--foreground-soft);
+}
+.ledger-cats-strip {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.ledger-cats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px 12px;
+}
+.ledger-cat-item {
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  background: var(--card-elev);
+}
+
+/* Section 04: Gold-Cost Investment Matrix Heatmap */
+.gm-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.gm-star-inline { color: var(--warning); }
+.gm-table-wrap {
+  overflow-x: auto;
+  border: 2px solid var(--border-strong);
+  background: var(--card);
+}
+.gm-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+.gm-table th {
+  padding: 8px 8px;
+  text-align: center;
+  border: 1px solid var(--card-border);
+  background: var(--well);
+  vertical-align: middle;
+}
+.gm-corner {
+  min-width: 118px;
+  font-size: 11px;
+  font-weight: 800;
+  background: #111 !important;
+  color: var(--zzz-yellow) !important;
+}
+.gm-col-title, .gm-row-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--foreground);
+}
+.gm-col-sub, .gm-row-sub {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gm-row-head {
+  text-align: left !important;
+  padding: 7px 10px !important;
+  min-width: 118px;
+}
+.gm-cell {
+  padding: 0;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 224, 27, var(--gm-heat, 0.12));
+  transition: transform 0.1s ease;
+}
+html.dark .gm-cell {
+  background: rgba(255, 224, 27, calc(var(--gm-heat, 0.12) * 0.65));
+}
+.gm-cell.is-cur {
+  outline: 2.5px solid #111;
+  outline-offset: -2.5px;
+  background: var(--zzz-yellow) !important;
+}
+html.dark .gm-cell.is-cur {
+  outline-color: var(--zzz-lime);
+  background: rgba(197, 242, 48, 0.28) !important;
+}
+.gm-cell-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 92px;
+  padding: 8px 6px;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.gm-cell-btn:hover {
+  background: rgba(17, 17, 17, 0.1);
+}
+html.dark .gm-cell-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.gm-cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+.gm-gold-tag {
+  font-weight: 700;
+  color: var(--muted-foreground);
+}
+.gm-cell.is-cur .gm-gold-tag { color: #111; }
+html.dark .gm-cell.is-cur .gm-gold-tag { color: var(--zzz-lime); }
+.gm-star-tag {
+  font-size: 11px;
+  color: var(--warning);
+  font-weight: 900;
+}
+.gm-cur-tag {
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 0 4px;
+  background: #111;
+  color: var(--zzz-yellow);
+}
+.gm-cell-val {
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.gm-cell-pct {
+  font-size: 10.5px;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+.gm-cell.is-cur .gm-cell-pct,
+.gm-cell.is-cur .gm-cell-val { color: #111; }
+html.dark .gm-cell.is-cur .gm-cell-pct,
+html.dark .gm-cell.is-cur .gm-cell-val { color: #fff; }
+
+.gm-path-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card-elev);
+}
+.gm-path-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+  gap: 8px;
+}
+.gm-path-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 9px;
+  border: 1.5px solid var(--card-border);
+  background: var(--card);
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.1s ease;
+}
+.gm-path-chip:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.gm-path-chip.is-cur {
+  border-color: var(--border-strong);
+  background: var(--active-wash);
+}
+.gm-path-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+/* Section 05: Endgame Boss Cycle Archive Grid */
+.eg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  gap: 10px;
+}
+.eg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 11px 12px;
+  border: 1.5px solid var(--card-border);
+  background: var(--card-elev);
+  transition: border-color 0.12s ease;
+}
+.eg-card.active {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-hard-sm);
+  background: var(--card);
+}
+.eg-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--foreground);
+}
+.eg-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 11px;
+  color: var(--foreground-soft);
+}
+.eg-res-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.eg-elem-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card);
+}
+.eg-elem-tag.weak {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+.eg-elem-tag.res {
+  border-color: var(--error);
+  background: var(--error-soft);
+}
+.eg-note {
+  font-size: 11px;
+  line-height: 1.45;
+  flex: 1;
+}
+.eg-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 7px;
+  margin-top: 2px;
+  border-top: 1px dashed var(--border);
+}
+
+/* Section 06: Mechanics Wiki & Energy Threshold Calculator */
+.wiki-formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.wiki-formula-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wiki-f-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.wiki-eq {
+  padding: 9px 11px;
+  border-left: 3px solid var(--zzz-yellow);
+  background: var(--well);
+  font-size: 11.5px;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+.wiki-notes {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.wiki-appendix-sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  list-style: none;
+}
+.wiki-appendix-sum::-webkit-details-marker { display: none; }
+.wiki-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+.wiki-er-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.wiki-er-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 11px;
+  border: 1px solid var(--card-border);
+  background: var(--card-elev);
+  font-size: 11.5px;
+}
+.wiki-er-kpi strong {
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+/* Disclaimer Footer, Meta Modal & Toast */
+.studio-disclaimer {
+  margin-top: 28px;
+  padding: 12px 14px;
+  border-top: 1.5px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+.studio-disclaimer-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.link-btn {
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.link-btn:hover { color: var(--info); }
+
+.meta-dialog {
+  max-width: 720px;
+  width: min(720px, 94vw);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+}
+.meta-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+.meta-version-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.meta-row {
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card-elev);
+}
+.meta-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-top: 1px solid var(--card-border);
+  background: var(--well);
+}
+
+.studio-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(16px);
+  z-index: 9999;
+  padding: 9px 16px;
+  background: #111;
+  color: var(--zzz-yellow);
+  border: 2px solid var(--zzz-yellow);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+  font-size: 12.5px;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.studio-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 1100px) {
+  .ledger-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wiki-formula-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .ledger-grid { grid-template-columns: 1fr; }
+  .wiki-er-kpis { grid-template-columns: 1fr; }
+}
+
+

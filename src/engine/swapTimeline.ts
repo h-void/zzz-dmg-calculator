@@ -1396,6 +1396,14 @@ export function analyzeTimeline(blocks: any[], activeMembers: any[], env: any = 
     b._totalTicks = 0;
     b._energyAtCast = 0;
     b._decibelAtCast = 0;
+    b._nicoleTicks = 0;
+    b._rinaTicks = 0;
+    b._hormoneTicks = 0;
+    b._frostbiteTicks = 0;
+    b._protoTicks = 0;
+    b._swingTicks = 0;
+    b._moonlightTicks = 0;
+    b._astralSum = 0;
   });
 
   let astralStackWeightedSum = 0;
@@ -1708,19 +1716,41 @@ export function analyzeTimeline(blocks: any[], activeMembers: any[], env: any = 
         st.mvTagStun += rawMvSlice;
       }
 
-      if (nicoleActive) st.covNicoleMv += rawMvSlice;
-      if (rinaActive) st.covRinaMv += rawMvSlice;
-      if (t <= st.hormoneUntil) st.covHormoneMv += rawMvSlice;
-      if (frostbiteActive) st.covFrostbiteMv += rawMvSlice;
+      if (nicoleActive) {
+        st.covNicoleMv += rawMvSlice;
+        b._nicoleTicks += 1;
+      }
+      if (rinaActive) {
+        st.covRinaMv += rawMvSlice;
+        b._rinaTicks += 1;
+      }
+      if (t <= st.hormoneUntil) {
+        st.covHormoneMv += rawMvSlice;
+        b._hormoneTicks += 1;
+      }
+      if (frostbiteActive) {
+        st.covFrostbiteMv += rawMvSlice;
+        b._frostbiteTicks += 1;
+      }
 
       const catKey = b.cat === "qa" || b.cat === "parry" ? "dash" : st.catMv[b.cat] !== undefined ? b.cat : "basic";
       st.catMv[catKey] += rawMvSlice;
 
       squadActiveMvSum += rawMvSlice;
       astralStackWeightedSum += rawMvSlice * astralStacks;
-      if (protoActive) protoWeightedSum += rawMvSlice;
-      if (swingActive) swingWeightedSum += rawMvSlice;
-      if (moonlightActive) moonlightWeightedSum += rawMvSlice;
+      b._astralSum += astralStacks;
+      if (protoActive) {
+        protoWeightedSum += rawMvSlice;
+        b._protoTicks += 1;
+      }
+      if (swingActive) {
+        swingWeightedSum += rawMvSlice;
+        b._swingTicks += 1;
+      }
+      if (moonlightActive) {
+        moonlightWeightedSum += rawMvSlice;
+        b._moonlightTicks += 1;
+      }
     });
 
     // 4. Advance Stun Countdown if in Stun
@@ -1746,10 +1776,25 @@ export function analyzeTimeline(blocks: any[], activeMembers: any[], env: any = 
     }
   }
 
-  // Finalize per-block real stun fraction & check Stun-phase desyncs
+  // Finalize per-block real stun fraction, buff coverages, MV share & check Stun-phase desyncs
   let stunDesyncBlocks = 0;
   sortedBlocks.forEach((b) => {
-    b._realStunFrac = b._totalTicks > 0 ? b._realStunTicks / b._totalTicks : b.phase === "stun" ? 1 : 0;
+    const ticks = Math.max(1, b._totalTicks || 0);
+    b._realStunFrac = b._totalTicks > 0 ? b._realStunTicks / ticks : b.phase === "stun" ? 1 : 0;
+    b._covNicole = b._totalTicks > 0 ? b._nicoleTicks / ticks : 0;
+    b._covRina = b._totalTicks > 0 ? b._rinaTicks / ticks : 0;
+    b._covHormone = b._totalTicks > 0 ? b._hormoneTicks / ticks : 0;
+    b._covFrostbite = b._totalTicks > 0 ? b._frostbiteTicks / ticks : 0;
+    b._covProto = b._totalTicks > 0 ? b._protoTicks / ticks : 0;
+    b._covSwing = b._totalTicks > 0 ? b._swingTicks / ticks : 0;
+    b._covMoonlight = b._totalTicks > 0 ? b._moonlightTicks / ticks : 0;
+    b._avgAstral = b._totalTicks > 0 ? b._astralSum / ticks : 0;
+
+    const st = agentStates.get(b.cid);
+    const effMv = Math.max(10, Number(b.mv) || 1000) * (b._effFactor ?? 1.0);
+    b._effMv = effMv * (b._resourceScale ?? 1.0);
+    b._mvShareOfAgent = st && st.mvTotal > 0 ? effMv / st.mvTotal : 0;
+
     if (autoStunTriggered && b.phase === "stun" && b._realStunFrac < 0.25) {
       stunDesyncBlocks += 1;
     }

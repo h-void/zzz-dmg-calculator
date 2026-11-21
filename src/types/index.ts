@@ -183,6 +183,7 @@ export interface SlotConfig {
   d5: string;
   d6: string;
   subAuto: boolean;
+  subAllocMode?: "optimal" | "fast" | "custom";
   rolls: number;
   subRollCap: number;
   sub: Record<string, number>;

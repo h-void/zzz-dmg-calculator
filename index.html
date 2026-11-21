@@ -25,7 +25,7 @@
           </svg>
         </div>
         <div class="brand-copy">
-          <div class="brand-eyebrow" data-no-i18n>ZENLESS ZONE ZERO <span class="brand-ver">v3.3</span></div>
+          <div class="brand-eyebrow" data-no-i18n>ZENLESS ZONE ZERO <button type="button" class="brand-ver brand-ver-btn" id="openMetaVerBtn" title="查看更新日志、开发计划与口径说明">v3.3.2</button></div>
           <h1>绝区零战术配队与合轴精算台</h1>
         </div>
       </div>
@@ -33,6 +33,7 @@
       <nav class="studio-nav" id="studioNavBar" aria-label="工作台视图切换"></nav>
 
       <div class="side-tools">
+        <button class="side-tool has-icon ico-share" id="shareConfigTopBtn" type="button" title="生成纯前端 URL 分享链接，打开即可直接还原当前配队">复制分享链接</button>
         <button class="side-tool has-icon ico-wrench" id="openWorkshopTopBtn" type="button">自定义工坊</button>
 
         <details class="action-dropdown" id="quickToolsDropdown">
@@ -48,6 +49,8 @@
             <button class="dropdown-item" id="themeToggleBtn" type="button">切换暗色主题</button>
             <button class="dropdown-item" id="exportWorkspaceBtn" type="button">导出全盘配置 JSON</button>
             <button class="dropdown-item" id="importWorkspaceBtn" type="button">导入配置 JSON</button>
+            <button class="dropdown-item" id="openMetaLogBtn" type="button">更新日志 / 计划 / 勘误</button>
+            <button class="dropdown-item" id="forceReloadBtn" type="button">强制清缓存刷新</button>
             <div class="dropdown-divider"></div>
             <button class="dropdown-item danger" id="resetAllBtn" type="button">重置全部默认参数</button>
           </div>
@@ -59,7 +62,7 @@
           <button class="lang-btn" data-lang="ja" type="button" data-no-i18n>日</button>
         </div>
 
-        <span class="engine-chip mono" id="workerPerfBadge" title="浏览器本地 TypeScript + Web Worker 引擎实时耗时">TS 引擎就绪</span>
+        <button type="button" class="engine-chip mono" id="workerPerfBadge" title="点击查看版本更新日志与计算口径说明">TS 引擎就绪</button>
       </div>
     </aside>
 
@@ -84,7 +87,7 @@
             <span class="sec-num" data-no-i18n>01<small>A</small></span>
             <div>
               <h2 class="sec-title">代理人配装</h2>
-              <p class="sec-desc">为每位代理人选择音擎、影画与驱动盘；可自动寻优，也可逐盘精调</p>
+              <p class="sec-desc">为每位代理人选择音擎、影画与驱动盘；支持 1 词条精准寻优与逐盘精调</p>
             </div>
           </div>
           <div class="bangboo-inline" id="sec03BangbooBar"></div>
@@ -113,7 +116,7 @@
             <span class="sec-num" data-no-i18n>02</span>
             <div>
               <h2 class="sec-title">合轴与排轴</h2>
-              <p class="sec-desc">选择切人手法、拖动出招顺序，实时计算一轮循环耗时与增益覆盖</p>
+              <p class="sec-desc">选择切人手法、拖动出招顺序，实时查看每招伤害乘区、循环耗时与增益覆盖</p>
             </div>
           </div>
         </div>
@@ -126,7 +129,7 @@
             <span class="sec-num" data-no-i18n>03</span>
             <div>
               <h2 class="sec-title">伤害分析</h2>
-              <p class="sec-desc">输出构成、乘区拆解与配装体检，找出伤害短板</p>
+              <p class="sec-desc">输出构成、全槽位乘区来源账本与配装稀释体检，精准定位伤害短板</p>
             </div>
           </div>
         </div>
@@ -140,7 +143,7 @@
             <span class="sec-num" data-no-i18n>04</span>
             <div>
               <h2 class="sec-title">养成收益</h2>
-              <p class="sec-desc">对比每把音擎、每层影画与驱动盘套装的提升幅度，帮你决定下一抽</p>
+              <p class="sec-desc">音擎天梯、影画曲线、下一金 ROI、驱动盘横评与二维金数矩阵 DPS 热力图</p>
             </div>
           </div>
         </div>
@@ -153,12 +156,34 @@
             <span class="sec-num" data-no-i18n>05</span>
             <div>
               <h2 class="sec-title">敌人与环境</h2>
-              <p class="sec-desc">设置首领的属性抗性、弱点、失衡与关卡增益</p>
+              <p class="sec-desc">一键套用当期危局强袭战 / 式舆剧变首领档案，或自由调整防御、抗性与失衡机制</p>
             </div>
           </div>
         </div>
         <div id="sec06Body"></div>
       </section>
+
+      <section class="section-block" id="sec07Wiki" hidden>
+        <div class="sec-header">
+          <div class="sec-heading-group">
+            <span class="sec-num" data-no-i18n>06</span>
+            <div>
+              <h2 class="sec-title">机制百科与速查</h2>
+              <p class="sec-desc">四大输出体系公式、全代理人脱手帧与异常条底层表、独立回能/喧响阈值计算器与全装备图鉴</p>
+            </div>
+          </div>
+        </div>
+        <div id="sec07WikiBody"></div>
+      </section>
+
+      <footer class="studio-disclaimer">
+        <span>本页为数值与合轴物理推演模拟，结果仅供参考，一切请以游戏内实战为准。</span>
+        <span class="studio-disclaimer-links">
+          <button type="button" class="link-btn" id="footerChangelogBtn">更新日志与开发计划</button>
+          <span aria-hidden="true">·</span>
+          <button type="button" class="link-btn" id="footerShareBtn">生成分享链接</button>
+        </span>
+      </footer>
     </main>
 
     <!-- ================= RIGHT: sticky yellow team-output rail ================= -->
@@ -176,6 +201,7 @@
   </div>
 
   <div id="workshopModal" class="ws-modal" hidden></div>
+  <div id="metaModal" class="ws-modal" hidden></div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>

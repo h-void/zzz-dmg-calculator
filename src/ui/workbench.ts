@@ -48,6 +48,7 @@ import {
   findViableTeams,
   rankDiscSetsForSlot,
   rankWeaponsForSlot,
+  resolveSubAllocMode,
   simulateTeamV2
 } from "../engine/simulator";
 import {
@@ -57,7 +58,7 @@ import {
   analyzeTimeline,
   calcSwapSecForMove,
   evalSwapCancelEngine,
-   getCharSwapProfile,
+  getCharSwapProfile,
   getMovePoolForChar,
   makeDefaultSwapConfig
 } from "../engine/swapTimeline";
@@ -66,6 +67,13 @@ import {
   type TeamDilutionAnalysis,
   analyzeTeamDilution
 } from "../engine/dilutionEngine";
+import { evaluateTimelineBlockDetail, getMoveCatLabelZh } from "../engine/blockInspector";
+import { computeGoldMatrix } from "../engine/goldMatrix";
+import {
+  ENDGAME_BOSS_PRESETS,
+  buildEnvPatchForEndgamePreset,
+  estimateEndgamePerformance
+} from "../engine/endgameBenchmarks";
 import { enkaVault, saveEnkaVaultToStorage } from "../enka/client";
 import {
   getEffectiveSubWeightsForAgent,
@@ -94,6 +102,13 @@ import {
 } from "./appState";
 import { openCustomWorkshop } from "./customWorkshop";
 import { getVaultSyncedSlotsMap, optimizeSlotFromVaultPool, renderEnkaPanel } from "./enkaPanel";
+import { renderMechanicsWikiSection } from "./mechanicsWiki";
+import {
+  copyCurrentShareUrl,
+  decodeAndApplyShareCode,
+  openMetaModal,
+  showStudioToast
+} from "./shareAndMeta";
 
 function applyThemeToDOM() {
   const html = document.documentElement;
@@ -125,6 +140,9 @@ const EVAL_WEP_TOP_N = 8;
 let evalWepShowAll = false;
 let dilutionTargetSlotIdx = 0;
 let dilutionEnvTab: "stage" | "boss" = "stage";
+let diagInspectorSlotIdx = 0;
+let diagLedgerOpen = true;
+let endgameFilterTab: "all" | "da" | "shiyu" = "all";
 
 export function refreshAllUI() {
   applyThemeToDOM();
@@ -152,6 +170,7 @@ export function refreshAllUI() {
   renderSection04SwapAndTimeline(appStore.lastSimResult);
   renderSection05EvalCenter(appStore.lastSimResult);
   renderSection06Environment();
+  renderMechanicsWikiSection();
   localizeDOM(document.body, appStore.state.lang || "zh");
 }
 
@@ -163,7 +182,8 @@ function applyStudioVisibility() {
     sec04: view === "timeline" || view === "all",
     sec02: view === "diag" || view === "all",
     sec05: view === "eval" || view === "all",
-    sec06: view === "env" || view === "all"
+    sec06: view === "env" || view === "all",
+    sec07Wiki: view === "wiki" || view === "all"
   };
   Object.entries(showMap).forEach(([id, visible]) => {
     const el = document.getElementById(id);
@@ -208,6 +228,8 @@ function renderLiveTelemetryBar(sim: any) {
   const heroUnit = isDps ? "/ 秒" : "/ 轮";
   const heroCaption = isDps ? "合轴后每秒伤害 (DPS)" : "一轮爆发总伤害 (DPR)";
 
+  const eg = estimateEndgamePerformance(sim.teamActualDps || 0, sim.da3MinTotal || 0, appStore.state.env);
+
   const shareRows = (sim.slotResults || []).map((r: any, i: number) => ({
     color: CHART_COLORS[i],
     pct: r.dpsShare * 100,
@@ -241,6 +263,7 @@ function renderLiveTelemetryBar(sim: any) {
           ? `<span class="badge ${aaAllOk ? "b-ok" : "b-warn"}">${aaAllOk ? `额外能力 ${sim.aaLitCount}/${sim.activeCount} 激活` : `额外能力 ${sim.aaLitCount}/${sim.activeCount} 未满`}</span>`
           : ""
       }
+      <button type="button" class="tele-share-mini-btn" id="railShareBtn" title="复制当前配队与排轴分享链接">分享 ↗</button>
     </div>
 
     <dl class="tele-sub-metrics">
@@ -260,6 +283,25 @@ function renderLiveTelemetryBar(sim: any) {
         <dd class="tele-stat-note">约 ${Math.max(1, (180 / Math.max(6, sim.cycleSec || 18))).toFixed(1)} 轮循环</dd>
       </div>
     </dl>
+
+    ${
+      sim.activeCount > 0
+        ? `
+      <div class="tele-benchmark-strip" title="按 0.90 实战有效输出率折算；点击可前往「05 敌人与环境」切换当期危局/式舆首领与调节操作分">
+        <button type="button" class="tele-bm-cell" data-rail-jump="env">
+          <span class="tele-bm-k">危局参考线</span>
+          <span class="tele-bm-v mono">${fmtNum(eg.daTotalScore)} 分</span>
+          <span class="tele-bm-tag ${eg.daTierClass}">${escHtml(eg.daTierLabel)}</span>
+        </button>
+        <button type="button" class="tele-bm-cell" data-rail-jump="env">
+          <span class="tele-bm-k">式舆7单路</span>
+          <span class="tele-bm-v mono">${eg.shiyuClearSec >= 300 ? ">300s" : `~${Math.round(eg.shiyuClearSec)}s`}</span>
+          <span class="tele-bm-tag ${eg.shiyuGradeClass}">${escHtml(eg.shiyuGradeLabel)}</span>
+        </button>
+      </div>
+    `
+        : ""
+    }
 
     <div class="tele-share-footer">
       <div class="tele-share-head">
@@ -303,6 +345,17 @@ function renderLiveTelemetryBar(sim: any) {
       }
     });
   });
+
+  el.querySelector("#railShareBtn")?.addEventListener("click", () => {
+    void copyCurrentShareUrl();
+  });
+
+  el.querySelectorAll<HTMLButtonElement>("[data-rail-jump]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      appStore.state.studioView = (btn.dataset.railJump as StudioViewTab) || "env";
+      refreshAllUI();
+    });
+  });
 }
 
 function renderStudioNavBar(sim: any) {
@@ -317,7 +370,8 @@ function renderStudioNavBar(sim: any) {
     { id: "timeline", step: 2, label: "合轴排轴", ico: "ico-timeline", count: `${(sim.cycleSec || 0).toFixed(1)}s` },
     { id: "diag", step: 3, label: "伤害分析", ico: "ico-chart", count: aaWarn ? "!" : undefined, warn: Boolean(aaWarn) },
     { id: "eval", step: 4, label: "养成收益", ico: "ico-growth" },
-    { id: "env", step: 5, label: "敌人环境", ico: "ico-target" }
+    { id: "env", step: 5, label: "敌人环境", ico: "ico-target" },
+    { id: "wiki", step: 6, label: "机制百科", ico: "ico-book" }
   ];
 
   nav.innerHTML = `
@@ -1024,6 +1078,12 @@ function renderSection02KPIsAndDiag(sim) {
 
   const sr0 = sim.slotResults[0];
   const bd0 = sr0.bd;
+  const validSlotIdxs: number[] = sim.slotResults.map((r: any) => r.slotIdx);
+  if (!validSlotIdxs.includes(diagInspectorSlotIdx)) {
+    diagInspectorSlotIdx = validSlotIdxs[0];
+  }
+  const srCur = sim.slotResults.find((r: any) => r.slotIdx === diagInspectorSlotIdx) || sr0;
+  const bdCur = srCur.bd;
 
   kpiWrap.innerHTML = `
     <div class="kpi-card">
@@ -1108,22 +1168,35 @@ function renderSection02KPIsAndDiag(sim) {
       ` : ""}
 
       <div class="card">
-        <div class="sec-mini-title">1号位【${escHtml(sr0.ch.n)}】六维乘区雷达透视 &amp; 队友转模达标表</div>
+        <div class="row" style="justify-content:space-between;gap:8px;margin-bottom:8px;">
+          <div class="sec-mini-title" style="margin:0;">${srCur.slotIdx + 1}号位【${escHtml(srCur.ch.n)}】六维乘区雷达透视 &amp; 队友转模达标表</div>
+          <div class="dil-slot-switch" role="group" aria-label="切换乘区透视角色">
+            ${sim.slotResults
+              .map(
+                (r: any) => `
+              <button type="button" class="dil-pill-btn ${r.slotIdx === srCur.slotIdx ? "active" : ""}" data-diag-slot="${r.slotIdx}">
+                ${r.slotIdx + 1}号·${escHtml(r.ch.n)}
+              </button>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
         <div class="diag-radar-layout">
           <div class="diag-radar-svg-wrap">
-            ${renderMultiplierRadarSvg(bd0, sr0.ch)}
+            ${renderMultiplierRadarSvg(bdCur, srCur.ch)}
           </div>
           <div style="flex:1;min-width:0;">
             <div class="mult-pills">
-              <span class="mpill">基础${escHtml(bd0.baseLabel)}: <strong>${fmtNum(bd0.baseVal)}</strong></span>
-              <span class="mpill">双暴/撕裂区: <strong>×${(bd0.critM || 1).toFixed(3)}</strong> (${(bd0.c_cr * 100).toFixed(1)}%/${(bd0.c_cd * 100).toFixed(1)}%)</span>
-              <span class="mpill">增伤区: <strong>×${(bd0.dmgM || 1).toFixed(3)}</strong></span>
-              <span class="mpill">防御区: <strong>×${(bd0.defM || 1).toFixed(3)}</strong> (无视${(bd0.shred * 100).toFixed(0)}%/穿${(bd0.totalPen * 100).toFixed(0)}%)</span>
-              <span class="mpill">抗性区: <strong>×${(bd0.resM || 1).toFixed(3)}</strong></span>
-              <span class="mpill">失衡易伤区: <strong>×${(bd0.stunMult || 1).toFixed(3)}</strong></span>
+              <span class="mpill">基础${escHtml(bdCur.baseLabel)}: <strong>${fmtNum(bdCur.baseVal)}</strong></span>
+              <span class="mpill">双暴/撕裂区: <strong>×${(bdCur.critM || 1).toFixed(3)}</strong> (${(bdCur.c_cr * 100).toFixed(1)}%/${(bdCur.c_cd * 100).toFixed(1)}%)</span>
+              <span class="mpill">增伤区: <strong>×${(bdCur.dmgM || 1).toFixed(3)}</strong></span>
+              <span class="mpill">防御区: <strong>×${(bdCur.defM || 1).toFixed(3)}</strong> (无视${(bdCur.shred * 100).toFixed(0)}%/穿${(bdCur.totalPen * 100).toFixed(0)}%)</span>
+              <span class="mpill">抗性区: <strong>×${(bdCur.resM || 1).toFixed(3)}</strong></span>
+              <span class="mpill">失衡易伤区: <strong>×${(bdCur.stunMult || 1).toFixed(3)}</strong></span>
             </div>
             ${(() => {
-              const at = bd0.anomTelemetry;
+              const at = bdCur.anomTelemetry;
               const actx = sim.ctx?.anomCtx;
               if (!at && !(actx && (actx.frostbiteUptime > 0.02 || actx.flinchUptime > 0.02 || actx.icefireUptime > 0.02))) {
                 return "";
@@ -1173,10 +1246,193 @@ function renderSection02KPIsAndDiag(sim) {
         </div>
       </div>
     </div>
+    ${renderMultiplierLedgerHtml(srCur)}
     ${renderDilutionAuditHtml(sim)}
   `;
 
+  diagWrap.querySelectorAll<HTMLButtonElement>("[data-diag-slot]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      diagInspectorSlotIdx = Number(btn.dataset.diagSlot) || 0;
+      renderSection02KPIsAndDiag(sim);
+      localizeDOM(diagWrap, appStore.state.lang || "zh");
+    });
+  });
+  const ledgerDet = document.getElementById("diagLedgerDetails") as HTMLDetailsElement | null;
+  ledgerDet?.addEventListener("toggle", () => {
+    diagLedgerOpen = !!ledgerDet.open;
+  });
+
   bindDilutionAuditEvents(diagWrap, sim);
+}
+
+function fmtSignedPctItem(v: number, digits = 1): string {
+  const pct = (Number(v) || 0) * 100;
+  return `${pct >= 0 ? "+" : ""}${pct.toFixed(digits)}%`;
+}
+
+function renderLedgerSourceRows(items: Array<[string, string, number]>): string {
+  const nonZero = items.filter(([, , raw]) => Math.abs(raw) > 1e-4);
+  if (nonZero.length === 0) return `<div class="ledger-row muted"><span>无额外加成</span><span class="mono">0</span></div>`;
+  return nonZero
+    .map(
+      ([lbl, valStr]) =>
+        `<div class="ledger-row"><span>${escHtml(lbl)}</span><strong class="mono">${escHtml(valStr)}</strong></div>`
+    )
+    .join("");
+}
+
+function renderMultiplierLedgerHtml(sr: any): string {
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "diag" && curView !== "all") return "";
+  const lg = sr?.bd?.ledger;
+  if (!lg) return "";
+
+  const b = lg.base;
+  const c = lg.crit;
+  const d = lg.dmg;
+  const df = lg.def;
+  const rs = lg.res;
+  const st = lg.stun;
+  const cats: any[] = sr.bd.catDmgShares || [];
+  const maxCatPct = Math.max(0.1, ...cats.map((x) => x.dmgShare || 0));
+
+  return `
+    <details class="card ledger-card" id="diagLedgerDetails" style="margin-top:14px;" ${diagLedgerOpen ? "open" : ""}>
+      <summary class="ledger-summary">
+        <div>
+          <span class="sec-mini-title" style="margin:0;">${sr.slotIdx + 1}号位【${escHtml(sr.ch.n)}】乘区来源明细账本 &amp; 招式分类占比</span>
+          <span class="muted" style="font-size:11.5px;margin-left:8px;">逐项核对每个乘区的面板、音擎、套装、队友拐与场地来源</span>
+        </div>
+        <span class="badge b-info mono">${escHtml(sr.bd.formulaType)}</span>
+      </summary>
+
+      <div class="ledger-grid">
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>① 基础区 (${escHtml(b.label)})</span>
+            <strong class="mono">${fmtNum(b.finalVal)}</strong>
+          </div>
+          ${renderLedgerSourceRows([
+            ["局外基础转换", fmtNum(b.outCombatVal), b.outCombatVal],
+            ["自身/额外能力%", fmtSignedPctItem(b.selfPct), b.selfPct],
+            ["驱动盘4件套%", fmtSignedPctItem(b.setPct), b.setPct],
+            ["音擎局内%", fmtSignedPctItem(b.wepPct), b.wepPct],
+            ["队友局内%", fmtSignedPctItem(b.teamPct), b.teamPct],
+            ["场地Buff%", fmtSignedPctItem(b.stagePct), b.stagePct],
+            ["自身/音擎固定值", `+${fmtNum(b.selfFlat)}`, b.selfFlat],
+            ["队友固定值拐", `+${fmtNum(b.teamFlat)}`, b.teamFlat]
+          ])}
+        </div>
+
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>② ${c.isArmorer ? "锋御撕裂区" : "双暴期望区"}</span>
+            <strong class="mono">×${(c.mult || 1).toFixed(3)}</strong>
+          </div>
+          ${renderLedgerSourceRows([
+            ["局外暴击率", `${(c.initCr * 100).toFixed(1)}%`, c.initCr],
+            ["自身+套装+音擎暴击", fmtSignedPctItem(c.selfCr + c.setCr + c.wepCr), c.selfCr + c.setCr + c.wepCr],
+            ["队友+场地暴击", fmtSignedPctItem(c.teamCr + c.stageCr), c.teamCr + c.stageCr],
+            [c.isArmorer ? "基础撕裂伤" : "局外暴伤", `${(c.initCd * 100).toFixed(1)}%`, c.initCd],
+            [c.isArmorer ? "自身/AA撕裂" : "自身+套装+音擎暴伤", fmtSignedPctItem(c.selfCd + c.setCd + c.wepCd), c.selfCd + c.setCd + c.wepCd],
+            [c.isArmorer ? "队友+场地撕裂" : "队友+场地暴伤", fmtSignedPctItem(c.teamCd + c.stageCd), c.teamCd + c.stageCd]
+          ])}
+        </div>
+
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>③ 增伤乘区</span>
+            <strong class="mono">×${(d.totalMult || 1).toFixed(3)}</strong>
+          </div>
+          ${renderLedgerSourceRows([
+            ["5号盘属伤", fmtSignedPctItem(d.disc5Elem), d.disc5Elem],
+            ["2件套属伤", fmtSignedPctItem(d.set2pc), d.set2pc],
+            ["4件套增伤", fmtSignedPctItem(d.set4pc), d.set4pc],
+            ["自身/核心/AA增伤", fmtSignedPctItem(d.selfAndAA), d.selfAndAA],
+            ["音擎增伤", fmtSignedPctItem(d.wep), d.wep],
+            ["队友增伤拐", fmtSignedPctItem(d.team), d.team],
+            ["场地天气增伤", fmtSignedPctItem(d.stage), d.stage],
+            ["招式专属加权", fmtSignedPctItem(d.skillCatWeighted), d.skillCatWeighted],
+            ["独立增伤/秽盾系数", `×${(d.indepMult * d.miasmaMult).toFixed(3)}`, Math.abs(d.indepMult * d.miasmaMult - 1)]
+          ])}
+        </div>
+
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>④ 防御与穿透区</span>
+            <strong class="mono">×${(df.mult || 1).toFixed(3)}</strong>
+          </div>
+          ${
+            df.isRupture
+              ? `<div class="ledger-row"><span>命破贯穿天生 100% 无视防御</span><strong class="mono txt-ok">×1.000</strong></div>`
+              : renderLedgerSourceRows([
+                  ["首领防御 / 等级基数K", `${Math.round(df.enemyDef)} / ${Math.round(df.defLvFactor)}`, 1],
+                  ["自身/音擎无视防", fmtSignedPctItem(df.selfAndWepIgn), df.selfAndWepIgn],
+                  ["队友减防 (妮可等)", fmtSignedPctItem(df.teamShred), df.teamShred],
+                  ["场地无视防御", fmtSignedPctItem(df.stageShred), df.stageShred],
+                  ["局外穿透率", fmtSignedPctItem(df.initPen), df.initPen],
+                  ["队友穿透率 (丽娜等)", fmtSignedPctItem(df.teamPen), df.teamPen],
+                  ["固定穿透值", `+${Math.round(df.penFlat)}`, df.penFlat]
+                ])
+          }
+        </div>
+
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>⑤ 抗性乘区</span>
+            <strong class="mono">×${(rs.mult || 1).toFixed(3)}</strong>
+          </div>
+          ${renderLedgerSourceRows([
+            ["首领该属性初始抗性", `${(rs.enemyElemRes * 100).toFixed(0)}%`, 1],
+            ["自身/AA无视抗性", fmtSignedPctItem(rs.selfAndAAIgn), rs.selfAndAAIgn],
+            ["音擎无视抗性", fmtSignedPctItem(rs.wepIgn), rs.wepIgn],
+            ["队友减抗", fmtSignedPctItem(rs.teamShred), rs.teamShred],
+            ["场地全抗削减", fmtSignedPctItem(rs.stageShred), rs.stageShred]
+          ])}
+        </div>
+
+        <div class="ledger-box">
+          <div class="ledger-box-head">
+            <span>⑥ 失衡易伤与倍率</span>
+            <strong class="mono">×${(st.mult || 1).toFixed(3)}</strong>
+          </div>
+          ${renderLedgerSourceRows([
+            ["失衡期占比 / 失衡倍率", `${(st.sShare * 100).toFixed(0)}% · ×${st.inStunVal.toFixed(2)}`, 1],
+            ["非失衡易伤倍率", `×${st.outStunVal.toFixed(2)}`, 1],
+            ["队友失衡易伤追加", fmtSignedPctItem(st.teamAdd), st.teamAdd],
+            ["全程易伤 (如扳机)", fmtSignedPctItem(st.allTimeVuln), st.allTimeVuln],
+            ["合轴动作放大系数", `×${(lg.extra?.swapActionMult || 1).toFixed(3)}`, Math.abs((lg.extra?.swapActionMult || 1) - 1)],
+            ["技能等级/影画质变系数", `×${((lg.extra?.skillLvMult || 1) * (lg.extra?.procMult || 1) * (lg.extra?.aaProc || 1)).toFixed(3)}`, 1]
+          ])}
+        </div>
+      </div>
+
+      ${
+        cats.length > 0
+          ? `
+        <div class="ledger-cats-strip">
+          <div class="sec-mini-title" style="margin-bottom:6px;">招式分类输出占比（加权计入专属增伤）</div>
+          <div class="ledger-cats-grid">
+            ${cats
+              .map(
+                (ct) => `
+              <div class="ledger-cat-item">
+                <div class="row" style="justify-content:space-between;font-size:11.5px;">
+                  <span><strong>${escHtml(getMoveCatLabelZh(ct.key))}</strong>${ct.specDmgBonus > 0.005 ? ` <span class="muted">(+${Math.round(ct.specDmgBonus * 100)}%专伤)</span>` : ""}</span>
+                  <span class="mono"><strong>${(ct.dmgShare * 100).toFixed(1)}%</strong></span>
+                </div>
+                <div class="dil-track" style="margin-top:3px;"><div class="dil-fill dil-tag-high" style="width:${((ct.dmgShare / maxCatPct) * 100).toFixed(1)}%"></div></div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
+      `
+          : ""
+      }
+    </details>
+  `;
 }
 
 function renderDilutionAuditHtml(sim: any): string {
@@ -1754,7 +2010,8 @@ function renderSingleSlotCard(slotIdx: number, sim: any) {
 
   let buildModePanelHtml = "";
   if (bm === "auto") {
-    const curSub = sl.subAuto === false && sl.sub ? sl.sub : (sr?.bestSub || { CR: 10, CD: 10, "ATK%": 8 });
+    const subMode = resolveSubAllocMode(sl);
+    const curSub = subMode === "custom" && sl.sub ? sl.sub : (sr?.bestSub || { CR: 10, CD: 10, "ATK%": 8 });
     buildModePanelHtml = `
       <div class="bm-box">
         <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:4px 8px;">
@@ -1768,20 +2025,24 @@ function renderSingleSlotCard(slotIdx: number, sim: any) {
             <label class="ws-field"><span>[6]号盘主词条</span><select data-slot-d6="${slotIdx}">${DISC_SLOT6_MAINS.map(m => `<option value="${m}" ${(sl.d6 || st?.d6) === m ? "selected" : ""}>${DISC_MAIN_ZH[m]}</option>`).join("")}</select></label>
           </div>
         ` : ""}
-        <div class="row" style="justify-content:space-between;gap:8px;">
-          <label style="font-size:11px;flex:1;">有效副词条预算: <strong class="mono" style="color:var(--foreground);">${sl.rolls ?? 28}</strong> 词条
+        <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <label style="font-size:11px;flex:1;min-width:130px;">有效副词条预算: <strong class="mono" style="color:var(--foreground);">${sl.rolls ?? 28}</strong> 词条
             <input type="range" min="10" max="42" step="1" value="${sl.rolls ?? 28}" data-slot-rolls="${slotIdx}">
           </label>
-          <label class="chk-pill"><input type="checkbox" data-slot-subauto="${slotIdx}" ${sl.subAuto !== false ? "checked" : ""}> 自动配平</label>
+          <div class="sub-mode-seg" role="group" aria-label="词条分配模式">
+            <button type="button" class="sub-mode-btn ${subMode === "optimal" ? "active" : ""}" data-slot-submode="${slotIdx}:optimal" title="逐条边际爬山+局部交换，1词条精度求出理论最高伤分配">极限最优</button>
+            <button type="button" class="sub-mode-btn ${subMode === "fast" ? "active" : ""}" data-slot-submode="${slotIdx}:fast" title="按常规 3 词条步长快速均衡分配">快速均衡</button>
+            <button type="button" class="sub-mode-btn ${subMode === "custom" ? "active" : ""}" data-slot-submode="${slotIdx}:custom" title="手动逐项填写各副词条条数">自定义</button>
+          </div>
         </div>
-        ${sl.subAuto === false ? `
+        ${subMode === "custom" ? `
           <div class="ws-grid-5">
             ${["CR", "CD", "ATK%", "HP%", "DEF%", "AP", "PEN", "ATK_FLAT"].map(sk => {
               const meta = DISC_SUB_META.find(x => x.key === sk);
               return `<label class="ws-field"><span>${meta?.zh || sk}</span><input type="number" min="0" max="30" step="1" value="${curSub[sk] || 0}" data-slot-subk="${slotIdx}:${sk}"></label>`;
             }).join("")}
           </div>
-        ` : `<div class="muted mono" style="font-size:11px;">分配: ${Object.entries(sr?.bestSub || {}).filter(([, v]) => Number(v) > 0).map(([k, v]) => `${k}×${v}`).join(" · ") || "无"}</div>`}
+        ` : `<div class="muted mono" style="font-size:11px;">${subMode === "optimal" ? "精准最优" : "快速分配"}: ${Object.entries(sr?.bestSub || {}).filter(([, v]) => Number(v) > 0).map(([k, v]) => `${k}×${v}`).join(" · ") || "无"}</div>`}
       </div>
     `;
   } else if (bm === "pieces") {
@@ -2267,12 +2528,19 @@ function bindSlotCardEvents(grid: HTMLElement, sim: any) {
   grid.querySelectorAll<any>("[data-slot-rolls]").forEach(rng => {
     rng.addEventListener("change", (e: any) => { appStore.state.slots[Number(rng.dataset.slotRolls)].rolls = Number(e.target.value); refreshAllUI(); });
   });
-  grid.querySelectorAll<any>("[data-slot-subauto]").forEach(chk => {
-    chk.addEventListener("change", (e: any) => {
-      const idx = Number(chk.dataset.slotSubauto);
-      const sr = sim.slotResults.find(r => r.slotIdx === idx);
-      appStore.state.slots[idx].subAuto = e.target.checked;
-      if (!e.target.checked && sr?.bestSub) appStore.state.slots[idx].sub = { ...sr.bestSub };
+  grid.querySelectorAll<HTMLButtonElement>("[data-slot-submode]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const [idxStr, mode] = (btn.dataset.slotSubmode || "0:optimal").split(":");
+      const idx = Number(idxStr);
+      const sl = appStore.state.slots[idx];
+      if (!sl) return;
+      const sr = sim.slotResults.find((r: any) => r.slotIdx === idx);
+      const nextMode = mode === "fast" || mode === "custom" ? mode : "optimal";
+      sl.subAllocMode = nextMode;
+      sl.subAuto = nextMode !== "custom";
+      if (nextMode === "custom" && sr?.bestSub) {
+        sl.sub = { ...sr.bestSub };
+      }
       refreshAllUI();
     });
   });
@@ -2724,7 +2992,7 @@ function renderSection04SwapAndTimeline(sim: any) {
         ${renderTimelineSVG(appStore.state.timelineBlocks, active, tl, selectedBlk?.id)}
       </div>
 
-      ${selectedBlk ? renderSelectedBlockInspector(selectedBlk, active) : ""}
+      ${selectedBlk ? renderSelectedBlockInspector(selectedBlk, active, sim, tl) : ""}
     </div>
   `;
 
@@ -3100,7 +3368,7 @@ function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selecte
   `;
 }
 
-function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
+function renderSelectedBlockInspector(blk: any, activeMembers: any[], sim?: any, tl?: any) {
   const m = activeMembers.find((x) => x.ch.id === blk.cid) || activeMembers[0];
   const movePool = m ? getMovePoolForChar(m.ch, m.m ?? 0) : [];
   const cats = [
@@ -3116,6 +3384,7 @@ function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
   const dCast = Math.round(blk._decibelAtCast ?? 1950);
   const eCost = Number(blk.energyCost ?? (blk.cat === "ex" ? 50 : 0));
   const stunFracPct = Math.round((blk._realStunFrac ?? (blk.phase === "stun" ? 1 : 0)) * 100);
+  const detail = evaluateTimelineBlockDetail(blk, sim || appStore.lastSimResult, appStore.state.env, tl);
 
   return `
     <div class="tl-inspector">
@@ -3142,6 +3411,40 @@ function renderSelectedBlockInspector(blk: any, activeMembers: any[]) {
           <button class="btn btn-xs btn-danger" id="tlDelBlockBtn">删除此块</button>
         </div>
       </div>
+
+      ${
+        detail
+          ? `
+        <div class="blk-dmg-strip">
+          <div class="blk-dmg-head">
+            <div class="row" style="gap:8px;flex-wrap:wrap;">
+              <span class="badge">${escHtml(detail.agentName)} · ${escHtml(getMoveCatLabelZh(blk.cat))}</span>
+              <span class="blk-dmg-hero mono">本招预估伤害 <strong>${fmtWan(detail.blockDmg)}</strong></span>
+              <span class="muted mono" style="font-size:11.5px;">占个人 <strong>${(detail.pctOfAgent * 100).toFixed(1)}%</strong> · 占全队 DPR <strong>${(detail.pctOfTeam * 100).toFixed(1)}%</strong></span>
+            </div>
+            <span class="muted mono" style="font-size:11px;">有效倍率 ${Math.round(detail.effMv)} / ${Math.round(detail.rawMv)}${detail.resourceFactor < 0.99 ? ` (资源折算×${detail.resourceFactor.toFixed(2)})` : ""}</span>
+          </div>
+          <div class="mult-pills" style="margin-top:6px;">
+            <span class="mpill">瞬时${escHtml(detail.baseLabel)}: <strong>${fmtNum(detail.baseVal)}</strong></span>
+            <span class="mpill">双暴/撕裂: <strong>×${detail.critM.toFixed(3)}</strong></span>
+            <span class="mpill">增伤区: <strong>×${detail.dmgM.toFixed(3)}</strong>${detail.catSpecBonus > 0.005 ? ` (含专伤+${Math.round(detail.catSpecBonus * 100)}%)` : ""}</span>
+            <span class="mpill">防御区: <strong>×${detail.defM.toFixed(3)}</strong></span>
+            <span class="mpill">抗性区: <strong>×${detail.resM.toFixed(3)}</strong></span>
+            <span class="mpill">失衡易伤: <strong>×${detail.stunMult.toFixed(3)}</strong> (${Math.round(detail.realStunFrac * 100)}%)</span>
+          </div>
+          <div class="blk-buff-row">
+            <span class="muted" style="font-size:11px;">本招窗口吃拐状态:</span>
+            ${detail.buffs
+              .map(
+                (bf) =>
+                  `<span class="blk-buff-chip ${bf.active ? "on" : "off"}">${bf.active ? "●" : "○"} ${escHtml(bf.label)} <span class="mono">${escHtml(bf.effectText)}</span></span>`
+              )
+              .join("")}
+          </div>
+        </div>
+      `
+          : ""
+      }
 
       <div class="ws-grid-6">
         <label class="ws-field"><span>执行角色</span>
@@ -3373,8 +3676,10 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
 function renderSection05EvalCenter(sim) {
   const wrap = document.getElementById("sec05Body");
   if (!wrap) return;
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "eval" && curView !== "all") return;
   if (sim.activeCount === 0) {
-    wrap.innerHTML = `<div class="muted">请先上阵角色后查看音擎/影画/金数ROI/套装排行。</div>`;
+    wrap.innerHTML = `<div class="muted">请先上阵角色后查看音擎/影画/金数ROI/金数矩阵/套装排行。</div>`;
     return;
   }
 
@@ -3385,10 +3690,11 @@ function renderSection05EvalCenter(sim) {
   const ch = CHAR_MAP[appStore.state.slots[tSlot].cid];
 
   const evalTabs = [
-    { id: "weapons", label: "音擎伤害与全队拐力天梯" },
-    { id: "mindscapes", label: "影画 M0~M6 逐级提升曲线" },
-    { id: "roi", label: "下一金抽取性价比 ROI 排行" },
-    { id: "discs", label: "驱动盘4件套横评排行" }
+    { id: "weapons", label: "音擎天梯" },
+    { id: "mindscapes", label: "影画 M0~M6" },
+    { id: "roi", label: "下一金 ROI" },
+    { id: "matrix", label: "金数矩阵 DPS" },
+    { id: "discs", label: "4件套横评" }
   ];
 
   let tableHtml = "";
@@ -3498,6 +3804,109 @@ function renderSection05EvalCenter(sim) {
       </div>
     `;
     (wrap as any)._roiCands = roi.cands;
+  } else if (appStore.state.evalTab === "matrix") {
+    const gm = computeGoldMatrix(appStore.state.slots, appStore.state.env, CHAR_MAP, SC_WEPS);
+    if (!gm) {
+      tableHtml = `<div class="muted">请先上阵角色后生成金数矩阵。</div>`;
+    } else {
+      const isDpr = gm.metricMode === "dpr";
+      const unitLabel = isDpr ? "DPR" : "DPS";
+      tableHtml = `
+        <div class="gm-header-bar">
+          <div>
+            <strong>${escHtml(gm.carryName)}${gm.mateNames.length ? ` + ${escHtml(gm.mateNames.join(" + "))}` : ""} · 二维金数矩阵 (${unitLabel})</strong>
+            <div class="muted" style="font-size:11.5px;margin-top:2px;">
+              横轴为队友配置、纵轴为主C配置；带 <strong class="gm-star-inline">★</strong> 为同金数最高效率前沿；<strong>点击任意格子一键套用至当前配装</strong>（耗时 ${gm.elapsedMs.toFixed(0)} ms）
+            </div>
+          </div>
+          <div class="row" style="gap:6px;">
+            <span class="badge b-info mono">当前 ${gm.currentGold} 金 · ${isDpr ? fmtWan(gm.currentDps * 20) : fmtNum(gm.currentDps)}</span>
+          </div>
+        </div>
+
+        <div class="gm-table-wrap">
+          <table class="gm-table">
+            <thead>
+              <tr>
+                <th class="gm-corner">主C ╲ 队友</th>
+                ${gm.cols
+                  .map(
+                    (col) => `
+                  <th title="${escHtml(col.label)}">
+                    <div class="gm-col-title">${escHtml(col.shortLabel)}</div>
+                    <div class="gm-col-sub">${escHtml(col.subLabel)}</div>
+                  </th>
+                `
+                  )
+                  .join("")}
+              </tr>
+            </thead>
+            <tbody>
+              ${gm.rows
+                .map(
+                  (row, rIdx) => `
+                <tr>
+                  <th class="gm-row-head" title="${escHtml(row.subLabel)}">
+                    <div class="gm-row-title">${escHtml(row.shortLabel)}</div>
+                    <div class="gm-row-sub">${escHtml(row.subLabel)}</div>
+                  </th>
+                  ${gm.grid[rIdx]
+                    .map((cell, cIdx) => {
+                      const valStr = isDpr ? fmtWan(cell.teamDpr) : fmtWan(cell.teamActualDps);
+                      const pctStr = cell.gainVsBase >= 0.001 ? `+${(cell.gainVsBase * 100).toFixed(0)}%` : "基准";
+                      const alpha = (0.06 + cell.heatRatio * 0.42).toFixed(3);
+                      return `
+                        <td class="gm-cell ${cell.isCurrent ? "is-cur" : ""} ${cell.isPareto ? "is-pareto" : ""}" style="--gm-heat:${alpha};">
+                          <button type="button" class="gm-cell-btn" data-gm-cell="${rIdx}:${cIdx}" title="${escHtml(`${cell.summaryText} | ${cell.totalGold}金 | DPS ${fmtNum(cell.teamActualDps)} | DPR ${fmtWan(cell.teamDpr)}（点击一键套用）`)}">
+                            <div class="gm-cell-top">
+                              <span class="gm-gold-tag mono">${cell.totalGold}金</span>
+                              ${cell.isCurrent ? `<span class="gm-cur-tag">当前</span>` : cell.isPareto ? `<span class="gm-star-tag" title="同金数最优前沿">★</span>` : ""}
+                            </div>
+                            <div class="gm-cell-val mono">${valStr}</div>
+                            <div class="gm-cell-pct mono">${pctStr}</div>
+                          </button>
+                        </td>
+                      `;
+                    })
+                    .join("")}
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+
+        ${
+          gm.goldPath.length > 1
+            ? `
+          <div class="gm-path-box">
+            <div class="sec-mini-title" style="margin-bottom:6px;">最优加金效率前沿路径（点击任意档位直接套用）</div>
+            <div class="gm-path-strip">
+              ${gm.goldPath
+                .map(
+                  (node, pIdx) => `
+                <button type="button" class="gm-path-chip ${node.isCurrent ? "is-cur" : ""}" data-gm-path="${pIdx}">
+                  <div class="row" style="justify-content:space-between;gap:6px;">
+                    <span class="badge ${node.isCurrent ? "b-warn" : "b-info"} mono">${node.totalGold}金</span>
+                    <strong class="mono">${isDpr ? fmtWan(node.teamDps * 20) : fmtWan(node.teamDps)}</strong>
+                  </div>
+                  <div class="gm-path-lbl">${escHtml(node.rowLabel)} / ${escHtml(node.colLabel)}</div>
+                  <div class="muted mono" style="font-size:10.5px;">
+                    ${pIdx === 0 ? "起步基准" : `较上档 +${(node.gainVsPrev * 100).toFixed(1)}% (每金 +${(node.marginalPerGold * 100).toFixed(1)}%)`}
+                  </div>
+                </button>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+            : ""
+        }
+      `;
+      (wrap as any)._goldMatrix = gm;
+    }
   } else {
     const dList = rankDiscSetsForSlot(appStore.state.slots, tSlot, appStore.state.env, CHAR_MAP, SC_WEPS);
     const maxVal = Math.max(1, dList[0]?.teamDps || 1);
@@ -3527,7 +3936,7 @@ function renderSection05EvalCenter(sim) {
   }
 
   wrap.innerHTML = `
-    <div class="row" style="justify-content:space-between;margin-bottom:10px;gap:8px;">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
       <div class="pill-bar">
         <span style="font-size:12px;font-weight:700;margin-right:4px;">评测目标槽位:</span>
         ${sim.slotResults.map(r => `<button type="button" class="pill pill-with-av ${tSlot === r.slotIdx ? "active" : ""}" data-eval-slot="${r.slotIdx}">${renderAgentAvatar(r.ch.id, r.ch.n, r.ch.eb, "av-2xs")}<span>${r.slotIdx + 1}号位 · ${escHtml(r.ch.n)}</span></button>`).join("")}
@@ -3539,15 +3948,45 @@ function renderSection05EvalCenter(sim) {
     ${tableHtml}
   `;
 
-  wrap.querySelectorAll<any>("[data-eval-slot]").forEach(b => b.addEventListener("click", () => { appStore.state.evalSlotIdx = Number(b.dataset.evalSlot); renderSection05EvalCenter(sim); }));
-  wrap.querySelectorAll<any>("[data-eval-tab]").forEach(b => b.addEventListener("click", () => { appStore.state.evalTab = b.dataset.evalTab; renderSection05EvalCenter(sim); }));
-  document.getElementById("evalARefSel")?.addEventListener("change", (e: any) => { appStore.state.evalARef = Number(e.target.value); renderSection05EvalCenter(sim); });
+  wrap.querySelectorAll<any>("[data-eval-slot]").forEach(b => b.addEventListener("click", () => { appStore.state.evalSlotIdx = Number(b.dataset.evalSlot); renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); }));
+  wrap.querySelectorAll<any>("[data-eval-tab]").forEach(b => b.addEventListener("click", () => { appStore.state.evalTab = b.dataset.evalTab; renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); }));
+  document.getElementById("evalARefSel")?.addEventListener("change", (e: any) => { appStore.state.evalARef = Number(e.target.value); renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); });
   document.getElementById("evalNewWepBtn")?.addEventListener("click", () => openCustomWorkshop("weps"));
-  document.getElementById("evalIncRefChk")?.addEventListener("change", (e: any) => { appStore.state.evalIncludeRef = e.target.checked; renderSection05EvalCenter(sim); });
+  document.getElementById("evalIncRefChk")?.addEventListener("change", (e: any) => { appStore.state.evalIncludeRef = e.target.checked; renderSection05EvalCenter(sim); localizeDOM(wrap, appStore.state.lang || "zh"); });
   wrap.querySelector("#evalWepMoreBtn")?.addEventListener("click", () => {
     evalWepShowAll = !evalWepShowAll;
     renderSection05EvalCenter(sim);
     localizeDOM(wrap, appStore.state.lang || "zh");
+  });
+
+  const applyMatrixPatches = (patches: Array<{ idx: number; m: number; wid: string; ref: number }>, label?: string) => {
+    for (const p of patches) {
+      const sl = appStore.state.slots[p.idx];
+      if (!sl) continue;
+      sl.m = p.m;
+      sl.wid = p.wid;
+      sl.ref = p.ref;
+    }
+    refreshAllUI();
+    if (label) showStudioToast(`✓ 已套用金数配置：${label}`);
+  };
+
+  wrap.querySelectorAll<HTMLButtonElement>("[data-gm-cell]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const gm = (wrap as any)._goldMatrix;
+      if (!gm) return;
+      const [rStr, cStr] = (btn.dataset.gmCell || "0:0").split(":");
+      const cell = gm.grid?.[Number(rStr)]?.[Number(cStr)];
+      if (cell) applyMatrixPatches(cell.patches, `${cell.totalGold}金 (${cell.summaryText})`);
+    });
+  });
+
+  wrap.querySelectorAll<HTMLButtonElement>("[data-gm-path]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const gm = (wrap as any)._goldMatrix;
+      const node = gm?.goldPath?.[Number(btn.dataset.gmPath)];
+      if (node) applyMatrixPatches(node.patches, `${node.totalGold}金 (${node.rowLabel} / ${node.colLabel})`);
+    });
   });
 
   wrap.querySelectorAll<any>("[data-equip-wep]").forEach(btn => {
@@ -3579,15 +4018,119 @@ function renderSection05EvalCenter(sim) {
 }
 
 // ============================================================================
-// Section 06: Stage Buffs & 7-Element Independent Enemy Environment
+// Section 06: Endgame Boss Cycle Archives, Stage Buffs & 7-Element Enemy Matrix
 // ============================================================================
 function renderSection06Environment() {
   const wrap = document.getElementById("sec06Body");
   if (!wrap) return;
+  const curView = appStore.state.studioView || "build";
+  if (curView !== "env" && curView !== "all") return;
   const env = appStore.state.env;
   const resMap = env.elemResMap || makeDefaultElemResMap();
+  const elemZhMap = Object.fromEntries(ALL_ELEMENTS.map((x) => [x.eb, x.zh]));
+
+  const filteredBosses = ENDGAME_BOSS_PRESETS.filter(
+    (b) => endgameFilterTab === "all" || b.mode === endgameFilterTab
+  );
+  const hasSquad = appStore.state.slots.some((s) => s?.cid && CHAR_MAP[s.cid]);
+  const statusMeta: Record<string, { label: string; cls: string }> = {
+    ongoing: { label: "进行中", cls: "b-ok" },
+    upcoming: { label: "下期预告", cls: "b-info" },
+    archive: { label: "往期档案", cls: "" }
+  };
+
+  const bossCardsHtml = filteredBosses
+    .map((bp) => {
+      const isActive = env.activeEndgameId === bp.id;
+      const st = statusMeta[bp.status] || statusMeta.archive;
+      let predHtml = `<span class="muted">上阵角色后预估</span>`;
+      if (hasSquad) {
+        const patch = buildEnvPatchForEndgamePreset(bp);
+        const testEnv = {
+          ...env,
+          ...patch,
+          stageBuffs: deepClone(STAGE_BUFFS[bp.stageId] || STAGE_BUFFS.none)
+        };
+        const tSim = simulateTeamV2(appStore.state.slots, testEnv, CHAR_MAP, SC_WEPS, {
+          fastMode: true,
+          skipSoloBaseline: true
+        });
+        const est = estimateEndgamePerformance(tSim.teamActualDps, tSim.da3MinTotal, testEnv);
+        if (bp.mode === "da") {
+          predHtml = `
+            <span class="mono"><strong>${fmtNum(est.daTotalScore)} 分</strong></span>
+            <span class="badge b-${est.daTierClass}">${escHtml(est.daTierLabel)}</span>
+            <span class="muted mono" style="font-size:10.5px;">(DPS ${fmtWan(tSim.teamActualDps)}/s)</span>
+          `;
+        } else {
+          predHtml = `
+            <span class="mono"><strong>${est.shiyuClearSec >= 300 ? ">300s" : `~${Math.round(est.shiyuClearSec)}s`}</strong></span>
+            <span class="badge b-${est.shiyuGradeClass}">${escHtml(est.shiyuGradeLabel)}</span>
+            <span class="muted mono" style="font-size:10.5px;">(DPS ${fmtWan(tSim.teamActualDps)}/s)</span>
+          `;
+        }
+      }
+
+      return `
+        <div class="eg-card ${isActive ? "active" : ""}">
+          <div class="row" style="justify-content:space-between;gap:6px;">
+            <span class="badge ${st.cls}">${st.label}</span>
+            <span class="muted mono" style="font-size:10.5px;">${escHtml(bp.dateRange)}</span>
+          </div>
+          <div class="eg-title">${escHtml(bp.name)}</div>
+          <div class="muted" style="font-size:11px;">${escHtml(bp.cycleTag)} · ${escHtml(bp.subtitle)}</div>
+          <div class="eg-specs mono">
+            <span>血量 ${fmtWan(bp.refHp)}</span>
+            <span>防御 ${bp.enemyDef}</span>
+            ${bp.miasmaFactor < 0.99 ? `<span class="txt-warn">秽盾 ×${bp.miasmaFactor}</span>` : ""}
+            ${bp.highAggro ? `<span class="txt-warn">红光高压</span>` : ""}
+          </div>
+          <div class="eg-res-row">
+            ${bp.weaknesses
+              .map(
+                (w) =>
+                  `<span class="eg-elem-tag weak"><i class="elem-dot elem-${w}"></i>弱${elemZhMap[w] || w}</span>`
+              )
+              .join("")}
+            ${bp.resistances
+              .map(
+                (r) =>
+                  `<span class="eg-elem-tag res"><i class="elem-dot elem-${r}"></i>抗${elemZhMap[r] || r}</span>`
+              )
+              .join("")}
+          </div>
+          <div class="muted eg-note">${escHtml(bp.mechanicsNote)}</div>
+          <div class="eg-foot">
+            <div class="row" style="gap:5px;flex-wrap:wrap;">${predHtml}</div>
+            <button type="button" class="btn btn-xs ${isActive ? "btn-primary" : "btn-tonal"}" data-apply-endgame="${escHtml(bp.id)}">${isActive ? "已套用" : "套用首领"}</button>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 
   wrap.innerHTML = `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div>
+          <div class="sec-mini-title" style="margin:0;">v3.3 危局强袭战 &amp; 式舆剧变 7 首领档期档案（实时模拟当前队过本表现）</div>
+          <div class="muted" style="font-size:11.5px;margin-top:2px;">点击「套用首领」一键同步该首领防御、弱点/逆抗、秽盾、失衡条与场地 Buff（按 0.90 实战输出率折算参考线）</div>
+        </div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;">
+          <div class="dil-slot-switch" role="group" aria-label="筛选副本类型">
+            <button type="button" class="dil-pill-btn ${endgameFilterTab === "all" ? "active" : ""}" data-eg-tab="all">全部 (${ENDGAME_BOSS_PRESETS.length})</button>
+            <button type="button" class="dil-pill-btn ${endgameFilterTab === "da" ? "active" : ""}" data-eg-tab="da">危局强袭战</button>
+            <button type="button" class="dil-pill-btn ${endgameFilterTab === "shiyu" ? "active" : ""}" data-eg-tab="shiyu">式舆剧变7</button>
+          </div>
+          <label class="row" style="gap:4px;font-size:11.5px;">
+            <span>危局操作分:</span>
+            <input type="number" step="500" min="0" max="5000" id="env_da_ops" value="${env.daOpsScore ?? 4000}" style="width:78px;">
+          </label>
+        </div>
+      </div>
+      <div class="eg-grid">${bossCardsHtml}</div>
+    </div>
+
     <div class="row" style="justify-content:space-between;gap:10px;margin-bottom:10px;">
       <div class="row" style="gap:8px;flex:1;">
         <span style="font-size:12px;font-weight:700;">式舆/危局场地Buff:</span>
@@ -3654,6 +4197,31 @@ function renderSection06Environment() {
     </div>
   `;
 
+  wrap.querySelectorAll<HTMLButtonElement>("[data-eg-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      endgameFilterTab = (btn.dataset.egTab as any) || "all";
+      renderSection06Environment();
+      localizeDOM(wrap, appStore.state.lang || "zh");
+    });
+  });
+
+  document.getElementById("env_da_ops")?.addEventListener("change", (e: any) => {
+    appStore.state.env.daOpsScore = Math.max(0, Math.min(5000, Math.round(Number(e.target.value) || 0)));
+    refreshAllUI();
+  });
+
+  wrap.querySelectorAll<HTMLButtonElement>("[data-apply-endgame]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const bp = ENDGAME_BOSS_PRESETS.find((x) => x.id === btn.dataset.applyEndgame);
+      if (!bp) return;
+      const patch = buildEnvPatchForEndgamePreset(bp);
+      Object.assign(appStore.state.env, deepClone(patch));
+      appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[bp.stageId] || STAGE_BUFFS.none);
+      refreshAllUI();
+      showStudioToast(`✓ 已套用首领环境：${bp.name}`);
+    });
+  });
+
   document.getElementById("envStageSelect")?.addEventListener("change", (e: any) => {
     appStore.state.env.stageId = e.target.value;
     appStore.state.env.stageBuffs = deepClone(STAGE_BUFFS[e.target.value] || STAGE_BUFFS.none);
@@ -3709,10 +4277,19 @@ export function initApp() {
   registerRefreshHandler(refreshAllUI);
   loadWorkspaceFromStorage();
 
-  // Deep link: #/timeline, #/diag, #/eval, #/env, #/enka, #/all opens that workspace view
+  // Deep link: #s=<shareCode> restores shared build; #/timeline, #/diag, #/eval, #/env, #/wiki, #/enka, #/all opens view
   const applyHashView = () => {
-    const hashView = (typeof location !== "undefined" ? location.hash : "").replace(/^#\/?/, "");
-    if (["build", "enka", "timeline", "diag", "eval", "env", "all"].includes(hashView)) {
+    const rawHash = typeof location !== "undefined" ? location.hash : "";
+    if (rawHash.startsWith("#s=")) {
+      const code = rawHash.slice(3).trim();
+      if (decodeAndApplyShareCode(code)) {
+        showStudioToast("✓ 已从分享链接载入配队与环境配置");
+        return true;
+      }
+      return false;
+    }
+    const hashView = rawHash.replace(/^#\/?/, "");
+    if (["build", "enka", "timeline", "diag", "eval", "env", "wiki", "all"].includes(hashView)) {
       appStore.state.studioView = hashView as StudioViewTab;
       if (hashView === "enka") appStore.state.enkaPanelOpen = true;
       return true;
@@ -3771,6 +4348,26 @@ export function initApp() {
 
   document.getElementById("openWorkshopTopBtn")?.addEventListener("click", () => {
     openCustomWorkshop("chars", appStore.state.slots[0]?.cid || "1551");
+  });
+
+  document.getElementById("shareConfigTopBtn")?.addEventListener("click", () => {
+    void copyCurrentShareUrl();
+  });
+  document.getElementById("footerShareBtn")?.addEventListener("click", () => {
+    void copyCurrentShareUrl();
+  });
+  document.getElementById("openMetaVerBtn")?.addEventListener("click", () => openMetaModal("changelog"));
+  document.getElementById("openMetaLogBtn")?.addEventListener("click", () => openMetaModal("changelog"));
+  document.getElementById("workerPerfBadge")?.addEventListener("click", () => openMetaModal("changelog"));
+  document.getElementById("footerChangelogBtn")?.addEventListener("click", () => openMetaModal("roadmap"));
+  document.getElementById("forceReloadBtn")?.addEventListener("click", () => {
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set("_t", String(Date.now()));
+      window.location.replace(u.toString());
+    } catch {
+      window.location.reload();
+    }
   });
 
   document.getElementById("autoDiscBtn")?.addEventListener("click", () => {
