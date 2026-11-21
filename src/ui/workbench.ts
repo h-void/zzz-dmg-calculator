@@ -569,8 +569,13 @@ function renderSnapshotBar(sim: any) {
         timelineBlocks: deepClone(appStore.state.timelineBlocks)
       };
       saveWorkspaceToStorage();
-      renderSnapshotBar(sim);
-      localizeDOM(el, appStore.state.lang || "zh");
+      runWithPreservedScroll(
+        () => {
+          renderSnapshotBar(sim);
+          localizeDOM(el, appStore.state.lang || "zh");
+        },
+        { anchorEl: btn, lockEls: [el] }
+      );
     });
   });
 
@@ -590,8 +595,13 @@ function renderSnapshotBar(sim: any) {
       e.stopPropagation();
       appStore.state.snapshots[Number(btn.dataset.snapClear)] = null;
       saveWorkspaceToStorage();
-      renderSnapshotBar(sim);
-      localizeDOM(el, appStore.state.lang || "zh");
+      runWithPreservedScroll(
+        () => {
+          renderSnapshotBar(sim);
+          localizeDOM(el, appStore.state.lang || "zh");
+        },
+        { anchorEl: btn, lockEls: [el] }
+      );
     });
   });
 }
@@ -804,13 +814,24 @@ function renderSection01Picker() {
         limit: 10,
         syncedSlotsByCid: syncedMap
       };
+      const refreshFinderDone = () => {
+        if (appStore.state.pickerTab !== "finder") return;
+        const secWrap = document.getElementById("sec01Body");
+        runWithPreservedScroll(
+          () => {
+            renderSection01Picker();
+            if (secWrap) localizeDOM(secWrap, appStore.state.lang || "zh");
+          },
+          { lockEls: [secWrap] }
+        );
+      };
       runWorkerFindViableTeams(anchorArg, [...ownedSet], appStore.state.env, opts)
         .then(({ result, elapsedMs }) => {
           if (mySeq !== finderSeq) return;
           finderCachedTeams = result;
           finderElapsedMs = elapsedMs;
           finderLoading = false;
-          if (appStore.state.pickerTab === "finder") renderSection01Picker();
+          refreshFinderDone();
         })
         .catch(() => {
           if (mySeq !== finderSeq) return;
@@ -825,7 +846,7 @@ function renderSection01Picker() {
           );
           finderElapsedMs = Number((performance.now() - t0).toFixed(1));
           finderLoading = false;
-          if (appStore.state.pickerTab === "finder") renderSection01Picker();
+          refreshFinderDone();
         });
     }
 
@@ -2934,6 +2955,7 @@ function fitSvgLabel(str: string, availPx: number, fontSize = 11): string {
 function renderSection04SwapAndTimeline(sim: any) {
   const wrap = document.getElementById("sec04Body");
   if (!wrap) return;
+  const prevSvgScrollLeft = wrap.querySelector<HTMLElement>("#timelineSvgWrap")?.scrollLeft || 0;
 
   const sc = appStore.state.env.swapConfig || makeDefaultSwapConfig("standard");
   const qa = sim.qaSwap || evalSwapCancelEngine([], sc, appStore.state.env);
@@ -3173,11 +3195,18 @@ function renderSection04SwapAndTimeline(sim: any) {
         ${renderTimelineSVG(appStore.state.timelineBlocks, active, tl, selectedBlk?.id)}
       </div>
 
-      ${selectedBlk ? renderSelectedBlockInspector(selectedBlk, active, sim, tl) : ""}
+      <div id="tlInspectorHost">
+        ${selectedBlk ? renderSelectedBlockInspector(selectedBlk, active, sim, tl) : ""}
+      </div>
     </div>
   `;
 
-  bindSection04Events(wrap, active);
+  const svgWrap = wrap.querySelector<HTMLElement>("#timelineSvgWrap");
+  if (svgWrap && prevSvgScrollLeft > 0) {
+    svgWrap.scrollLeft = prevSvgScrollLeft;
+  }
+
+  bindSection04Events(wrap, active, sim, tl);
 }
 
 function renderTimelineSVG(blocks: any[], activeMembers: any[], tl: any, selectedId?: string) {
@@ -3690,7 +3719,7 @@ function applyMoveTemplateToBlock(blk: any, mv: any) {
   blk.buffTag = mv.buffTag ? { ...mv.buffTag } : null;
 }
 
-function bindSection04Events(wrap: HTMLElement, active: any[]) {
+function bindSection04Events(wrap: HTMLElement, active: any[], sim: any, tl: any) {
   const drawerEl = document.getElementById("physicsDrawerEl") as HTMLDetailsElement | null;
   drawerEl?.addEventListener("toggle", () => {
     physicsDrawerOpen = !!drawerEl.open;
@@ -3765,90 +3794,119 @@ function bindSection04Events(wrap: HTMLElement, active: any[]) {
     refreshAllUI();
   });
 
-  wrap.querySelectorAll<any>("[data-tl-pick]").forEach(gEl => {
-    gEl.addEventListener("click", () => {
-      appStore.state.selectedBlockId = gEl.dataset.tlPick;
+  const bindInspectorEvents = () => {
+    const blkIdx = appStore.state.timelineBlocks.findIndex(b => b.id === appStore.state.selectedBlockId);
+    const blk = blkIdx >= 0 ? appStore.state.timelineBlocks[blkIdx] : appStore.state.timelineBlocks[0];
+    if (!blk) return;
+
+    const commitBlkEdit = () => {
+      if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
+      refreshAllUI();
+    };
+
+    document.getElementById("tlMoveLeftBtn")?.addEventListener("click", () => {
+      const idx = appStore.state.timelineBlocks.indexOf(blk);
+      if (idx > 0) {
+        [appStore.state.timelineBlocks[idx - 1], appStore.state.timelineBlocks[idx]] = [appStore.state.timelineBlocks[idx], appStore.state.timelineBlocks[idx - 1]];
+        snapTimelineSequential(appStore.state.timelineBlocks);
+        refreshAllUI();
+      }
+    });
+    document.getElementById("tlMoveRightBtn")?.addEventListener("click", () => {
+      const idx = appStore.state.timelineBlocks.indexOf(blk);
+      if (idx >= 0 && idx < appStore.state.timelineBlocks.length - 1) {
+        [appStore.state.timelineBlocks[idx + 1], appStore.state.timelineBlocks[idx]] = [appStore.state.timelineBlocks[idx], appStore.state.timelineBlocks[idx + 1]];
+        snapTimelineSequential(appStore.state.timelineBlocks);
+        refreshAllUI();
+      }
+    });
+    document.getElementById("tlDupBlockBtn")?.addEventListener("click", () => {
+      const idx = appStore.state.timelineBlocks.indexOf(blk);
+      const copy = { ...deepClone(blk), id: "blk_" + Date.now().toString(36).slice(-5) };
+      appStore.state.timelineBlocks.splice(idx + 1, 0, copy);
+      appStore.state.selectedBlockId = copy.id;
+      if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
       refreshAllUI();
     });
-  });
+    document.getElementById("tlDelBlockBtn")?.addEventListener("click", () => {
+      if (appStore.state.timelineBlocks.length <= 1) return;
+      appStore.state.timelineBlocks = appStore.state.timelineBlocks.filter(x => x.id !== blk.id);
+      appStore.state.selectedBlockId = appStore.state.timelineBlocks[0]?.id || null;
+      if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
+      refreshAllUI();
+    });
 
-  const blkIdx = appStore.state.timelineBlocks.findIndex(b => b.id === appStore.state.selectedBlockId);
-  const blk = blkIdx >= 0 ? appStore.state.timelineBlocks[blkIdx] : appStore.state.timelineBlocks[0];
-  if (!blk) return;
-
-  const commitBlkEdit = () => {
-    if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
-    refreshAllUI();
+    document.getElementById("tl_blk_cid")?.addEventListener("change", (e: any) => {
+      const nc = CHAR_MAP[e.target.value];
+      if (!nc) return;
+      blk.cid = nc.id;
+      blk.charName = nc.n;
+      const am = active.find(x => x.ch.id === nc.id);
+      const mv = getMovePoolForChar(nc, am?.m ?? 0)[0];
+      applyMoveTemplateToBlock(blk, mv);
+      commitBlkEdit();
+    });
+    document.getElementById("tl_blk_tpl")?.addEventListener("change", (e: any) => {
+      const nc = CHAR_MAP[blk.cid];
+      const am = active.find(x => x.ch.id === blk.cid);
+      const mv = nc ? getMovePoolForChar(nc, am?.m ?? 0).find(x => x.key === e.target.value) : null;
+      if (!mv) return;
+      applyMoveTemplateToBlock(blk, mv);
+      commitBlkEdit();
+    });
+    document.getElementById("tl_blk_label")?.addEventListener("change", (e: any) => { blk.label = e.target.value; refreshAllUI(); });
+    document.getElementById("tl_blk_cat")?.addEventListener("change", (e: any) => { blk.cat = e.target.value; refreshAllUI(); });
+    document.getElementById("tl_blk_phase")?.addEventListener("change", (e: any) => { blk.phase = e.target.value; refreshAllUI(); });
+    document.getElementById("tl_blk_safety")?.addEventListener("change", (e: any) => { blk.safety = e.target.value; refreshAllUI(); });
+    document.getElementById("tl_blk_start")?.addEventListener("change", (e: any) => {
+      appStore.state.autoSnapTimeline = false;
+      blk.startSec = Math.max(0, parseFloat(e.target.value) || 0);
+      refreshAllUI();
+    });
+    document.getElementById("tl_blk_tot")?.addEventListener("change", (e: any) => {
+      blk.totalDur = Math.max(0.2, parseFloat(e.target.value) || 1.0);
+      if (blk.swapDur > blk.totalDur) blk.swapDur = blk.totalDur;
+      commitBlkEdit();
+    });
+    document.getElementById("tl_blk_min")?.addEventListener("change", (e: any) => { blk.minSwap = Math.max(0.15, parseFloat(e.target.value) || 0.5); refreshAllUI(); });
+    document.getElementById("tl_blk_swap")?.addEventListener("change", (e: any) => { blk.swapDur = Math.max(0.15, parseFloat(e.target.value) || 0.5); commitBlkEdit(); });
+    document.getElementById("tl_blk_mv")?.addEventListener("change", (e: any) => { blk.mv = Math.max(20, parseFloat(e.target.value) || 1000); refreshAllUI(); });
+    document.getElementById("tl_blk_ecost")?.addEventListener("change", (e: any) => { blk.energyCost = Math.max(0, parseFloat(e.target.value) || 0); refreshAllUI(); });
   };
 
-  document.getElementById("tlMoveLeftBtn")?.addEventListener("click", () => {
-    const idx = appStore.state.timelineBlocks.indexOf(blk);
-    if (idx > 0) {
-      [appStore.state.timelineBlocks[idx - 1], appStore.state.timelineBlocks[idx]] = [appStore.state.timelineBlocks[idx], appStore.state.timelineBlocks[idx - 1]];
-      snapTimelineSequential(appStore.state.timelineBlocks);
-      refreshAllUI();
-    }
-  });
-  document.getElementById("tlMoveRightBtn")?.addEventListener("click", () => {
-    const idx = appStore.state.timelineBlocks.indexOf(blk);
-    if (idx >= 0 && idx < appStore.state.timelineBlocks.length - 1) {
-      [appStore.state.timelineBlocks[idx + 1], appStore.state.timelineBlocks[idx]] = [appStore.state.timelineBlocks[idx], appStore.state.timelineBlocks[idx + 1]];
-      snapTimelineSequential(appStore.state.timelineBlocks);
-      refreshAllUI();
-    }
-  });
-  document.getElementById("tlDupBlockBtn")?.addEventListener("click", () => {
-    const idx = appStore.state.timelineBlocks.indexOf(blk);
-    const copy = { ...deepClone(blk), id: "blk_" + Date.now().toString(36).slice(-5) };
-    appStore.state.timelineBlocks.splice(idx + 1, 0, copy);
-    appStore.state.selectedBlockId = copy.id;
-    if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
-    refreshAllUI();
-  });
-  document.getElementById("tlDelBlockBtn")?.addEventListener("click", () => {
-    if (appStore.state.timelineBlocks.length <= 1) return;
-    appStore.state.timelineBlocks = appStore.state.timelineBlocks.filter(x => x.id !== blk.id);
-    appStore.state.selectedBlockId = appStore.state.timelineBlocks[0]?.id || null;
-    if (appStore.state.autoSnapTimeline) snapTimelineSequential(appStore.state.timelineBlocks);
-    refreshAllUI();
-  });
+  const bindSvgPickEvents = () => {
+    const svgWrap = wrap.querySelector<HTMLElement>("#timelineSvgWrap");
+    const inspectorHost = wrap.querySelector<HTMLElement>("#tlInspectorHost");
+    if (!svgWrap) return;
+    svgWrap.querySelectorAll<any>("[data-tl-pick]").forEach((gEl) => {
+      gEl.addEventListener("click", () => {
+        const nextId = gEl.dataset.tlPick;
+        if (!nextId || nextId === appStore.state.selectedBlockId) return;
+        appStore.state.selectedBlockId = nextId;
+        const nextBlk =
+          appStore.state.timelineBlocks.find((b) => b.id === nextId) ||
+          appStore.state.timelineBlocks[0] ||
+          null;
+        const prevLeft = svgWrap.scrollLeft;
+        runWithPreservedScroll(
+          () => {
+            svgWrap.innerHTML = renderTimelineSVG(appStore.state.timelineBlocks, active, tl, nextBlk?.id);
+            svgWrap.scrollLeft = prevLeft;
+            if (inspectorHost) {
+              inspectorHost.innerHTML = nextBlk ? renderSelectedBlockInspector(nextBlk, active, sim, tl) : "";
+              localizeDOM(inspectorHost, appStore.state.lang || "zh");
+            }
+            bindSvgPickEvents();
+            bindInspectorEvents();
+          },
+          { anchorEl: svgWrap, lockEls: [svgWrap, inspectorHost] }
+        );
+      });
+    });
+  };
 
-  document.getElementById("tl_blk_cid")?.addEventListener("change", (e: any) => {
-    const nc = CHAR_MAP[e.target.value];
-    if (!nc) return;
-    blk.cid = nc.id;
-    blk.charName = nc.n;
-    const am = active.find(x => x.ch.id === nc.id);
-    const mv = getMovePoolForChar(nc, am?.m ?? 0)[0];
-    applyMoveTemplateToBlock(blk, mv);
-    commitBlkEdit();
-  });
-  document.getElementById("tl_blk_tpl")?.addEventListener("change", (e: any) => {
-    const nc = CHAR_MAP[blk.cid];
-    const am = active.find(x => x.ch.id === blk.cid);
-    const mv = nc ? getMovePoolForChar(nc, am?.m ?? 0).find(x => x.key === e.target.value) : null;
-    if (!mv) return;
-    applyMoveTemplateToBlock(blk, mv);
-    commitBlkEdit();
-  });
-  document.getElementById("tl_blk_label")?.addEventListener("change", (e: any) => { blk.label = e.target.value; refreshAllUI(); });
-  document.getElementById("tl_blk_cat")?.addEventListener("change", (e: any) => { blk.cat = e.target.value; refreshAllUI(); });
-  document.getElementById("tl_blk_phase")?.addEventListener("change", (e: any) => { blk.phase = e.target.value; refreshAllUI(); });
-  document.getElementById("tl_blk_safety")?.addEventListener("change", (e: any) => { blk.safety = e.target.value; refreshAllUI(); });
-  document.getElementById("tl_blk_start")?.addEventListener("change", (e: any) => {
-    appStore.state.autoSnapTimeline = false;
-    blk.startSec = Math.max(0, parseFloat(e.target.value) || 0);
-    refreshAllUI();
-  });
-  document.getElementById("tl_blk_tot")?.addEventListener("change", (e: any) => {
-    blk.totalDur = Math.max(0.2, parseFloat(e.target.value) || 1.0);
-    if (blk.swapDur > blk.totalDur) blk.swapDur = blk.totalDur;
-    commitBlkEdit();
-  });
-  document.getElementById("tl_blk_min")?.addEventListener("change", (e: any) => { blk.minSwap = Math.max(0.15, parseFloat(e.target.value) || 0.5); refreshAllUI(); });
-  document.getElementById("tl_blk_swap")?.addEventListener("change", (e: any) => { blk.swapDur = Math.max(0.15, parseFloat(e.target.value) || 0.5); commitBlkEdit(); });
-  document.getElementById("tl_blk_mv")?.addEventListener("change", (e: any) => { blk.mv = Math.max(20, parseFloat(e.target.value) || 1000); refreshAllUI(); });
-  document.getElementById("tl_blk_ecost")?.addEventListener("change", (e: any) => { blk.energyCost = Math.max(0, parseFloat(e.target.value) || 0); refreshAllUI(); });
+  bindSvgPickEvents();
+  bindInspectorEvents();
 }
 
 // ============================================================================
@@ -4102,7 +4160,12 @@ function renderEvalTabContent(wrap: HTMLElement, sim: any) {
     `;
   }
 
+  const prevGmScrollLeft = contentEl.querySelector<HTMLElement>(".gm-table-wrap")?.scrollLeft || 0;
   contentEl.innerHTML = tableHtml;
+  if (prevGmScrollLeft > 0) {
+    const nextGmWrap = contentEl.querySelector<HTMLElement>(".gm-table-wrap");
+    if (nextGmWrap) nextGmWrap.scrollLeft = prevGmScrollLeft;
+  }
 
   const rerenderContentStable = (anchorEl?: HTMLElement | null) => {
     runWithPreservedScroll(
@@ -4209,6 +4272,8 @@ function renderSection05EvalCenter(sim) {
     { id: "discs", label: "4件套横评" }
   ];
 
+  const prevGmScrollLeft = wrap.querySelector<HTMLElement>(".gm-table-wrap")?.scrollLeft || 0;
+
   wrap.innerHTML = `
     <div class="row" id="evalControlsBar" style="justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
       <div class="pill-bar">
@@ -4223,6 +4288,10 @@ function renderSection05EvalCenter(sim) {
   `;
 
   renderEvalTabContent(wrap, sim);
+  if (prevGmScrollLeft > 0) {
+    const nextGmWrap = wrap.querySelector<HTMLElement>(".gm-table-wrap");
+    if (nextGmWrap) nextGmWrap.scrollLeft = prevGmScrollLeft;
+  }
 
   const contentEl = wrap.querySelector<HTMLElement>("#evalTabContent");
 

@@ -23,7 +23,7 @@ import { parseExternalScannerDiscs, syncedRecordToSlotConfig } from "../enka/par
 import { localizeDOM } from "../i18n";
 import type { SlotConfig } from "../types";
 import { runWorkerOptimizeSlotFromPool } from "../worker/workerClient";
-import { cancelPendingScrollGuard } from "./scrollGuard";
+import { cancelPendingScrollGuard, runWithPreservedScroll } from "./scrollGuard";
 import {
   appStore,
   ensureTimelineInitialized,
@@ -171,7 +171,9 @@ export function renderEnkaPanel(): void {
       ? "b-warn"
       : "b-info";
 
-  body.innerHTML = `
+  runWithPreservedScroll(
+    () => {
+      body.innerHTML = `
     <div class="enka-toolbar">
       <label class="ws-field enka-uid-field">
         <span>绝区零 UID (国服/B服/国际服通用)</span>
@@ -386,7 +388,11 @@ export function renderEnkaPanel(): void {
     }
   `;
 
-  bindEnkaPanelEvents(body);
+      bindEnkaPanelEvents(body);
+      localizeDOM(body, appStore.state.lang || "zh");
+    },
+    { lockEls: [body] }
+  );
 }
 
 function applyVaultRecordToSlot(cid: string, slotIdx: number): void {

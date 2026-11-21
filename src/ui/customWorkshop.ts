@@ -258,11 +258,25 @@ function createBlankWepTemplate(baseWep = null) {
   };
 }
 
+let lastWorkshopScrollKey = "";
+
 export function renderCustomWorkshopModal() {
   const modal = document.getElementById("workshopModal");
   if (!modal) return;
   modal.hidden = !WORKSHOP_STATE.open;
-  if (!WORKSHOP_STATE.open) return;
+  if (!WORKSHOP_STATE.open) {
+    lastWorkshopScrollKey = "";
+    return;
+  }
+
+  const prevListScrollTop = modal.querySelector<HTMLElement>(".ws-item-list")?.scrollTop || 0;
+  const prevSidebarScrollTop = modal.querySelector<HTMLElement>(".ws-sidebar")?.scrollTop || 0;
+  const prevContentScrollTop = modal.querySelector<HTMLElement>(".ws-content")?.scrollTop || 0;
+  const prevEditorScrollTop = modal.querySelector<HTMLElement>(".ws-editor")?.scrollTop || 0;
+  const curScrollKey = `${WORKSHOP_STATE.tab}:${WORKSHOP_STATE.selectedCharId}:${WORKSHOP_STATE.selectedWepId}:${WORKSHOP_STATE.selectedSetId}:${WORKSHOP_STATE.selectedBangbooId}:${WORKSHOP_STATE.selectedStageId}`;
+  const sameItem = lastWorkshopScrollKey === curScrollKey;
+  const sameTab = lastWorkshopScrollKey.startsWith(`${WORKSHOP_STATE.tab}:`);
+  lastWorkshopScrollKey = curScrollKey;
 
   const modCharCount = Object.keys(customDB.chars || {}).length;
   const modWepCount = Object.keys(customDB.weps || {}).length;
@@ -315,6 +329,19 @@ export function renderCustomWorkshopModal() {
 
   bindWorkshopEvents(modal);
   localizeDOM(modal, appStore.state.lang || "zh");
+
+  if (sameTab) {
+    const nextList = modal.querySelector<HTMLElement>(".ws-item-list");
+    if (nextList && prevListScrollTop > 0) nextList.scrollTop = prevListScrollTop;
+    const nextSidebar = modal.querySelector<HTMLElement>(".ws-sidebar");
+    if (nextSidebar && prevSidebarScrollTop > 0) nextSidebar.scrollTop = prevSidebarScrollTop;
+    const nextContent = modal.querySelector<HTMLElement>(".ws-content");
+    if (nextContent && prevContentScrollTop > 0) nextContent.scrollTop = prevContentScrollTop;
+  }
+  if (sameItem) {
+    const nextEditor = modal.querySelector<HTMLElement>(".ws-editor");
+    if (nextEditor && prevEditorScrollTop > 0) nextEditor.scrollTop = prevEditorScrollTop;
+  }
 }
 
 // ============================================================================
@@ -1230,7 +1257,10 @@ function bindWorkshopEvents(modal: HTMLElement) {
       WORKSHOP_STATE.search = e.target.value;
       renderCustomWorkshopModal();
       const ni = document.getElementById("wsSearchInput") as HTMLInputElement | null;
-      if (ni) { ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+      if (ni) {
+        ni.focus({ preventScroll: true });
+        ni.setSelectionRange(ni.value.length, ni.value.length);
+      }
     });
   }
   modal.querySelectorAll<HTMLElement>("[data-ws-rf]").forEach(btn => {
