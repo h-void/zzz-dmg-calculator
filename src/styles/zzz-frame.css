@@ -2044,12 +2044,14 @@ html.light .m-pip {
   color: #67645c;
 }
 .m-pip:hover { color: #111; border-color: #111; }
-.m-pip.lit {
+.m-pip.lit,
+html.light .m-pip.lit {
   background: var(--zzz-yellow);
   border-color: #111;
   color: #111;
 }
-.m-pip.cur {
+.m-pip.cur,
+html.light .m-pip.cur {
   background: #111;
   border-color: #111;
   color: var(--zzz-yellow);

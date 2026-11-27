@@ -2182,12 +2182,14 @@ html.light .m-pip {
   border-color: var(--border-strong);
   color: var(--foreground);
 }
-.m-pip.lit {
+.m-pip.lit,
+html.light .m-pip.lit {
   background: var(--primary-soft);
   border-color: color-mix(in srgb, var(--primary) 55%, transparent);
   color: var(--primary);
 }
-.m-pip.cur {
+.m-pip.cur,
+html.light .m-pip.cur {
   background: var(--primary);
   border-color: transparent;
   color: var(--primary-foreground);
